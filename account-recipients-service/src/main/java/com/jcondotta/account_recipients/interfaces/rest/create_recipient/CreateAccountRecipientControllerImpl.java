@@ -1,0 +1,39 @@
+package com.jcondotta.account_recipients.interfaces.rest.create_recipient;
+
+import com.jcondotta.account_recipients.application.usecase.create_recipient.CreateAccountRecipientUseCase;
+import com.jcondotta.account_recipients.application.usecase.shared.IdempotencyKey;
+import com.jcondotta.account_recipients.interfaces.rest.create_recipient.mapper.CreateAccountRecipientRequestRestMapper;
+import com.jcondotta.account_recipients.interfaces.rest.create_recipient.model.CreateAccountRecipientRestRequest;
+import io.micrometer.core.annotation.Timed;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.net.URI;
+import java.util.UUID;
+
+@Validated
+@RestController
+@AllArgsConstructor
+public class CreateAccountRecipientControllerImpl implements CreateAccountRecipientController {
+
+//    private final CreateAccountRecipientUseCase useCase;
+    private final CreateAccountRecipientRequestRestMapper mapper;
+
+    @Override
+    @Timed(
+        value = "card.request.time",
+        description = "card request time measurement",
+        percentiles = {0.5, 0.95, 0.99}
+    )
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<String> createAccountRecipient(CreateAccountRecipientRestRequest request, UUID idempotencyKey) {
+//        var requestCardCommand = mapper.toCommand(request);
+//        useCase.execute(requestCardCommand, IdempotencyKey.of(idempotencyKey));
+
+        return ResponseEntity.created(URI.create("")).build();
+    }
+}

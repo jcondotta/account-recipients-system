@@ -1,0 +1,51 @@
+services:
+
+  localstack:
+    container_name: "account-recipients-localstack-4.6.0"
+    image: localstack/localstack:4.6.0
+    ports:
+      - '127.0.0.1:4572:4566'
+    environment:
+      SERVICES: sqs
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_DEFAULT_REGION: us-east-1
+      LS_LOG: ${LS_LOG:-debug}
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:4566/_localstack/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - account_recipients_network
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+      - ./localstack:/etc/localstack/init/ready.d
+      - account_recipients_localstack_data:/var/lib/localstack
+
+  redis:
+    image: redis:7.4
+    container_name: account-recipients-redis-7.4
+    restart: on-failure
+    ports:
+      - "6382:6379"
+    volumes:
+      - account_recipients_redis:/data
+    networks:
+      - account_recipients_network
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli ping || exit 1" ]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 5s
+
+volumes:
+  account_recipients_localstack_data:
+    name: account-recipients-localstack-data
+  account_recipients_redis:
+    name: account-recipients-redis-data
+
+networks:
+  account_recipients_network:
+    name: account-recipients-network

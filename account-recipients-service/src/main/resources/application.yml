@@ -1,0 +1,38 @@
+server:
+  port: 8096
+
+spring:
+  application:
+    name: account-recipients-service
+#  cache:
+#    type: redis
+#  data:
+#    redis:
+#      host: ${REDIS_HOST}
+#      port: ${REDIS_PORT}
+
+cloud:
+  aws:
+    region:
+      static: ${AWS_DEFAULT_REGION}
+    dynamodb:
+      tables:
+        account-recipients:
+          table-name: ${AWS_DYNAMODB_ACCOUNT_RECIPIENTS_TABLE_NAME}
+
+api:
+  v1:
+    account-recipients:
+      root-path: '/api/v1/account-recipients'
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health
+  metrics:
+    distribution:
+      percentiles-histogram:
+        request.internal.transfer.time: true
+
+
