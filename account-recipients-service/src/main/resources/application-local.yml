@@ -13,7 +13,7 @@ cloud:
       access-key-id: test
       secret-key: test
     dynamodb:
-      endpoint: http://localhost:4570
+      endpoint: http://localhost:4572
       tables:
         account-recipients:
           table-name: 'account-recipients'

@@ -1,22 +1,29 @@
 package com.jcondotta.account_recipients.interfaces.rest.create_recipient.mapper;
 
-import com.jcondotta.account_recipients.domain.value_objects.BankAccountId;
-import com.jcondotta.account_recipients.domain.value_objects.RecipientIban;
-import com.jcondotta.account_recipients.domain.value_objects.RecipientName;
+import com.jcondotta.account_recipients.application.usecase.create_recipient.model.CreateAccountRecipientCommand;
+import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
+import com.jcondotta.account_recipients.domain.recipient.value_objects.Iban;
+import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientName;
+import com.jcondotta.account_recipients.interfaces.rest.create_recipient.model.CreateAccountRecipientRestRequest;
+import org.mapstruct.Context;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+
+import java.time.Clock;
 
 @Mapper(
     componentModel = "spring",
     imports = {
         BankAccountId.class,
         RecipientName.class,
-        RecipientIban.class,
+        Iban.class,
     }
 )
 public interface CreateAccountRecipientRequestRestMapper {
 
-//    @Mapping(target = "bankAccountId", expression = "java(BankAccountId.of(request.bankAccountId()))")
-//    @Mapping(target = "recipientName", expression = "java(RecipientName.of(request.recipientName()))")
-//    @Mapping(target = "recipientIban", expression = "java(RecipientIban.of(request.recipientIban()))")
-//    CreateAccountRecipientCommand toCommand(CreateAccountRecipientRestRequest request);
+    @Mapping(target = "bankAccountId", expression = "java(BankAccountId.of(request.bankAccountId()))")
+    @Mapping(target = "recipientName", expression = "java(RecipientName.of(request.recipientName()))")
+    @Mapping(target = "recipientIban", expression = "java(Iban.of(request.recipientIban()))")
+    @Mapping(target = "createdAt", expression = "java(ZonedDateTime.now(clock))")
+    CreateAccountRecipientCommand toCommand(CreateAccountRecipientRestRequest request, @Context Clock clock);
 }

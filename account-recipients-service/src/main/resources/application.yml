@@ -25,6 +25,11 @@ api:
     account-recipients:
       root-path: '/api/v1/account-recipients'
 
+client:
+  api:
+    bank-accounts:
+      base-url: 'http://localhost:8090'
+
 management:
   endpoints:
     web:

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
+import java.time.Clock;
 import java.util.UUID;
 
 @Validated
@@ -20,8 +21,9 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CreateAccountRecipientControllerImpl implements CreateAccountRecipientController {
 
-//    private final CreateAccountRecipientUseCase useCase;
+    private final CreateAccountRecipientUseCase useCase;
     private final CreateAccountRecipientRequestRestMapper mapper;
+    private final Clock clock;
 
     @Override
     @Timed(
@@ -31,8 +33,8 @@ public class CreateAccountRecipientControllerImpl implements CreateAccountRecipi
     )
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<String> createAccountRecipient(CreateAccountRecipientRestRequest request, UUID idempotencyKey) {
-//        var requestCardCommand = mapper.toCommand(request);
-//        useCase.execute(requestCardCommand, IdempotencyKey.of(idempotencyKey));
+        var requestCardCommand = mapper.toCommand(request, clock);
+        useCase.execute(requestCardCommand, IdempotencyKey.of(idempotencyKey));
 
         return ResponseEntity.created(URI.create("")).build();
     }

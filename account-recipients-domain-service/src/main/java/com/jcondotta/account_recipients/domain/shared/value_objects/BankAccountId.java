@@ -1,4 +1,4 @@
-package com.jcondotta.account_recipients.domain.value_objects;
+package com.jcondotta.account_recipients.domain.shared.value_objects;
 
 import java.util.Objects;
 import java.util.UUID;

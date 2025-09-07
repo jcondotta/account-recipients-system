@@ -32,7 +32,7 @@
 		<software.amazon.awssdk.version>2.33.4</software.amazon.awssdk.version>
 		<spring-cloud-aws.version>3.4.0</spring-cloud-aws.version>
 		<spring-cloud-dependencies.version>2024.0.1</spring-cloud-dependencies.version>
-		<micrometer-registry-prometheus.version>1.15.2</micrometer-registry-prometheus.version>
+		<commons-validator.version>1.7</commons-validator.version>
 
 		<maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
 		<maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
@@ -77,12 +77,6 @@
 			</dependency>
 
 			<dependency>
-				<groupId>io.micrometer</groupId>
-				<artifactId>micrometer-registry-prometheus</artifactId>
-				<version>${micrometer-registry-prometheus.version}</version>
-			</dependency>
-
-			<dependency>
 				<groupId>org.projectlombok</groupId>
 				<artifactId>lombok</artifactId>
 				<version>${lombok.version}</version>
@@ -93,6 +87,26 @@
 				<groupId>org.mapstruct</groupId>
 				<artifactId>mapstruct</artifactId>
 				<version>${mapstruct.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>commons-validator</groupId>
+				<artifactId>commons-validator</artifactId>
+				<version>${commons-validator.version}</version>
+<!--				<exclusions>-->
+<!--					<exclusion>-->
+<!--						<groupId>commons-logging</groupId>-->
+<!--						<artifactId>commons-logging</artifactId>-->
+<!--					</exclusion>-->
+<!--					<exclusion>-->
+<!--						<groupId>commons-beanutils</groupId>-->
+<!--						<artifactId>commons-beanutils</artifactId>-->
+<!--					</exclusion>-->
+<!--					<exclusion>-->
+<!--						<groupId>commons-digester</groupId>-->
+<!--						<artifactId>commons-digester</artifactId>-->
+<!--					</exclusion>-->
+<!--				</exclusions>-->
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

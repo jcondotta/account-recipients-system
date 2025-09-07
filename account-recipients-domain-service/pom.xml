@@ -11,4 +11,11 @@
 
     <artifactId>account-recipients-domain-service</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+        </dependency>
+    </dependencies>
+
 </project>
