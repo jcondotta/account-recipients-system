@@ -23,7 +23,8 @@ cloud:
 api:
   v1:
     account-recipients:
-      root-path: '/api/v1/account-recipients'
+      root-path: '/api/v1/bank-accounts/{bank-account-id}/account-recipients'
+      account-recipient-id-path: '/api/v1/bank-accounts/{bank-account-id}/account-recipients/{account-recipient-id}'
 
 client:
   api:

@@ -18,7 +18,7 @@ public class DynamoDbClientConfig {
 
     @Bean
     @ConditionalOnProperty(name = "cloud.aws.dynamodb.endpoint")
-    public DynamoDbClient dynamoDbClient(AwsCredentialsProvider credentialsProvider, Region region,
+    public DynamoDbClient dynamoDbClientLocal(AwsCredentialsProvider credentialsProvider, Region region,
                                               @Value("${cloud.aws.dynamodb.endpoint}") String endpoint) {
 
         log.info("Initializing DynamoDbClient with custom endpoint: {}", endpoint);
@@ -32,7 +32,7 @@ public class DynamoDbClientConfig {
 
     @Bean
     @ConditionalOnMissingBean(DynamoDbClient.class)
-    public DynamoDbClient sqsAsyncClient(AwsCredentialsProvider credentialsProvider, Region region) {
+    public DynamoDbClient dynamoDbClient(AwsCredentialsProvider credentialsProvider, Region region) {
         return DynamoDbClient.builder()
             .region(region)
             .credentialsProvider(credentialsProvider)

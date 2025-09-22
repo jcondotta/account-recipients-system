@@ -12,7 +12,7 @@ public interface LookupBankAccountCdoFacadeMapper {
     LookupBankAccountCdoFacadeMapper INSTANCE = Mappers.getMapper(LookupBankAccountCdoFacadeMapper.class);
 
     @Mapping(target = "bankAccountId", expression = "java(BankAccountId.of(bankAccountCdo.bankAccountId()))")
-    @Mapping(target = "accountStatus", expression = "java(AccountStatus.valueOf(bankAccountCdo.accountStatus().name()))")
+    @Mapping(target = "accountStatus", expression = "java(AccountStatus.valueOf(bankAccountCdo.status().name()))")
     BankAccount map(BankAccountCdo bankAccountCdo);
 
 }

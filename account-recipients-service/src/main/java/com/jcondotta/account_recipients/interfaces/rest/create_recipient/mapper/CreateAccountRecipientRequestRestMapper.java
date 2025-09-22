@@ -10,6 +10,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import java.time.Clock;
+import java.time.ZonedDateTime;
+import java.util.UUID;
 
 @Mapper(
     componentModel = "spring",
@@ -17,13 +19,14 @@ import java.time.Clock;
         BankAccountId.class,
         RecipientName.class,
         Iban.class,
+        ZonedDateTime.class
     }
 )
 public interface CreateAccountRecipientRequestRestMapper {
 
-    @Mapping(target = "bankAccountId", expression = "java(BankAccountId.of(request.bankAccountId()))")
+    @Mapping(target = "bankAccountId", expression = "java(BankAccountId.of(bankAccountId))")
     @Mapping(target = "recipientName", expression = "java(RecipientName.of(request.recipientName()))")
-    @Mapping(target = "recipientIban", expression = "java(Iban.of(request.recipientIban()))")
+    @Mapping(target = "iban", expression = "java(Iban.of(request.iban()))")
     @Mapping(target = "createdAt", expression = "java(ZonedDateTime.now(clock))")
-    CreateAccountRecipientCommand toCommand(CreateAccountRecipientRestRequest request, @Context Clock clock);
+    CreateAccountRecipientCommand toCommand(UUID bankAccountId, CreateAccountRecipientRestRequest request, @Context Clock clock);
 }

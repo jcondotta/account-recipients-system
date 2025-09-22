@@ -12,4 +12,9 @@ public record IdempotencyKey(UUID value) {
     public static IdempotencyKey of(UUID uuid) {
         return new IdempotencyKey(uuid);
     }
+
+    @Override
+    public String toString() {
+        return value.toString();
+    }
 }

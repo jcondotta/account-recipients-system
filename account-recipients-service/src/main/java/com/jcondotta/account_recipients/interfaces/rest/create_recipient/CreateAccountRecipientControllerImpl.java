@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,13 +28,15 @@ public class CreateAccountRecipientControllerImpl implements CreateAccountRecipi
 
     @Override
     @Timed(
-        value = "card.request.time",
-        description = "card request time measurement",
+        value = "account-recipient.create.time",
+        description = "account recipient creation time measurement",
         percentiles = {0.5, 0.95, 0.99}
     )
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<String> createAccountRecipient(CreateAccountRecipientRestRequest request, UUID idempotencyKey) {
-        var requestCardCommand = mapper.toCommand(request, clock);
+    public ResponseEntity<String> createAccountRecipient(
+        UUID bankAccountId, CreateAccountRecipientRestRequest request, UUID idempotencyKey
+    ) {
+        var requestCardCommand = mapper.toCommand(bankAccountId, request, clock);
         useCase.execute(requestCardCommand, IdempotencyKey.of(idempotencyKey));
 
         return ResponseEntity.created(URI.create("")).build();

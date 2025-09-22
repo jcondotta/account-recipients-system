@@ -14,4 +14,9 @@ public record BankAccountId(UUID value) {
     public static BankAccountId of(UUID value) {
         return new BankAccountId(value);
     }
+
+    @Override
+    public String toString() {
+        return value.toString();
+    }
 }

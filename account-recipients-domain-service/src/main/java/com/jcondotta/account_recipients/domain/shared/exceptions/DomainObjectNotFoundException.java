@@ -2,13 +2,25 @@ package com.jcondotta.account_recipients.domain.shared.exceptions;
 
 import java.io.Serializable;
 
-public class DomainObjectNotFoundException extends RuntimeException {
+public abstract class DomainObjectNotFoundException extends RuntimeException {
 
+    private final String title;
     private final Serializable[] identifiers;
 
-    public DomainObjectNotFoundException(String message, Serializable... identifiers) {
+    public DomainObjectNotFoundException(String message, String title, Serializable... identifiers) {
         super(message);
+        this.title = title;
         this.identifiers = identifiers;
+    }
+
+    public DomainObjectNotFoundException(String message, String title, Throwable cause, Serializable... identifiers) {
+        super(message, cause);
+        this.title = title;
+        this.identifiers = identifiers;
+    }
+
+    public String getTitle() {
+        return title;
     }
 
     public Serializable[] getIdentifiers() {

@@ -16,6 +16,7 @@ public interface CreateAccountRecipientController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<String> createAccountRecipient(
+        @PathVariable("bank-account-id") UUID bankAccountId,
         @Valid @RequestBody CreateAccountRecipientRestRequest request,
         @RequestHeader(name = "X-Idempotency-Key") UUID idempotencyKey
     );

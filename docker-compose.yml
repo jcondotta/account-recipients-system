@@ -6,7 +6,7 @@ services:
     ports:
       - '127.0.0.1:4572:4566'
     environment:
-      SERVICES: sqs
+      SERVICES: dynamodb
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
       AWS_DEFAULT_REGION: us-east-1

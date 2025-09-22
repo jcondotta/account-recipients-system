@@ -1,12 +1,16 @@
 package com.jcondotta.account_recipients.infrastructure.config.object_mapper;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.ProblemDetail;
 
 @Configuration
 public class JacksonConfig {
@@ -16,6 +20,11 @@ public class JacksonConfig {
         return new ObjectMapper()
                 .registerModule(new JavaTimeModule())
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+                .setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY)
+                .addMixIn(ProblemDetail.class, ProblemDetailMixin.class);
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private abstract static class ProblemDetailMixin {
     }
 }
