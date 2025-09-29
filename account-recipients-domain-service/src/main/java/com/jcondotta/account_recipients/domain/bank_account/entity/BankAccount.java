@@ -22,4 +22,12 @@ public record BankAccount(BankAccountId bankAccountId, AccountStatus accountStat
     public boolean isActive() {
         return accountStatus == AccountStatus.ACTIVE;
     }
+
+    public boolean isPending() {
+        return accountStatus == AccountStatus.PENDING;
+    }
+
+    public boolean isCancelled() {
+        return accountStatus == AccountStatus.CANCELLED;
+    }
 }
