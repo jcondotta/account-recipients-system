@@ -12,6 +12,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+import java.util.Objects;
+
 @Mapper(componentModel = "spring",
     builder = @Builder(disableBuilder = true),
     imports = {
@@ -26,6 +28,10 @@ public interface AccountRecipientEntityMapper {
     AccountRecipientEntityMapper INSTANCE = Mappers.getMapper(AccountRecipientEntityMapper.class);
 
     default AccountRecipientEntity toEntity(AccountRecipient accountRecipient) {
+        if(Objects.isNull(accountRecipient)){
+            return null;
+        }
+
         return new AccountRecipientEntity(
             accountRecipient.accountRecipientId().value(),
             accountRecipient.bankAccountId().value(),
