@@ -133,12 +133,11 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>${maven-surefire-plugin.version}</version>
+					<version>3.5.2</version>
 					<configuration>
-						<argLine>
-							--add-opens java.base/java.lang=ALL-UNNAMED
-							-javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
-						</argLine>
+						<argLine>-Xmx1024m --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+						<forkCount>1</forkCount>
+						<reuseForks>true</reuseForks>
 					</configuration>
 				</plugin>
 
