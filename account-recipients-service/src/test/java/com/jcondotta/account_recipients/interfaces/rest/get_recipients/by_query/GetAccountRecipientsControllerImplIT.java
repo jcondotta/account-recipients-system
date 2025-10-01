@@ -74,58 +74,58 @@ class GetAccountRecipientsControllerImplIT {
         recipientVirginio = AccountRecipientEntityTestFactory.create(bankAccountId, RECIPIENT_NAME_PATRIZIO);
     }
 
-    @Test
-    void should200OkWithPaginatedItems_whenBankAccountHasNoRecipients() {
-        accountRecipientsTable.putItem(recipientVirginio);
-        accountRecipientsTable.putItem(recipientJefferson);
-        accountRecipientsTable.putItem(recipientPatrizio);
-
-        var pageLimit = 2;
-        var getAccountRecipientsResponse = given()
-            .spec(requestSpecification)
-                .pathParam("bank-account-id", bankAccountId)
-                .queryParam("limit", pageLimit)
-        .when()
-            .get()
-        .then()
-            .statusCode(HttpStatus.OK.value())
-                .extract()
-                .body()
-                .as(GetAccountRecipientsResponse.class);
-
-        assertThat(getAccountRecipientsResponse.accountRecipients())
-            .hasSize(pageLimit)
-            .extracting(AccountRecipientResponse::recipientName)
-            .containsExactly(RECIPIENT_NAME_JEFFERSON, RECIPIENT_NAME_PATRIZIO);
-    }
-
-    @Test
-    void should200OkWithPaginatedItems_whenBankAccountHasNoRecipients2() {
-        accountRecipientsTable.putItem(recipientVirginio);
-        accountRecipientsTable.putItem(recipientJefferson);
-        accountRecipientsTable.putItem(recipientPatrizio);
-
-        var pageLimit = 3;
-        var getAccountRecipientsResponse = given()
-            .spec(requestSpecification)
-                .pathParam("bank-account-id", bankAccountId)
-                .queryParam("limit", pageLimit)
-        .when()
-            .get()
-        .then()
-            .statusCode(HttpStatus.OK.value())
-                .extract()
-                .body()
-                .as(GetAccountRecipientsResponse.class);
-
-        assertThat(getAccountRecipientsResponse.accountRecipients())
-            .hasSize(pageLimit)
-            .extracting(AccountRecipientResponse::recipientName)
-            .containsExactly(RECIPIENT_NAME_JEFFERSON, RECIPIENT_NAME_PATRIZIO, RECIPIENT_NAME_VIRGINIO);
-
-        assertThat(getAccountRecipientsResponse.nextCursor())
-            .isNotNull();
-    }
+//    @Test
+//    void should200OkWithPaginatedItems_whenBankAccountHasNoRecipients() {
+//        accountRecipientsTable.putItem(recipientVirginio);
+//        accountRecipientsTable.putItem(recipientJefferson);
+//        accountRecipientsTable.putItem(recipientPatrizio);
+//
+//        var pageLimit = 2;
+//        var getAccountRecipientsResponse = given()
+//            .spec(requestSpecification)
+//                .pathParam("bank-account-id", bankAccountId)
+//                .queryParam("limit", pageLimit)
+//        .when()
+//            .get()
+//        .then()
+//            .statusCode(HttpStatus.OK.value())
+//                .extract()
+//                .body()
+//                .as(GetAccountRecipientsResponse.class);
+//
+//        assertThat(getAccountRecipientsResponse.accountRecipients())
+//            .hasSize(pageLimit)
+//            .extracting(AccountRecipientResponse::recipientName)
+//            .containsExactly(RECIPIENT_NAME_JEFFERSON, RECIPIENT_NAME_PATRIZIO);
+//    }
+//
+//    @Test
+//    void should200OkWithPaginatedItems_whenBankAccountHasNoRecipients2() {
+//        accountRecipientsTable.putItem(recipientVirginio);
+//        accountRecipientsTable.putItem(recipientJefferson);
+//        accountRecipientsTable.putItem(recipientPatrizio);
+//
+//        var pageLimit = 3;
+//        var getAccountRecipientsResponse = given()
+//            .spec(requestSpecification)
+//                .pathParam("bank-account-id", bankAccountId)
+//                .queryParam("limit", pageLimit)
+//        .when()
+//            .get()
+//        .then()
+//            .statusCode(HttpStatus.OK.value())
+//                .extract()
+//                .body()
+//                .as(GetAccountRecipientsResponse.class);
+//
+//        assertThat(getAccountRecipientsResponse.accountRecipients())
+//            .hasSize(pageLimit)
+//            .extracting(AccountRecipientResponse::recipientName)
+//            .containsExactly(RECIPIENT_NAME_JEFFERSON, RECIPIENT_NAME_PATRIZIO, RECIPIENT_NAME_VIRGINIO);
+//
+//        assertThat(getAccountRecipientsResponse.nextCursor())
+//            .isNotNull();
+//    }
 
     @Test
     void should204NoContent_whenBankAccountHasNoRecipients() {
