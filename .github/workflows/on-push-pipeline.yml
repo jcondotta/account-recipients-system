@@ -21,13 +21,14 @@ jobs:
           cache: maven
 
       - name: Build, Run Tests and Generate Coverage
-        run: mvn -B clean test
+        run: mvn -B clean verify
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-aggregate-report
-          path: target/site/jacoco-aggregate/jacoco.xml
+          path: account-recipients-service/target/site/jacoco-aggregate/jacoco.xml
+          if-no-files-found: error
 
   sonarcloud-analysis:
     runs-on: ubuntu-latest
@@ -47,7 +48,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: jacoco-aggregate-report
-          path: target/site/jacoco-aggregate
+          path: account-recipients-service/target/site/jacoco-aggregate
 
       - name: Cache SonarCloud packages
         uses: actions/cache@v4
@@ -65,4 +66,3 @@ jobs:
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
             -Dsonar.coverage.jacoco.xmlReportPaths=account-recipients-service/target/site/jacoco-aggregate/jacoco.xml
-
