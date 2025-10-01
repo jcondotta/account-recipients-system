@@ -1,0 +1,20 @@
+{
+  "bankAccount": {
+    "bankAccountId": "ffbacd55-ca63-402e-a385-6bd1a1e44b8f",
+    "accountType": "CHECKING",
+    "currency": "USD",
+    "iban": "PK70GNPY125UJ1NLYLET9NFB",
+    "dateOfOpening": "2025-09-09T19:41:32+02:00",
+    "status": "PENDING",
+    "accountHolders": [
+      {
+        "accountHolderId": "cfb5ca2f-2d62-44c4-b8c5-e758cf6cbb9a",
+        "accountHolderName": "Jefferson Condotta",
+        "dateOfBirth": "1990-11-23",
+        "passportNumber": "FH254787",
+        "accountHolderType": "PRIMARY",
+        "createdAt": "2025-09-09T19:41:32+02:00"
+      }
+    ]
+  }
+}

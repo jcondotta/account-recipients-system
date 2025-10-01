@@ -41,4 +41,35 @@
         </dependency>
     </dependencies>
 
+<!--    <build>-->
+<!--        <plugins>-->
+<!--            <plugin>-->
+<!--                <groupId>org.jacoco</groupId>-->
+<!--                <artifactId>jacoco-maven-plugin</artifactId>-->
+<!--                <configuration>-->
+<!--                    <includes>-->
+<!--                        <include>com/jcondotta/account_recipients/domain/**</include>-->
+<!--                        <include>com/jcondotta/account_recipients/application/**</include>-->
+<!--                    </includes>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
+<!--        </plugins>-->
+<!--    </build>-->
+
+
+<!--    <build>-->
+<!--        <plugins>-->
+<!--            <plugin>-->
+<!--            <groupId>org.jacoco</groupId>-->
+<!--            <artifactId>jacoco-maven-plugin</artifactId>-->
+<!--            <configuration>-->
+<!--                <includes>-->
+<!--                    <include>com/jcondotta/account_recipients/domain/**</include>-->
+<!--                    <include>com/jcondotta/account_recipients/application/**</include>-->
+<!--                </includes>-->
+<!--            </configuration>-->
+<!--        </plugin>-->
+<!--        </plugins>-->
+<!--    </build>-->
+
 </project>

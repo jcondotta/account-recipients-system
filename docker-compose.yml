@@ -24,8 +24,8 @@ services:
       - account_recipients_localstack_data:/var/lib/localstack
 
   redis:
-    image: redis:7.4
-    container_name: account-recipients-redis-7.4
+    image: redis:7.4.3
+    container_name: account-recipients-redis-7.4.3
     restart: on-failure
     ports:
       - "6382:6379"

@@ -1,31 +1,32 @@
 package com.jcondotta.account_recipients.get_recipients.by_account_id;
 
-import com.jcondotta.account_recipients.application.ports.output.repository.GetAccountRecipientsRepository;
-import com.jcondotta.account_recipients.application.usecase.get_recipients.by_account_id.GetAccountRecipientsUseCase;
-import com.jcondotta.account_recipients.application.usecase.get_recipients.by_account_id.mapper.GetAccountRecipientsMapper;
-import com.jcondotta.account_recipients.application.usecase.get_recipients.by_account_id.model.GetAccountRecipientsQuery;
-import com.jcondotta.account_recipients.application.usecase.get_recipients.by_account_id.model.GetAccountRecipientsResult;
+import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.GetAccountRecipientsRepository;
+import com.jcondotta.account_recipients.application.ports.output.repository.shared.PaginatedResult;
+import com.jcondotta.account_recipients.application.usecase.get_recipients.GetAccountRecipientsUseCase;
+import com.jcondotta.account_recipients.application.usecase.get_recipients.mapper.GetAccountRecipientsQueryMapper;
+import com.jcondotta.account_recipients.application.usecase.get_recipients.model.query.GetAccountRecipientsQuery;
+import com.jcondotta.account_recipients.application.usecase.get_recipients.model.result.GetAccountRecipientsResult;
 import com.jcondotta.account_recipients.domain.recipient.entity.AccountRecipient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class GetAccountRecipientsUseCaseImpl implements GetAccountRecipientsUseCase {
 
-    private final GetAccountRecipientsMapper commandMapper;
+    private final GetAccountRecipientsQueryMapper queryMapper;
     private final GetAccountRecipientsRepository getAccountRecipientsRepository;
 
     @Override
     public GetAccountRecipientsResult execute(GetAccountRecipientsQuery getAccountRecipientsQuery) {
-        List<AccountRecipient> accountRecipients = getAccountRecipientsRepository.byBankAccountId(getAccountRecipientsQuery.bankAccountId());
-        return GetAccountRecipientsResult.of(
-            accountRecipients.stream()
-                .map(commandMapper::toAccountRecipient)
-                .toList());
+        PaginatedResult<AccountRecipient> paginatedResult = getAccountRecipientsRepository.findByQuery(getAccountRecipientsQuery);
+
+        var accountRecipientDetailsList = paginatedResult.items().stream()
+            .map(queryMapper::toAccountRecipient)
+            .toList();
+
+        return GetAccountRecipientsResult.of(accountRecipientDetailsList, paginatedResult.nextCursor());
     }
 }

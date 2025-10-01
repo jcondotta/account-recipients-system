@@ -1,6 +1,6 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.repository.delete_recipient;
 
-import com.jcondotta.account_recipients.application.ports.output.repository.DeleteAccountRecipientRepository;
+import com.jcondotta.account_recipients.application.ports.output.repository.delete_recipient.DeleteAccountRecipientRepository;
 import com.jcondotta.account_recipients.domain.recipient.exceptions.AccountRecipientNotFoundException;
 import com.jcondotta.account_recipients.domain.recipient.value_objects.AccountRecipientId;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;

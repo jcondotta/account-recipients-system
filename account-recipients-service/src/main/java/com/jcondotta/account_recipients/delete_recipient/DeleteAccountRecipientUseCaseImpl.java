@@ -1,6 +1,6 @@
 package com.jcondotta.account_recipients.delete_recipient;
 
-import com.jcondotta.account_recipients.application.ports.output.repository.DeleteAccountRecipientRepository;
+import com.jcondotta.account_recipients.application.ports.output.repository.delete_recipient.DeleteAccountRecipientRepository;
 import com.jcondotta.account_recipients.application.usecase.delete_recipient.DeleteAccountRecipientUseCase;
 import com.jcondotta.account_recipients.application.usecase.delete_recipient.model.DeleteAccountRecipientCommand;
 import lombok.RequiredArgsConstructor;

@@ -29,12 +29,11 @@ class LookupBankAccountFacadeImplTest {
 
     private static final BankAccountId BANK_ACCOUNT_ID = BankAccountId.of(BANK_ACCOUNT_UUID);
 
-    @Mock
-    private LookupBankAccountClient clientMock;
-
+    private final LookupBankAccountCdoFacadeMapper mapper = LookupBankAccountCdoFacadeMapper.INSTANCE;
     private LookupBankAccountFacade bankAccountFacade;
 
-    private final LookupBankAccountCdoFacadeMapper mapper = LookupBankAccountCdoFacadeMapper.INSTANCE;
+    @Mock
+    private LookupBankAccountClient clientMock;
 
     @BeforeEach
     void setUp() {

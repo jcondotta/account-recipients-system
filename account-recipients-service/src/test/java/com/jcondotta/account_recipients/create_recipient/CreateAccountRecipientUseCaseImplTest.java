@@ -1,11 +1,12 @@
 package com.jcondotta.account_recipients.create_recipient;
 
 import com.jcondotta.account_recipients.ClockTestFactory;
-import com.jcondotta.account_recipients.application.ports.output.repository.CreateAccountRecipientRepository;
+import com.jcondotta.account_recipients.application.ports.output.repository.create_recipient.CreateAccountRecipientRepository;
 import com.jcondotta.account_recipients.application.usecase.create_recipient.CreateAccountRecipientUseCase;
 import com.jcondotta.account_recipients.application.usecase.create_recipient.mapper.CreateAccountRecipientCommandMapper;
 import com.jcondotta.account_recipients.application.usecase.create_recipient.model.CreateAccountRecipientCommand;
 import com.jcondotta.account_recipients.application.usecase.shared.IdempotencyKey;
+import com.jcondotta.account_recipients.common.fixtures.AccountRecipientFixtures;
 import com.jcondotta.account_recipients.domain.bank_account.entity.BankAccount;
 import com.jcondotta.account_recipients.domain.bank_account.exceptions.BankAccountNotFoundException;
 import com.jcondotta.account_recipients.domain.recipient.entity.AccountRecipient;
@@ -35,14 +36,14 @@ class CreateAccountRecipientUseCaseImplTest {
     private static final UUID BANK_ACCOUNT_UUID = UUID.randomUUID();
     private static final BankAccountId BANK_ACCOUNT_ID = BankAccountId.of(BANK_ACCOUNT_UUID);
 
-    private static final String RECIPIENT_NAME_JEFFERSON = "Jefferson Condotta";
+    private static final String RECIPIENT_NAME_JEFFERSON = AccountRecipientFixtures.JEFFERSON.getRecipientName();
     private static final RecipientName RECIPIENT_NAME = RecipientName.of(RECIPIENT_NAME_JEFFERSON);
 
-    private static final String VALID_IBAN_NO_SPACES = "GB82WEST12345698765432";
+    private static final String VALID_IBAN_NO_SPACES = AccountRecipientFixtures.JEFFERSON.getRecipientIban();
     private static final Iban IBAN = Iban.of(VALID_IBAN_NO_SPACES);
 
     private final IdempotencyKey idempotencyKey = IdempotencyKey.of(UUID.randomUUID());
-    private static final Clock TEST_FIXED_CLOCK = ClockTestFactory.testClockFixed;
+    private static final Clock TEST_FIXED_CLOCK = ClockTestFactory.TEST_CLOCK_FIXED;
 
     private final CreateAccountRecipientCommandMapper commandMapper = CreateAccountRecipientCommandMapper.INSTANCE;
 

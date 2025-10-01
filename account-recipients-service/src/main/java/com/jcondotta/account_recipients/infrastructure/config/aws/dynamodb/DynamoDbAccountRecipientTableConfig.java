@@ -5,6 +5,7 @@ import com.jcondotta.account_recipients.infrastructure.properties.AccountRecipie
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbIndex;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 
@@ -17,5 +18,10 @@ public class DynamoDbAccountRecipientTableConfig {
         AccountRecipientsTableProperties tableProperties) {
 
         return dynamoDbEnhancedClient.table(tableProperties.tableName(), TableSchema.fromBean(AccountRecipientEntity.class));
+    }
+
+    @Bean
+    public DynamoDbIndex<AccountRecipientEntity> recipientNameLSI(DynamoDbTable<AccountRecipientEntity> accountRecipientsTable){
+        return accountRecipientsTable.index("RecipientNameLSI");
     }
 }

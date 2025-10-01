@@ -9,4 +9,8 @@ public record CreateAccountRecipientRestRequest(
 
     @NotBlank
     String iban
-) {}
+) {
+    public static CreateAccountRecipientRestRequest of(String recipientName, String iban) {
+        return new CreateAccountRecipientRestRequest(recipientName, iban);
+    }
+}

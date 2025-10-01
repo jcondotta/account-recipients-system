@@ -14,5 +14,4 @@ public interface LookupBankAccountCdoFacadeMapper {
     @Mapping(target = "bankAccountId", expression = "java(BankAccountId.of(bankAccountCdo.bankAccountId()))")
     @Mapping(target = "accountStatus", expression = "java(AccountStatus.valueOf(bankAccountCdo.status().name()))")
     BankAccount map(BankAccountCdo bankAccountCdo);
-
 }

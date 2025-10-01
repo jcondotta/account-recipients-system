@@ -2,6 +2,7 @@ package com.jcondotta.account_recipients.interfaces.rest.create_recipient;
 
 import com.jcondotta.account_recipients.application.usecase.create_recipient.CreateAccountRecipientUseCase;
 import com.jcondotta.account_recipients.application.usecase.shared.IdempotencyKey;
+import com.jcondotta.account_recipients.infrastructure.properties.AccountRecipientURIProperties;
 import com.jcondotta.account_recipients.interfaces.rest.create_recipient.mapper.CreateAccountRecipientRequestRestMapper;
 import com.jcondotta.account_recipients.interfaces.rest.create_recipient.model.CreateAccountRecipientRestRequest;
 import io.micrometer.core.annotation.Timed;
@@ -24,6 +25,7 @@ public class CreateAccountRecipientControllerImpl implements CreateAccountRecipi
 
     private final CreateAccountRecipientUseCase useCase;
     private final CreateAccountRecipientRequestRestMapper mapper;
+    private final AccountRecipientURIProperties uriProperties;
     private final Clock clock;
 
     @Override
@@ -39,6 +41,8 @@ public class CreateAccountRecipientControllerImpl implements CreateAccountRecipi
         var requestCardCommand = mapper.toCommand(bankAccountId, request, clock);
         useCase.execute(requestCardCommand, IdempotencyKey.of(idempotencyKey));
 
-        return ResponseEntity.created(URI.create("")).build();
+        return ResponseEntity.created(
+            uriProperties.accountRecipientsURI(bankAccountId)
+        ).build();
     }
 }

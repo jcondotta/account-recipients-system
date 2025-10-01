@@ -10,6 +10,7 @@ import com.jcondotta.account_recipients.infrastructure.adapters.output.repositor
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring",
     builder = @Builder(disableBuilder = true),
@@ -22,15 +23,17 @@ import org.mapstruct.Mapping;
     })
 public interface AccountRecipientEntityMapper {
 
-    @Mapping(target = "partitionKey", expression = "java(AccountRecipientEntityKey.partitionKey(accountRecipient.bankAccountId()))")
-    @Mapping(target = "sortKey", expression = "java(AccountRecipientEntityKey.sortKey(accountRecipient.accountRecipientId()))")
-    @Mapping(target = "accountRecipientId", expression = "java(accountRecipient.accountRecipientId().value())")
-    @Mapping(target = "bankAccountId", expression = "java(accountRecipient.bankAccountId().value())")
-    @Mapping(target = "recipientName", expression = "java(accountRecipient.recipientName().value())")
-    @Mapping(target = "iban", expression = "java(accountRecipient.iban().value())")
-    @Mapping(target = "createdAt", expression = "java(accountRecipient.createdAt().toInstant())")
-    @Mapping(target = "createdAtZoneId", expression = "java(accountRecipient.createdAt().getZone())")
-    AccountRecipientEntity toEntity(AccountRecipient accountRecipient);
+    AccountRecipientEntityMapper INSTANCE = Mappers.getMapper(AccountRecipientEntityMapper.class);
+
+    default AccountRecipientEntity toEntity(AccountRecipient accountRecipient) {
+        return new AccountRecipientEntity(
+            accountRecipient.accountRecipientId().value(),
+            accountRecipient.bankAccountId().value(),
+            accountRecipient.recipientName().value(),
+            accountRecipient.iban().value(),
+            accountRecipient.createdAt()
+        );
+    }
 
     @Mapping(target = "accountRecipientId", expression = "java(AccountRecipientId.of(entity.getAccountRecipientId()))")
     @Mapping(target = "bankAccountId", expression = "java(BankAccountId.of(entity.getBankAccountId()))")

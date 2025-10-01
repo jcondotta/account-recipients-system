@@ -25,17 +25,15 @@ public class ResourceNotFoundExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(DomainObjectNotFoundException.class)
     public ResponseEntity<ProblemDetail> handleResourceNotFound(DomainObjectNotFoundException ex, HttpServletRequest request, Locale locale) {
-        var message = messageResolverPort.resolveMessage(ex.getMessage(), ex.getIdentifiers(), locale)
-            .orElse(ex.getMessage());
+        var message = messageResolverPort.resolveMessage(ex.getMessage(), ex.getIdentifiers(), locale);
 
         var problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
-        problemDetail.setType(URI.create("https://api.jcondotta.com/problems/resource-not-found"));
+        problemDetail.setType(ProblemTypes.RESOURCE_NOT_FOUND);
         problemDetail.setTitle(ex.getTitle());
         problemDetail.setDetail(message);
         problemDetail.setInstance(URI.create(request.getRequestURI()));
 
-        return ResponseEntity
-            .status(HttpStatus.NOT_FOUND.value())
+        return ResponseEntity.status(HttpStatus.NOT_FOUND.value())
             .body(problemDetail);
     }
 }

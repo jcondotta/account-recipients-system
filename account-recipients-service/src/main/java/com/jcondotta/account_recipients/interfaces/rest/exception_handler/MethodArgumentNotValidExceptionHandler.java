@@ -46,7 +46,7 @@ public class MethodArgumentNotValidExceptionHandler {
         log.warn("Validation error at {} -> {}", request.getRequestURI(), groupedByField);
 
         var problemDetail = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_ENTITY);
-        problemDetail.setType(URI.create("https://api.jcondotta.com/problems/account-recipients/validation-errors"));
+        problemDetail.setType(ProblemTypes.VALIDATION_ERRORS);
         problemDetail.setTitle("Request validation failed");
         problemDetail.setInstance(URI.create(request.getRequestURI()));
         problemDetail.setProperty("timestamp", ZonedDateTime.now(clock));

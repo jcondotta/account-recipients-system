@@ -1,13 +1,11 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity;
 
 import lombok.NoArgsConstructor;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.*;
 
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 @DynamoDbBean
@@ -22,6 +20,17 @@ public class AccountRecipientEntity {
     private String iban;
     private Instant createdAt;
     private ZoneId createdAtZoneId;
+
+    public AccountRecipientEntity(UUID accountRecipientId, UUID bankAccountId, String recipientName, String iban, ZonedDateTime createdAt) {
+        this.partitionKey = AccountRecipientEntityKey.partitionKey(bankAccountId);
+        this.sortKey = AccountRecipientEntityKey.sortKey(accountRecipientId);
+        this.accountRecipientId = accountRecipientId;
+        this.bankAccountId = bankAccountId;
+        this.recipientName = recipientName;
+        this.iban = iban;
+        this.createdAt = createdAt.toInstant();
+        this.createdAtZoneId = createdAt.getZone();
+    }
 
     @DynamoDbPartitionKey
     @DynamoDbAttribute("partitionKey")
@@ -62,6 +71,7 @@ public class AccountRecipientEntity {
     }
 
     @DynamoDbAttribute("recipientName")
+    @DynamoDbSecondarySortKey(indexNames = "RecipientNameLSI")
     public String getRecipientName() {
         return recipientName;
     }
