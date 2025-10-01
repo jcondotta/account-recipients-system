@@ -62,5 +62,4 @@ jobs:
             -Dsonar.organization=jcondotta \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
-            -Dsonar.coverage.jacoco.xmlReportPaths=account-recipients-service/target/site/jacoco-aggregate/jacoco.xml \
-            -Dsonar.java.binaries=account-recipients-domain-service/target/classes,account-recipients-application-service/target/classes,account-recipients-service/target/classes
+            -Dsonar.coverage.jacoco.xmlReportPaths=account-recipients-system/target/site/jacoco-aggregate/jacoco.xml
