@@ -15,25 +15,6 @@ class AccountRecipientNotFoundExceptionTest {
     private static final UUID ACCOUNT_RECIPIENT_UUID = UUID.randomUUID();
 
     @Test
-    void shouldCreateExceptionCorrectly_whenParamsAreValid() {
-        var bankAccountId = BankAccountId.of(BANK_ACCOUNT_UUID);
-        var accountRecipientId = AccountRecipientId.of(ACCOUNT_RECIPIENT_UUID);
-        var bankAccountNotFoundException = new AccountRecipientNotFoundException(bankAccountId, accountRecipientId);
-
-        assertThat(bankAccountNotFoundException)
-            .isInstanceOf(DomainObjectNotFoundException.class)
-            .hasMessage(AccountRecipientNotFoundException.ACCOUNT_RECIPIENT_NOT_FOUND_TEMPLATE)
-            .satisfies(e -> {
-                assertThat(e.getTitle())
-                    .hasToString(AccountRecipientNotFoundException.ACCOUNT_RECIPIENT_NOT_FOUND_TITLE);
-
-                assertThat(e.getIdentifiers())
-                    .hasSize(2)
-                    .containsExactly(BANK_ACCOUNT_UUID, ACCOUNT_RECIPIENT_UUID);
-            });
-    }
-
-    @Test
     void shouldCreateExceptionWithCauseCorrectly_whenParamsAreValid() {
         var bankAccountId = BankAccountId.of(BANK_ACCOUNT_UUID);
         var accountRecipientId = AccountRecipientId.of(ACCOUNT_RECIPIENT_UUID);

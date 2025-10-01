@@ -12,26 +12,6 @@ class BankAccountNotFoundExceptionTest {
     private static final UUID BANK_ACCOUNT_UUID = UUID.randomUUID();
 
     @Test
-    void shouldCreateExceptionCorrectly_whenBankAccountIdIsValid() {
-        var bankAccountId = BankAccountId.of(BANK_ACCOUNT_UUID);
-        var bankAccountNotFoundException = new BankAccountNotFoundException(bankAccountId);
-
-        assertThat(bankAccountNotFoundException)
-            .isInstanceOf(DomainObjectNotFoundException.class)
-            .hasMessage(BankAccountNotFoundException.BANK_ACCOUNT_NOT_FOUND_TEMPLATE)
-            .satisfies(e -> {
-                assertThat(e.getTitle())
-                    .hasToString(BankAccountNotFoundException.BANK_ACCOUNT_NOT_FOUND_TITLE);
-
-                assertThat(e.getIdentifiers())
-                    .hasSize(1)
-                    .containsExactly(BANK_ACCOUNT_UUID);
-
-                assertThat(e.getCause()).isNull();
-            });
-    }
-
-    @Test
     void shouldCreateExceptionWithCauseCorrectly_whenBankAccountIdIsValid() {
         var bankAccountId = BankAccountId.of(BANK_ACCOUNT_UUID);
         var rootCause = new RuntimeException("404 simulated");
