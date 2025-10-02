@@ -41,7 +41,7 @@ public class DeleteAccountRecipientRepositoryImpl implements DeleteAccountRecipi
         }
         catch (ConditionalCheckFailedException e) {
             log.warn("Attempted to delete a non-existent recipient [bankAccountId={}, accountRecipientId={}]", bankAccountId, accountRecipientId);
-            throw new AccountRecipientNotFoundException(bankAccountId, accountRecipientId);
+            throw new AccountRecipientNotFoundException(bankAccountId, accountRecipientId, e);
         }
     }
 }

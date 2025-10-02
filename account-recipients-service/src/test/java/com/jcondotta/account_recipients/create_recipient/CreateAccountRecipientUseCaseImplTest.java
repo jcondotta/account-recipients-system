@@ -89,7 +89,7 @@ class CreateAccountRecipientUseCaseImplTest {
     @Test
     void shouldThrowBankAccountNotFoundException_whenBankAccountDoesNotExist() {
         when(lookupBankAccountFacadeMock.byId(BANK_ACCOUNT_ID))
-            .thenThrow(new BankAccountNotFoundException(BANK_ACCOUNT_ID));
+            .thenThrow(new BankAccountNotFoundException(BANK_ACCOUNT_ID, new RuntimeException("404 simulated")));
 
         var createAccountRecipientCommand = buildCreateAccountRecipientCommand();
 
