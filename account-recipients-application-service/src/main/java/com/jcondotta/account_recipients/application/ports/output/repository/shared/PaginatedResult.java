@@ -2,9 +2,4 @@ package com.jcondotta.account_recipients.application.ports.output.repository.sha
 
 import java.util.List;
 
-public record PaginatedResult<T>(List<T> items, String nextCursor) {
-
-    public boolean hasNextPage() {
-        return nextCursor != null && !nextCursor.isEmpty();
-    }
-}
+public record PaginatedResult<T>(List<T> items, String nextCursor) { }
