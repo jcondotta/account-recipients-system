@@ -9,8 +9,8 @@ public record GetAccountRecipientsQueryParams(Integer limit, String cursor) {
     public GetAccountRecipientsQueryParams {
         limit = Objects.requireNonNullElse(limit, DEFAULT_LIMIT);
 
-        if (limit < 1 || limit > 100) {
-            throw new IllegalArgumentException("limit must be between 1 and 100");
+        if (limit < 1 || limit > 20) {
+            throw new IllegalArgumentException("limit must be between 1 and 20");
         }
     }
 
