@@ -1,4 +1,4 @@
-package com.jcondotta.account_recipients.get_recipients.by_account_id;
+package com.jcondotta.account_recipients.get_recipients;
 
 import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.GetAccountRecipientsRepository;
 import com.jcondotta.account_recipients.application.ports.output.repository.shared.PaginatedResult;

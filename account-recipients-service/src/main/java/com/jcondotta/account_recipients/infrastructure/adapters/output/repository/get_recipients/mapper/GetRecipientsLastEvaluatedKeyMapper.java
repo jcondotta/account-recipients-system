@@ -1,17 +1,18 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.repository.get_recipients.mapper;
 
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity.AccountRecipientEntityKey;
-import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.get_recipients.model.LastEvaluatedKey;
+import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.get_recipients.model.GetRecipientsLastEvaluatedKey;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 @Mapper(componentModel = "spring")
-public interface LastEvaluatedKeyMapper {
+public interface GetRecipientsLastEvaluatedKeyMapper {
 
     String PARTITION_KEY_PARAM_NAME = "partitionKey";
     String SORT_KEY_PARAM_NAME = "sortKey";
@@ -20,16 +21,25 @@ public interface LastEvaluatedKeyMapper {
     @Mapping(target = "bankAccountId", source = "map", qualifiedByName = "extractBankAccountId")
     @Mapping(target = "accountRecipientId", source = "map", qualifiedByName = "extractAccountRecipientId")
     @Mapping(target = "recipientName", source = "map", qualifiedByName = "extractRecipientName")
-    LastEvaluatedKey toDomain(Map<String, AttributeValue> map);
+    GetRecipientsLastEvaluatedKey toDomain(Map<String, AttributeValue> map);
 
     @Named("toMap")
-    default Map<String, AttributeValue> toMap(LastEvaluatedKey key) {
+    default Map<String, AttributeValue> toMap(GetRecipientsLastEvaluatedKey key) {
         if (key == null) return null;
-        return Map.of(
-            PARTITION_KEY_PARAM_NAME, AttributeValue.fromS(key.bankAccountId().toString()),
-            SORT_KEY_PARAM_NAME, AttributeValue.fromS(key.accountRecipientId().toString()),
-            RECIPIENT_NAME_LSI_PARAM_NAME, AttributeValue.fromS(key.recipientName())
-        );
+
+        Map<String, AttributeValue> map = new HashMap<>();
+
+        // PK e SK com o mesmo formato usado na tabela
+        map.put(PARTITION_KEY_PARAM_NAME,
+            AttributeValue.fromS(AccountRecipientEntityKey.partitionKey(key.bankAccountId())));
+        map.put(SORT_KEY_PARAM_NAME,
+            AttributeValue.fromS(AccountRecipientEntityKey.sortKey(key.accountRecipientId())));
+
+        // Sempre precisa do recipientName porque você consulta pelo LSI
+        map.put(RECIPIENT_NAME_LSI_PARAM_NAME,
+            AttributeValue.fromS(key.recipientName()));
+
+        return map;
     }
 
     @Named("extractBankAccountId")

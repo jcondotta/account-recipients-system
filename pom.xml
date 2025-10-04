@@ -20,6 +20,7 @@
 		<module>account-recipients-domain-service</module>
 		<module>account-recipients-application-service</module>
 		<module>account-recipients-service</module>
+		<module>account-recipients-coverage</module>
 	</modules>
 
 	<properties>

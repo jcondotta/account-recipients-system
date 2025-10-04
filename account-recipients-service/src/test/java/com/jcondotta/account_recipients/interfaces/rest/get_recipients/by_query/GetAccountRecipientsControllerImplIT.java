@@ -2,7 +2,6 @@ package com.jcondotta.account_recipients.interfaces.rest.get_recipients.by_query
 
 import com.jcondotta.account_recipients.common.container.LocalStackTestContainer;
 import com.jcondotta.account_recipients.common.factory.AccountRecipientEntityTestFactory;
-import com.jcondotta.account_recipients.common.fixtures.AccountRecipientFixtures;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity.AccountRecipientEntity;
 import com.jcondotta.account_recipients.infrastructure.properties.AccountRecipientURIProperties;
 import com.jcondotta.account_recipients.interfaces.rest.get_recipients.by_query.model.AccountRecipientResponse;
@@ -11,9 +10,7 @@ import com.jcondotta.account_recipients.interfaces.rest.headers.HttpHeadersCusto
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -23,10 +20,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 
-import java.nio.charset.StandardCharsets;
-import java.time.Clock;
-import java.util.Base64;
-import java.util.List;
 import java.util.UUID;
 
 import static com.jcondotta.account_recipients.common.fixtures.AccountRecipientFixtures.*;
@@ -39,18 +32,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class GetAccountRecipientsControllerImplIT {
 
-    private static final String RECIPIENT_NAME_JEFFERSON = JEFFERSON.getRecipientName();
-    private static final String RECIPIENT_NAME_VIRGINIO = VIRGINIO.getRecipientName();
-    private static final String RECIPIENT_NAME_PATRIZIO = PATRIZIO.getRecipientName();
-
     @Autowired
     private DynamoDbTable<AccountRecipientEntity> accountRecipientsTable;
 
     @Autowired
     private AccountRecipientURIProperties uriProperties;
-
-    @Autowired
-    private Clock fixedClock;
 
     private RequestSpecification requestSpecification;
 
@@ -60,7 +46,7 @@ class GetAccountRecipientsControllerImplIT {
     private AccountRecipientEntity recipientVirginio;
 
     @BeforeAll
-    static void beforeAll(){
+    static void beforeAll() {
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
     }
 
@@ -69,75 +55,195 @@ class GetAccountRecipientsControllerImplIT {
         requestSpecification = buildRequestSpecification(port);
 
         bankAccountId = UUID.randomUUID();
-        recipientJefferson = AccountRecipientEntityTestFactory.create(bankAccountId, RECIPIENT_NAME_JEFFERSON);
-        recipientPatrizio = AccountRecipientEntityTestFactory.create(bankAccountId, RECIPIENT_NAME_VIRGINIO);
-        recipientVirginio = AccountRecipientEntityTestFactory.create(bankAccountId, RECIPIENT_NAME_PATRIZIO);
+        recipientJefferson = AccountRecipientEntityTestFactory.create(bankAccountId, JEFFERSON.getRecipientName());
+        recipientPatrizio = AccountRecipientEntityTestFactory.create(bankAccountId, PATRIZIO.getRecipientName());
+        recipientVirginio = AccountRecipientEntityTestFactory.create(bankAccountId, VIRGINIO.getRecipientName());
     }
 
-//    @Test
-//    void should200OkWithPaginatedItems_whenBankAccountHasNoRecipients() {
-//        accountRecipientsTable.putItem(recipientVirginio);
-//        accountRecipientsTable.putItem(recipientJefferson);
-//        accountRecipientsTable.putItem(recipientPatrizio);
-//
-//        var pageLimit = 2;
-//        var getAccountRecipientsResponse = given()
-//            .spec(requestSpecification)
-//                .pathParam("bank-account-id", bankAccountId)
-//                .queryParam("limit", pageLimit)
-//        .when()
-//            .get()
-//        .then()
-//            .statusCode(HttpStatus.OK.value())
-//                .extract()
-//                .body()
-//                .as(GetAccountRecipientsResponse.class);
-//
-//        assertThat(getAccountRecipientsResponse.accountRecipients())
-//            .hasSize(pageLimit)
-//            .extracting(AccountRecipientResponse::recipientName)
-//            .containsExactly(RECIPIENT_NAME_JEFFERSON, RECIPIENT_NAME_PATRIZIO);
-//    }
-//
-//    @Test
-//    void should200OkWithPaginatedItems_whenBankAccountHasNoRecipients2() {
-//        accountRecipientsTable.putItem(recipientVirginio);
-//        accountRecipientsTable.putItem(recipientJefferson);
-//        accountRecipientsTable.putItem(recipientPatrizio);
-//
-//        var pageLimit = 3;
-//        var getAccountRecipientsResponse = given()
-//            .spec(requestSpecification)
-//                .pathParam("bank-account-id", bankAccountId)
-//                .queryParam("limit", pageLimit)
-//        .when()
-//            .get()
-//        .then()
-//            .statusCode(HttpStatus.OK.value())
-//                .extract()
-//                .body()
-//                .as(GetAccountRecipientsResponse.class);
-//
-//        assertThat(getAccountRecipientsResponse.accountRecipients())
-//            .hasSize(pageLimit)
-//            .extracting(AccountRecipientResponse::recipientName)
-//            .containsExactly(RECIPIENT_NAME_JEFFERSON, RECIPIENT_NAME_PATRIZIO, RECIPIENT_NAME_VIRGINIO);
-//
-//        assertThat(getAccountRecipientsResponse.nextCursor())
-//            .isNotNull();
-//    }
+    @Nested
+    class Pagination {
 
-    @Test
-    void should204NoContent_whenBankAccountHasNoRecipients() {
-        var bankAccountId = UUID.randomUUID();
+        @Test
+        void shouldReturnFirstPageAndNextCursor_whenMultiplePagesAvailable() {
+            accountRecipientsTable.putItem(recipientJefferson);
+            accountRecipientsTable.putItem(recipientPatrizio);
+            accountRecipientsTable.putItem(recipientVirginio);
 
-        given()
-            .spec(requestSpecification)
+            var pageLimit = 2;
+
+            var responsePage1 = given()
+                .spec(requestSpecification)
                 .pathParam("bank-account-id", bankAccountId)
-        .when()
-            .get()
-        .then()
-            .statusCode(HttpStatus.NO_CONTENT.value());
+                .queryParam("limit", pageLimit)
+            .when()
+                .get()
+            .then()
+                .statusCode(HttpStatus.OK.value())
+                    .extract()
+                    .body()
+                    .as(GetAccountRecipientsResponse.class);
+
+            assertThat(responsePage1.accountRecipients())
+                .hasSize(pageLimit)
+                .extracting(AccountRecipientResponse::recipientName)
+                .containsExactly(JEFFERSON.getRecipientName(), PATRIZIO.getRecipientName());
+
+            assertThat(responsePage1.nextCursor()).isNotNull();
+
+            var responsePage2 = given()
+                .spec(requestSpecification)
+                .pathParam("bank-account-id", bankAccountId)
+                .queryParam("limit", pageLimit)
+                .queryParam("cursor", responsePage1.nextCursor())
+            .when()
+                .get()
+            .then()
+                .statusCode(HttpStatus.OK.value())
+                    .extract()
+                    .body()
+                    .as(GetAccountRecipientsResponse.class);
+
+            assertThat(responsePage2.accountRecipients())
+                .hasSize(1)
+                .extracting(AccountRecipientResponse::recipientName)
+                .containsExactly(VIRGINIO.getRecipientName());
+
+            assertThat(responsePage2.nextCursor()).isNull();
+        }
+
+        @Test
+        void shouldReturnFirstPageWithNextCursor_whenItemsExceedLimit() {
+            accountRecipientsTable.putItem(recipientVirginio);
+            accountRecipientsTable.putItem(recipientJefferson);
+            accountRecipientsTable.putItem(recipientPatrizio);
+
+            var pageLimit = 2;
+            var response = given()
+                .spec(requestSpecification)
+                .pathParam("bank-account-id", bankAccountId)
+                .queryParam("limit", pageLimit)
+            .when()
+                .get()
+            .then()
+                .statusCode(HttpStatus.OK.value())
+                    .extract()
+                    .body()
+                    .as(GetAccountRecipientsResponse.class);
+
+            assertThat(response.accountRecipients())
+                .hasSize(pageLimit)
+                .extracting(AccountRecipientResponse::recipientName)
+                .containsExactly(JEFFERSON.getRecipientName(), PATRIZIO.getRecipientName());
+
+            assertThat(response.nextCursor()).isNotNull();
+        }
+
+        @Test
+        void shouldReturnAllItemsAndNullCursor_whenItemsExactlyFillPageLimit() {
+            accountRecipientsTable.putItem(recipientJefferson);
+            accountRecipientsTable.putItem(recipientPatrizio);
+
+            var pageLimit = 2;
+            var response = given()
+                .spec(requestSpecification)
+                .pathParam("bank-account-id", bankAccountId)
+                .queryParam("limit", pageLimit)
+            .when()
+                .get()
+            .then()
+                .statusCode(HttpStatus.OK.value())
+                    .extract()
+                    .body()
+                    .as(GetAccountRecipientsResponse.class);
+
+            assertThat(response.accountRecipients())
+                .hasSize(pageLimit)
+                .extracting(AccountRecipientResponse::recipientName)
+                .containsExactly(JEFFERSON.getRecipientName(), PATRIZIO.getRecipientName());
+
+            assertThat(response.nextCursor()).isNull();
+        }
+    }
+
+    @Nested
+    class Cursor {
+
+        @Test
+        void shouldReturnAllItemsAndNullCursor_whenLastPageIsReached() {
+            accountRecipientsTable.putItem(recipientVirginio);
+            accountRecipientsTable.putItem(recipientJefferson);
+            accountRecipientsTable.putItem(recipientPatrizio);
+
+            var pageLimit = 3;
+            var response = given()
+                .spec(requestSpecification)
+                .pathParam("bank-account-id", bankAccountId)
+                .queryParam("limit", pageLimit)
+            .when()
+                .get()
+            .then()
+                .statusCode(HttpStatus.OK.value())
+                    .extract()
+                    .body()
+                    .as(GetAccountRecipientsResponse.class);
+
+            assertThat(response.accountRecipients())
+                .hasSize(pageLimit)
+                .extracting(AccountRecipientResponse::recipientName)
+                .containsExactly(JEFFERSON.getRecipientName(), PATRIZIO.getRecipientName(), VIRGINIO.getRecipientName());
+
+            assertThat(response.nextCursor()).isNull();
+        }
+
+//        @Test
+//        void shouldReturnNoContent_whenCursorPointsBeyondLastItem() {
+//            accountRecipientsTable.putItem(recipientJefferson);
+//
+//            var pageLimit = 1;
+//            var response1 = given()
+//                .spec(requestSpecification)
+//                .pathParam("bank-account-id", bankAccountId)
+//                .queryParam("limit", pageLimit)
+//            .when()
+//                .get()
+//            .then()
+//                .statusCode(HttpStatus.OK.value())
+//                    .extract()
+//                    .body()
+//                    .as(GetAccountRecipientsResponse.class);
+//
+//            assertThat(response1.accountRecipients())
+//                .hasSize(pageLimit)
+//                .extracting(AccountRecipientResponse::recipientName)
+//                .containsExactly(JEFFERSON.getRecipientName());
+//
+//            given()
+//                .spec(requestSpecification)
+//                .pathParam("bank-account-id", bankAccountId)
+//                .queryParam("limit", pageLimit)
+//                .queryParam("cursor", response1.nextCursor())
+//            .when()
+//                .get()
+//            .then()
+//                .statusCode(HttpStatus.NO_CONTENT.value());
+//        }
+    }
+
+    @Nested
+    class EmptyResults {
+
+        @Test
+        void shouldReturnNoContent_whenNoAccountRecipientsAreFound() {
+            var bankAccountId = UUID.randomUUID();
+
+            given()
+                .spec(requestSpecification)
+                .pathParam("bank-account-id", bankAccountId)
+            .when()
+                .get()
+            .then()
+                .statusCode(HttpStatus.NO_CONTENT.value());
+        }
     }
 
     private RequestSpecification buildRequestSpecification(int port) {

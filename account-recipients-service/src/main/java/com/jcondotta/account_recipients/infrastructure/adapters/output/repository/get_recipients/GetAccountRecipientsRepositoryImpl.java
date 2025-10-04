@@ -6,10 +6,10 @@ import com.jcondotta.account_recipients.application.usecase.get_recipients.model
 import com.jcondotta.account_recipients.domain.recipient.entity.AccountRecipient;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity.AccountRecipientEntity;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity.AccountRecipientEntityKey;
-import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.get_recipients.mapper.LastEvaluatedKeyMapper;
-import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.get_recipients.model.LastEvaluatedKey;
+import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.get_recipients.mapper.GetRecipientsLastEvaluatedKeyMapper;
+import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.get_recipients.model.GetRecipientsLastEvaluatedKey;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.mapper.AccountRecipientEntityMapper;
-import com.jcondotta.account_recipients.interfaces.rest.get_recipients.by_query.model.CursorEncoder;
+import com.jcondotta.account_recipients.interfaces.rest.get_recipients.by_query.model.PaginationCursorCodec;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -17,6 +17,7 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbIndex;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
 
+import java.util.List;
 import java.util.Objects;
 
 @Slf4j
@@ -26,9 +27,9 @@ public class GetAccountRecipientsRepositoryImpl implements GetAccountRecipientsR
 
     private final DynamoDbIndex<AccountRecipientEntity> dynamoDbIndex;
     private final AccountRecipientEntityMapper entityMapper;
-    private final LastEvaluatedKeyMapper lastEvaluatedKeyMapper;
+    private final GetRecipientsLastEvaluatedKeyMapper lastEvaluatedKeyMapper;
 
-    private static final int DEFAULT_PAGE_LIMIT = 10;
+    private static final Integer DEFAULT_PAGE_LIMIT = 10;
 
     @Override
     public PaginatedResult<AccountRecipient> findByQuery(GetAccountRecipientsQuery query) {
@@ -38,24 +39,42 @@ public class GetAccountRecipientsRepositoryImpl implements GetAccountRecipientsR
         final var queryParams = query.queryParams();
         final var limit = Objects.requireNonNullElse(queryParams.limit(), DEFAULT_PAGE_LIMIT);
 
-        LastEvaluatedKey decode = CursorEncoder.decode(queryParams.cursor());
-        final var exclusiveStartKey = lastEvaluatedKeyMapper.toMap(decode);
-        var queryEnhancedRequest = QueryEnhancedRequest.builder()
-            .queryConditional(queryConditional)
-            .exclusiveStartKey(exclusiveStartKey)
-            .limit(limit + 1) // fetch one more item to check if there's a next page
-            .build();
+        var exclusiveStartKey = PaginationCursorCodec
+            .decode(queryParams.cursor())
+            .map(lastEvaluatedKeyMapper::toMap)
+            .orElse(null);
 
-        var page = dynamoDbIndex.query(queryEnhancedRequest).iterator().next();
-        var items = page.items().stream().map(entityMapper::toDomain).toList();
+        var page = dynamoDbIndex.query(
+            QueryEnhancedRequest.builder()
+                .queryConditional(queryConditional)
+                .exclusiveStartKey(exclusiveStartKey)
+                .limit(limit + 1) // sempre pede um a mais
+                .build()
+        ).iterator().next();
+
+        var items = page.items().stream()
+            .map(entityMapper::toDomain)
+            .toList();
+
+        String nextCursor = null;
+        List<AccountRecipient> resultItems = items;
 
         if (items.size() > limit) {
-            // Tem próxima página
-            LastEvaluatedKey nextCursor = lastEvaluatedKeyMapper.toDomain(page.lastEvaluatedKey());
-            return new PaginatedResult<>(items.subList(0, limit), CursorEncoder.encode(nextCursor));
-        } else {
-            // Última página, não retorna cursor
-            return new PaginatedResult<>(items, null);
+            // devolve só até o limite
+            resultItems = items.subList(0, limit);
+
+            // cursor deve ser baseado NO ÚLTIMO ITEM RETORNADO ao cliente
+            var lastReturnedItem = items.get(limit - 1);
+
+            // aqui você monta o cursor a partir desse item (não do page.lastEvaluatedKey cru)
+            GetRecipientsLastEvaluatedKey lek = new GetRecipientsLastEvaluatedKey(
+                lastReturnedItem.bankAccountId().value(),
+                lastReturnedItem.accountRecipientId().value(),
+                lastReturnedItem.recipientName().value()
+            );
+            nextCursor = PaginationCursorCodec.encode(lek);
         }
+
+        return new PaginatedResult<>(resultItems, nextCursor);
     }
 }
