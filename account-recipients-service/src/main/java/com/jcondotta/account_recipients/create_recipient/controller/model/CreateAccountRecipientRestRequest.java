@@ -1,0 +1,16 @@
+package com.jcondotta.account_recipients.create_recipient.controller.model;
+
+import jakarta.validation.constraints.NotBlank;
+
+public record CreateAccountRecipientRestRequest(
+
+    @NotBlank
+    String recipientName,
+
+    @NotBlank
+    String iban
+) {
+    public static CreateAccountRecipientRestRequest of(String recipientName, String iban) {
+        return new CreateAccountRecipientRestRequest(recipientName, iban);
+    }
+}

@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public record GetAccountRecipientsQueryParams(Integer limit, String cursor) {
 
-    static final int DEFAULT_LIMIT = 10;
+    public static final int DEFAULT_LIMIT = 10;
 
     public GetAccountRecipientsQueryParams {
         limit = Objects.requireNonNullElse(limit, DEFAULT_LIMIT);

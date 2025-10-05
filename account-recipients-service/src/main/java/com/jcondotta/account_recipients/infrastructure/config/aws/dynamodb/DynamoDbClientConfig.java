@@ -30,12 +30,12 @@ public class DynamoDbClientConfig {
             .build();
     }
 
-    @Bean
-    @ConditionalOnMissingBean(DynamoDbClient.class)
-    public DynamoDbClient dynamoDbClient(AwsCredentialsProvider credentialsProvider, Region region) {
-        return DynamoDbClient.builder()
-            .region(region)
-            .credentialsProvider(credentialsProvider)
-            .build();
-    }
+//    @Bean
+//    @ConditionalOnMissingBean(DynamoDbClient.class)
+//    public DynamoDbClient dynamoDbClient(AwsCredentialsProvider credentialsProvider, Region region) {
+//        return DynamoDbClient.builder()
+//            .region(region)
+//            .credentialsProvider(credentialsProvider)
+//            .build();
+//    }
 }

@@ -20,7 +20,6 @@
 		<module>account-recipients-domain-service</module>
 		<module>account-recipients-application-service</module>
 		<module>account-recipients-service</module>
-		<module>account-recipients-coverage</module>
 	</modules>
 
 	<properties>
@@ -42,6 +41,28 @@
 		<maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
 		<jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
 	</properties>
+
+	<profiles>
+		<profile>
+			<id>sonar</id>
+			<properties>
+				<sonar.projectName>account-recipients-system</sonar.projectName>
+				<sonar.sources>
+					account-recipients-domain-service/src/main/java,
+					account-recipients-application-service/src/main/java,
+					account-recipients-service/src/main/java
+				</sonar.sources>
+				<sonar.tests>
+					account-recipients-domain-service/src/test/java,
+					account-recipients-application-service/src/test/java,
+					account-recipients-service/src/test/java
+				</sonar.tests>
+				<sonar.coverage.jacoco.xmlReportPaths>
+					account-recipients-coverage/target/site/jacoco-aggregate/jacoco.xml
+				</sonar.coverage.jacoco.xmlReportPaths>
+			</properties>
+		</profile>
+	</profiles>
 
 	<dependencyManagement>
 		<dependencies>

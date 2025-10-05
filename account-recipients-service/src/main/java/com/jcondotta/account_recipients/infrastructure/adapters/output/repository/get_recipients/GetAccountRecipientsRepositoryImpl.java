@@ -9,7 +9,7 @@ import com.jcondotta.account_recipients.infrastructure.adapters.output.repositor
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.get_recipients.mapper.GetRecipientsLastEvaluatedKeyMapper;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.get_recipients.model.GetRecipientsLastEvaluatedKey;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.mapper.AccountRecipientEntityMapper;
-import com.jcondotta.account_recipients.interfaces.rest.get_recipients.by_query.model.PaginationCursorCodec;
+import com.jcondotta.account_recipients.get_recipients.controller.model.response.PaginationCursorCodec;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
