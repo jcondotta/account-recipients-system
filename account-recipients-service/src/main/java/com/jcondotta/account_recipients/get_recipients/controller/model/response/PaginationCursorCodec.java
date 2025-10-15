@@ -32,7 +32,7 @@ public final class PaginationCursorCodec {
             return Optional.empty();
         }
         if( encoded.isBlank()) {
-            throw new RuntimeException("Cursor is blank");
+            throw new IllegalArgumentException("Cursor is blank");
         }
         try {
             byte[] bytes = Base64.getUrlDecoder().decode(encoded);
@@ -43,10 +43,10 @@ public final class PaginationCursorCodec {
             return Optional.of(decoded);
         } catch (IllegalArgumentException e) {
             // Base64 error
-            throw new RuntimeException("Cursor is not valid Base64", e);
+            throw new IllegalArgumentException("Cursor is not valid Base64", e);
         } catch (Exception e) {
             // JSON parse error
-            throw new RuntimeException("Cursor could not be deserialized", e);
+            throw new IllegalArgumentException("Cursor could not be deserialized", e);
         }
     }
 }
