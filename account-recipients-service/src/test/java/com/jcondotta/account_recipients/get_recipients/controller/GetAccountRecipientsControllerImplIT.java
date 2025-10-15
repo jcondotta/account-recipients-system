@@ -202,7 +202,6 @@ class GetAccountRecipientsControllerImplIT {
 
             var pageLimit = 1;
 
-            // primeira requisição — banco A (conta real)
             var response1 = given()
                 .spec(requestSpecification)
                 .pathParam("bank-account-id", bankAccountId)
