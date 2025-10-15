@@ -16,6 +16,7 @@ import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbIndex;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
+import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
 
 import java.util.List;
 import java.util.Objects;
@@ -37,44 +38,87 @@ public class GetAccountRecipientsRepositoryImpl implements GetAccountRecipientsR
         final var queryConditional = QueryConditional.keyEqualTo(k -> k.partitionValue(partitionKey));
 
         final var queryParams = query.queryParams();
-        final var limit = Objects.requireNonNullElse(queryParams.limit(), DEFAULT_PAGE_LIMIT);
+        final int limit = Objects.requireNonNullElse(queryParams.limit(), DEFAULT_PAGE_LIMIT);
 
+        // --- decode e validação segura do cursor ---
         var exclusiveStartKey = PaginationCursorCodec
             .decode(queryParams.cursor())
             .map(lastEvaluatedKeyMapper::toMap)
+            .filter(map -> isValidStartKey(map, query))
             .orElse(null);
 
-        var page = dynamoDbIndex.query(
-            QueryEnhancedRequest.builder()
+        try {
+            var queryRequest = QueryEnhancedRequest.builder()
                 .queryConditional(queryConditional)
                 .exclusiveStartKey(exclusiveStartKey)
-                .limit(limit + 1) // sempre pede um a mais
-                .build()
-        ).iterator().next();
+                .limit(limit + 1)
+                .build();
 
-        var items = page.items().stream()
-            .map(entityMapper::toDomain)
-            .toList();
+            var pageIterable = dynamoDbIndex.query(queryRequest);
+            var iterator = pageIterable.iterator();
 
-        String nextCursor = null;
-        List<AccountRecipient> resultItems = items;
+            // Se não há páginas, retorna vazio
+            if (!iterator.hasNext()) {
+                return new PaginatedResult<>(List.of(), null);
+            }
 
-        if (items.size() > limit) {
-            // devolve só até o limite
-            resultItems = items.subList(0, limit);
+            var firstPage = iterator.next();
 
-            // cursor deve ser baseado NO ÚLTIMO ITEM RETORNADO ao cliente
-            var lastReturnedItem = items.get(limit - 1);
+            // se a página não tem itens, retorna vazio
+            if (firstPage.items().isEmpty()) {
+                return new PaginatedResult<>(List.of(), null);
+            }
 
-            // aqui você monta o cursor a partir desse item (não do page.lastEvaluatedKey cru)
-            GetRecipientsLastEvaluatedKey lek = new GetRecipientsLastEvaluatedKey(
-                lastReturnedItem.bankAccountId().value(),
-                lastReturnedItem.accountRecipientId().value(),
-                lastReturnedItem.recipientName().value()
-            );
-            nextCursor = PaginationCursorCodec.encode(lek);
+            var items = firstPage.items().stream()
+                .map(entityMapper::toDomain)
+                .toList();
+
+            // calcula o nextCursor, se houver
+            String nextCursor = null;
+            List<AccountRecipient> resultItems = items;
+
+            if (items.size() > limit) {
+                resultItems = items.subList(0, limit);
+
+                var lastReturnedItem = items.get(limit - 1);
+
+                GetRecipientsLastEvaluatedKey lek = new GetRecipientsLastEvaluatedKey(
+                    lastReturnedItem.bankAccountId().value(),
+                    lastReturnedItem.accountRecipientId().value(),
+                    lastReturnedItem.recipientName().value()
+                );
+                nextCursor = PaginationCursorCodec.encode(lek);
+            }
+
+            return new PaginatedResult<>(resultItems, nextCursor);
+
+        } catch (DynamoDbException e) {
+            log.warn("Ignoring invalid exclusiveStartKey for bankAccountId={}, cause={}",
+                query.bankAccountId().value(), e.getMessage());
+            return new PaginatedResult<>(List.of(), null);
         }
+    }
 
-        return new PaginatedResult<>(resultItems, nextCursor);
+    /**
+     * Verifica se o exclusiveStartKey pertence à mesma partition key do query atual.
+     */
+    private boolean isValidStartKey(
+        java.util.Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> map,
+        GetAccountRecipientsQuery query
+    ) {
+        try {
+            if (map == null || !map.containsKey(GetRecipientsLastEvaluatedKeyMapper.PARTITION_KEY_PARAM_NAME)) {
+                return false;
+            }
+
+            var pkAttr = map.get(GetRecipientsLastEvaluatedKeyMapper.PARTITION_KEY_PARAM_NAME);
+            var extractedBankAccountId = AccountRecipientEntityKey.extractBankAccountId(pkAttr.s()).value();
+
+            // se pertence à mesma conta, é válido
+            return extractedBankAccountId.equals(query.bankAccountId().value());
+        } catch (Exception e) {
+            log.debug("Invalid start key provided: {}", e.getMessage());
+            return false;
+        }
     }
 }

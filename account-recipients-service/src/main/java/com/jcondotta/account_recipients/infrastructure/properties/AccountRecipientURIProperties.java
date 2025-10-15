@@ -9,10 +9,10 @@ import java.util.UUID;
 
 @Validated
 @ConfigurationProperties(prefix = "api.v1.account-recipients")
-public record AccountRecipientURIProperties(@NotBlank String rootPath, @NotBlank String  accountRecipientIdPath) {
+public record AccountRecipientURIProperties(@NotBlank String rootPath, @NotBlank String accountRecipientIdPath) {
 
     public URI accountRecipientsURI(UUID bankAccountId) {
-        String expanded = rootPath.replace("{bank-account-id}", bankAccountId.toString());
+        var expanded = rootPath.replace("{bank-account-id}", bankAccountId.toString());
         return URI.create(expanded);
     }
 }

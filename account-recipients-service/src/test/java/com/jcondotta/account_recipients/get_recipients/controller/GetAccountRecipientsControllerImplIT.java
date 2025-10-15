@@ -195,38 +195,41 @@ class GetAccountRecipientsControllerImplIT {
             assertThat(response.nextCursor()).isNull();
         }
 
-//        @Test
-//        void shouldReturnNoContent_whenCursorPointsBeyondLastItem() {
-//            accountRecipientsTable.putItem(recipientJefferson);
-//
-//            var pageLimit = 1;
-//            var response1 = given()
-//                .spec(requestSpecification)
-//                .pathParam("bank-account-id", bankAccountId)
-//                .queryParam("limit", pageLimit)
-//            .when()
-//                .get()
-//            .then()
-//                .statusCode(HttpStatus.OK.value())
-//                    .extract()
-//                    .body()
-//                    .as(GetAccountRecipientsResponse.class);
-//
-//            assertThat(response1.accountRecipients())
-//                .hasSize(pageLimit)
-//                .extracting(AccountRecipientResponse::recipientName)
-//                .containsExactly(JEFFERSON.getRecipientName());
-//
-//            given()
-//                .spec(requestSpecification)
-//                .pathParam("bank-account-id", bankAccountId)
-//                .queryParam("limit", pageLimit)
-//                .queryParam("cursor", response1.nextCursor())
-//            .when()
-//                .get()
-//            .then()
-//                .statusCode(HttpStatus.NO_CONTENT.value());
-//        }
+        @Test
+        void shouldReturnNoContent_whenCursorBelongsToAnotherBankAccount() {
+            accountRecipientsTable.putItem(recipientJefferson);
+            accountRecipientsTable.putItem(recipientPatrizio);
+
+            var pageLimit = 1;
+
+            // primeira requisição — banco A (conta real)
+            var response1 = given()
+                .spec(requestSpecification)
+                .pathParam("bank-account-id", bankAccountId)
+                .queryParam("limit", pageLimit)
+            .when()
+                .get()
+            .then()
+                .statusCode(HttpStatus.OK.value())
+                    .extract()
+                    .body()
+                    .as(GetAccountRecipientsResponse.class);
+
+            assertThat(response1.accountRecipients()).hasSize(pageLimit);
+            assertThat(response1.nextCursor()).isNotBlank();
+
+            var nonExistingBankAccountId = UUID.randomUUID();
+
+            given()
+                .spec(requestSpecification)
+                .pathParam("bank-account-id", nonExistingBankAccountId)
+                .queryParam("limit", pageLimit)
+                .queryParam("cursor", response1.nextCursor())
+            .when()
+                .get()
+            .then()
+                .statusCode(HttpStatus.NO_CONTENT.value());
+        }
     }
 
     @Nested
