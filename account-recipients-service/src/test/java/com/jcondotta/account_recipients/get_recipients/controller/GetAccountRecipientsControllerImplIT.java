@@ -1,5 +1,6 @@
 package com.jcondotta.account_recipients.get_recipients.controller;
 
+import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model.GetAccountRecipientsQueryParams;
 import com.jcondotta.account_recipients.common.container.LocalStackTestContainer;
 import com.jcondotta.account_recipients.common.factory.AccountRecipientEntityTestFactory;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity.AccountRecipientEntity;
@@ -162,6 +163,52 @@ class GetAccountRecipientsControllerImplIT {
                 .containsExactly(JEFFERSON.getRecipientName(), PATRIZIO.getRecipientName());
 
             assertThat(response.nextCursor()).isNull();
+        }
+
+        @Test
+        void shouldApplyDefaultLimitAndReturnNextCursor_whenLimitParamIsOmitted() {
+            for (int i = 0; i < 12; i++) {
+                var recipient = AccountRecipientEntityTestFactory.create(bankAccountId, "Recipient #" + i);
+                accountRecipientsTable.putItem(recipient);
+            }
+
+            var response = given()
+                .spec(requestSpecification)
+                .pathParam("bank-account-id", bankAccountId)
+            .when()
+                .get()
+            .then()
+                .statusCode(HttpStatus.OK.value())
+                    .extract()
+                    .body()
+                    .as(GetAccountRecipientsResponse.class);
+
+            assertThat(response.accountRecipients())
+                .hasSize(GetAccountRecipientsQueryParams.DEFAULT_LIMIT)
+                .extracting(AccountRecipientResponse::recipientName)
+                .allSatisfy(name -> assertThat(name)
+                    .startsWith("Recipient #"));
+
+            assertThat(response.nextCursor()).isNotBlank();
+
+            var responsePage2 = given()
+                .spec(requestSpecification)
+                .pathParam("bank-account-id", bankAccountId)
+                .queryParam("cursor", response.nextCursor())
+            .when()
+                .get()
+            .then()
+                .statusCode(HttpStatus.OK.value())
+                    .extract()
+                    .body()
+                    .as(GetAccountRecipientsResponse.class);
+
+            assertThat(responsePage2.accountRecipients())
+                .hasSize(2)
+                .extracting(AccountRecipientResponse::recipientName)
+                .allSatisfy(name -> assertThat(name).startsWith("Recipient #"));
+
+            assertThat(responsePage2.nextCursor()).isNull();
         }
     }
 
