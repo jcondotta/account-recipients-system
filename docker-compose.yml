@@ -17,11 +17,11 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - account_recipients_network
+      - account-recipients-network
     volumes:
       - '/var/run/docker.sock:/var/run/docker.sock'
       - ./localstack:/etc/localstack/init/ready.d
-      - account_recipients_localstack_data:/var/lib/localstack
+      - account-recipients-localstack:/var/lib/localstack
 
   redis:
     image: redis:7.4.3
@@ -30,9 +30,9 @@ services:
     ports:
       - "6382:6379"
     volumes:
-      - account_recipients_redis:/data
+      - account-recipients-redis:/data
     networks:
-      - account_recipients_network
+      - account-recipients-network
     healthcheck:
       test: [ "CMD-SHELL", "redis-cli ping || exit 1" ]
       interval: 10s
@@ -40,12 +40,25 @@ services:
       start_period: 10s
       timeout: 5s
 
+  prometheus:
+    image: prom/prometheus:v2.51.2
+    container_name: account-recipients-prometheus
+    volumes:
+      - account-recipients-prometheus:/prometheus
+      - ./prometheus-config.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9091:9090"
+    networks:
+      - account-recipients-network
+
 volumes:
-  account_recipients_localstack_data:
+  account-recipients-localstack:
     name: account-recipients-localstack-data
-  account_recipients_redis:
+  account-recipients-redis:
     name: account-recipients-redis-data
+  account-recipients-prometheus:
+    name: account-recipients-prometheus-data
 
 networks:
-  account_recipients_network:
+  account-recipients-network:
     name: account-recipients-network

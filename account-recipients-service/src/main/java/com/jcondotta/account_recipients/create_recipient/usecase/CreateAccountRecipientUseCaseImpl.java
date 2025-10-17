@@ -7,6 +7,7 @@ import com.jcondotta.account_recipients.application.usecase.create_recipient.map
 import com.jcondotta.account_recipients.application.usecase.create_recipient.model.CreateAccountRecipientCommand;
 import com.jcondotta.account_recipients.application.usecase.shared.IdempotencyKey;
 import com.jcondotta.account_recipients.domain.bank_account.entity.BankAccount;
+import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -21,11 +22,16 @@ public class CreateAccountRecipientUseCaseImpl implements CreateAccountRecipient
     private final CreateAccountRecipientRepository createAccountRecipientRepository;
 
     @Override
+    @Observed(
+        name = "account_recipients.create",
+        contextualName = "createAccountRecipient",
+        lowCardinalityKeyValues = {"module", "account-recipients", "operation", "create"}
+    )
     public void execute(CreateAccountRecipientCommand command, IdempotencyKey idempotencyKey) {
         log.info("Attempting to create a recipient [bankAccountId={}, accountRecipientId={}]",
             command.bankAccountId(), command.recipientName());
 
-        BankAccount bankAccount = lookupBankAccountFacade.byId(command.bankAccountId());
+        lookupBankAccountFacade.byId(command.bankAccountId());
         createAccountRecipientRepository.create(commandMapper.toAccountRecipient(command));
 
         log.info("Recipient created successfully [bankAccountId={}, accountRecipientId={}]",

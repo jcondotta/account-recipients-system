@@ -3,17 +3,15 @@ package com.jcondotta.account_recipients.get_recipients.controller.model.respons
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.get_recipients.model.GetRecipientsLastEvaluatedKey;
+import lombok.experimental.UtilityClass;
 
 import java.util.Base64;
 import java.util.Optional;
 
+@UtilityClass
 public final class PaginationCursorCodec {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
-
-    private PaginationCursorCodec() {
-        // utility
-    }
 
     public static String encode(GetRecipientsLastEvaluatedKey key) {
         if (key == null) return null;

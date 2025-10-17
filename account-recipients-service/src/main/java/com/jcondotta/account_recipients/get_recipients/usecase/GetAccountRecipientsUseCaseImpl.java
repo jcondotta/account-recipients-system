@@ -7,6 +7,7 @@ import com.jcondotta.account_recipients.application.usecase.get_recipients.mappe
 import com.jcondotta.account_recipients.application.usecase.get_recipients.model.query.GetAccountRecipientsQuery;
 import com.jcondotta.account_recipients.application.usecase.get_recipients.model.result.GetAccountRecipientsResult;
 import com.jcondotta.account_recipients.domain.recipient.entity.AccountRecipient;
+import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,11 @@ public class GetAccountRecipientsUseCaseImpl implements GetAccountRecipientsUseC
     private final GetAccountRecipientsRepository getAccountRecipientsRepository;
 
     @Override
+    @Observed(
+        name = "account_recipients.query",
+        contextualName = "queryAccountRecipients",
+        lowCardinalityKeyValues = {"module", "account-recipients", "operation", "query"}
+    )
     public GetAccountRecipientsResult execute(GetAccountRecipientsQuery getAccountRecipientsQuery) {
         PaginatedResult<AccountRecipient> paginatedResult = getAccountRecipientsRepository.findByQuery(getAccountRecipientsQuery);
 

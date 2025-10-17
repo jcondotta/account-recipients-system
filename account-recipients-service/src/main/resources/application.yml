@@ -35,10 +35,19 @@ management:
   endpoints:
     web:
       exposure:
-        include: prometheus, health
+        include: health, prometheus, metrics
   metrics:
+    tags:
+      application: ${spring.application.name}
+#      environment: ${ENVIRONMENT:local}
     distribution:
       percentiles-histogram:
-        request.internal.transfer.time: true
+        http.server.requests: true
+        account_recipients.create: true
+        account_recipients.query: true
+      percentiles:
+        account_recipients.create: 0.5, 0.95, 0.99
+        account_recipients.query: 0.5, 0.95, 0.99
+        http.server.requests: 0.5, 0.95, 0.99
 
 
