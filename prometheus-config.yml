@@ -7,4 +7,4 @@ scrape_configs:
     static_configs:
       - targets: ["host.docker.internal:8096"]
         labels:
-          application: "account-recipients-system-system"
+          application: "account-recipients-system"

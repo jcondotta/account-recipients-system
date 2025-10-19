@@ -1,9 +1,10 @@
 spring:
-#  data:
-#    redis:
-#      host: localhost
-#      port: 6381
-#      database: 0
+  cache:
+    type: redis
+  data:
+    redis:
+      host: localhost
+      port: 6382
 
 cloud:
   aws:

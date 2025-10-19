@@ -3,13 +3,14 @@ server:
 
 spring:
   application:
-    name: account-recipients-service
-#  cache:
-#    type: redis
-#  data:
-#    redis:
-#      host: ${REDIS_HOST}
-#      port: ${REDIS_PORT}
+    name: account-recipients
+
+  cache:
+    type: redis
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
 
 cloud:
   aws:
@@ -43,11 +44,17 @@ management:
     distribution:
       percentiles-histogram:
         http.server.requests: true
-        account_recipients.create: true
-        account_recipients.query: true
+        account.recipients.create: true
+        account.recipients.query: true
+        cache.get: true
+        cache.put_if_absent: true
+        cache.put: true
       percentiles:
-        account_recipients.create: 0.5, 0.95, 0.99
-        account_recipients.query: 0.5, 0.95, 0.99
         http.server.requests: 0.5, 0.95, 0.99
+        account.recipients.create: 0.5, 0.95, 0.99
+        account.recipients.query: 0.5, 0.95, 0.99
+        cache.get: 0.5, 0.95, 0.99
+        cache.put_if_absent: 0.5, 0.95, 0.99
+        cache.put: 0.5, 0.95, 0.99
 
 

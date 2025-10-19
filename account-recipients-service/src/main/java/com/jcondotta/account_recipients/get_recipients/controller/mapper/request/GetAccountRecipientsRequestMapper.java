@@ -1,6 +1,8 @@
 package com.jcondotta.account_recipients.get_recipients.controller.mapper.request;
 
 import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model.GetAccountRecipientsQueryParams;
+import com.jcondotta.account_recipients.application.ports.output.repository.shared.PaginationCursor;
+import com.jcondotta.account_recipients.application.ports.output.repository.shared.QueryLimit;
 import com.jcondotta.account_recipients.application.usecase.get_recipients.model.query.GetAccountRecipientsQuery;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
 import com.jcondotta.account_recipients.get_recipients.controller.model.request.GetAccountRecipientsRestRequestParams;
@@ -8,7 +10,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
+import java.util.Objects;
 import java.util.UUID;
+
+import static java.util.Objects.nonNull;
 
 @Mapper(
     componentModel = "spring",
@@ -27,6 +32,9 @@ public interface GetAccountRecipientsRequestMapper {
         if (requestParams == null) {
             return null;
         }
-        return GetAccountRecipientsQueryParams.of(requestParams.limit(), requestParams.cursor());
+        var queryLimit = nonNull(requestParams.limit()) ? QueryLimit.of(requestParams.limit()) : null;
+        var paginationCursor = nonNull(requestParams.cursor()) ? PaginationCursor.of(requestParams.cursor()) : null;
+
+        return GetAccountRecipientsQueryParams.of(queryLimit, paginationCursor);
     }
 }

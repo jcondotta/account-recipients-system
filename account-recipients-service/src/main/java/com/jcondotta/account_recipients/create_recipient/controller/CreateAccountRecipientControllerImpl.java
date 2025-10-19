@@ -36,11 +36,9 @@ public class CreateAccountRecipientControllerImpl implements CreateAccountRecipi
     public ResponseEntity<String> createAccountRecipient(
         UUID bankAccountId, CreateAccountRecipientRestRequest request, UUID idempotencyKey
     ) {
-        var requestCardCommand = mapper.toCommand(bankAccountId, request, clock);
-        useCase.execute(requestCardCommand, IdempotencyKey.of(idempotencyKey));
+        var command = mapper.toCommand(bankAccountId, request, clock);
+        useCase.execute(command, IdempotencyKey.of(idempotencyKey));
 
-        return ResponseEntity.created(
-            uriProperties.accountRecipientsURI(bankAccountId)
-        ).build();
+        return ResponseEntity.created(uriProperties.accountRecipientsURI(bankAccountId)).build();
     }
 }

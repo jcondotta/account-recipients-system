@@ -1,6 +1,8 @@
 package com.jcondotta.account_recipients.application.usecase.get_recipients.model.query;
 
 import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model.GetAccountRecipientsQueryParams;
+import com.jcondotta.account_recipients.application.ports.output.repository.shared.PaginationCursor;
+import com.jcondotta.account_recipients.application.ports.output.repository.shared.QueryLimit;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
 import org.junit.jupiter.api.Test;
 
@@ -12,8 +14,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class GetAccountRecipientsQueryTest {
 
     private static final BankAccountId BANK_ACCOUNT_ID = BankAccountId.of(UUID.randomUUID());
+    private static final QueryLimit QUERY_LIMIT_10 = QueryLimit.of(10);
+    private static final PaginationCursor PAGINATION_CURSOR = PaginationCursor.of("next-cursor-token");
+
     private static final GetAccountRecipientsQueryParams QUERY_PARAMS =
-        GetAccountRecipientsQueryParams.of(10, "next-cursor-token");
+        GetAccountRecipientsQueryParams.of(QUERY_LIMIT_10, PAGINATION_CURSOR);
 
     @Test
     void shouldCreateQuery_whenValidArguments() {

@@ -1,55 +1,65 @@
 package com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model;
 
+import com.jcondotta.account_recipients.application.ports.output.repository.shared.PaginationCursor;
+import com.jcondotta.account_recipients.application.ports.output.repository.shared.QueryLimit;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
-import static com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model.GetAccountRecipientsQueryParams.DEFAULT_LIMIT;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class GetAccountRecipientsQueryParamsTest {
 
-    private static final String nextCursor = "next-cursor-token";
+    private static final QueryLimit QUERY_LIMIT_DEFAULT = QueryLimit.of(GetAccountRecipientsQueryParams.DEFAULT_LIMIT);
+    private static final QueryLimit QUERY_LIMIT_20 = QueryLimit.of(20);
+
+    private static final PaginationCursor PAGINATION_CURSOR = PaginationCursor.of("encoded-cursor-123");
 
     @Test
-    void shouldApplyDefaultLimit_whenLimitIsNull() {
-        var queryParams = new GetAccountRecipientsQueryParams(null, nextCursor);
+    void shouldCreateQueryParams_whenAllFieldsAreProvided() {
+        var queryParams = GetAccountRecipientsQueryParams.of(QUERY_LIMIT_20, PAGINATION_CURSOR);
 
-        assertThat(queryParams.limit()).isEqualTo(DEFAULT_LIMIT);
-        assertThat(queryParams.cursor()).isEqualTo(nextCursor);
-    }
-
-    @ParameterizedTest
-    @ValueSource(ints = {1, 10, 15, 20})
-    void shouldAcceptLimit_whenValueIsWithinRange(Integer validLimit) {
-        var params = new GetAccountRecipientsQueryParams(validLimit, nextCursor);
-
-        assertThat(params.limit()).isEqualTo(validLimit);
-        assertThat(params.cursor()).isEqualTo(nextCursor);
-    }
-
-    @ParameterizedTest
-    @ValueSource(ints = {0, -1, -50})
-    void shouldThrowIllegalArgumentException_whenLimitIsBelowMinimum(Integer invalidLimit) {
-        assertThatThrownBy(() -> new GetAccountRecipientsQueryParams(invalidLimit, nextCursor))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("limit must be between 1 and 20");
-    }
-
-    @ParameterizedTest
-    @ValueSource(ints = {101, 150, 1000})
-    void shouldThrowIllegalArgumentException_whenLimitIsAboveMaximum(Integer invalidLimit) {
-        assertThatThrownBy(() -> new GetAccountRecipientsQueryParams(invalidLimit, nextCursor))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("limit must be between 1 and 20");
+        assertThat(queryParams)
+            .satisfies(params -> {
+                assertThat(params.limit()).isEqualTo(QUERY_LIMIT_20);
+                assertThat(params.cursor()).isEqualTo(PAGINATION_CURSOR);
+            });
     }
 
     @Test
-    void shouldCreateInstanceUsingFactoryMethod() {
-        var params = GetAccountRecipientsQueryParams.of(DEFAULT_LIMIT, nextCursor);
+    void shouldCreateQueryParamsWithDefaultQueryLimit_whenLimitIsNull() {
+        var queryParams = GetAccountRecipientsQueryParams.of(null, PAGINATION_CURSOR);
+        assertThat(queryParams)
+            .satisfies(params -> {
+                assertThat(params.limit()).isEqualTo(QUERY_LIMIT_DEFAULT);
+                assertThat(params.cursor()).isEqualTo(PAGINATION_CURSOR);
+            });
+    }
 
-        assertThat(params.limit()).isEqualTo(DEFAULT_LIMIT);
-        assertThat(params.cursor()).isEqualTo(nextCursor);
+    @Test
+    void shouldThrowNullPointerException_whenCursorIsNull() {
+        var queryParams = GetAccountRecipientsQueryParams.of(QUERY_LIMIT_20, null);
+        assertThat(queryParams)
+            .satisfies(params -> {
+                assertThat(params.limit()).isEqualTo(QUERY_LIMIT_20);
+                assertThat(params.cursor()).isNull();
+            });
+    }
+
+    @Test
+    void shouldBeEqual_whenHavingSameValues() {
+        var queryParams1 = GetAccountRecipientsQueryParams.of(QUERY_LIMIT_20, PAGINATION_CURSOR);
+        var queryParams2 = GetAccountRecipientsQueryParams.of(QUERY_LIMIT_20, PAGINATION_CURSOR);
+
+        assertThat(queryParams1).isEqualTo(queryParams2);
+        assertThat(queryParams1.hashCode()).isEqualTo(queryParams2.hashCode());
+    }
+
+    @Test
+    void shouldNotBeEqual_whenFieldsDiffer() {
+        var cursor2 = PaginationCursor.of("different-cursor");
+
+        var params1 = GetAccountRecipientsQueryParams.of(QUERY_LIMIT_20, PAGINATION_CURSOR);
+        var params2 = GetAccountRecipientsQueryParams.of(QUERY_LIMIT_DEFAULT, cursor2);
+
+        assertThat(params1).isNotEqualTo(params2);
     }
 }

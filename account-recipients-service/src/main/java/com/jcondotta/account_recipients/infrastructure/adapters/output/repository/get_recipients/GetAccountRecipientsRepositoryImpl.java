@@ -30,19 +30,18 @@ public class GetAccountRecipientsRepositoryImpl implements GetAccountRecipientsR
     private final AccountRecipientEntityMapper entityMapper;
     private final GetRecipientsLastEvaluatedKeyMapper lastEvaluatedKeyMapper;
 
-    private static final Integer DEFAULT_PAGE_LIMIT = 10;
-
     @Override
     public PaginatedResult<AccountRecipient> findByQuery(GetAccountRecipientsQuery query) {
         final var partitionKey = AccountRecipientEntityKey.partitionKey(query.bankAccountId());
         final var queryConditional = QueryConditional.keyEqualTo(k -> k.partitionValue(partitionKey));
 
         final var queryParams = query.queryParams();
-        final int limit = Objects.requireNonNullElse(queryParams.limit(), DEFAULT_PAGE_LIMIT);
+        final int limit = queryParams.limit().value();
+        final String cursor = Objects.nonNull(queryParams.cursor()) ? queryParams.cursor().value() : null;
 
         // --- decode e validação segura do cursor ---
         var exclusiveStartKey = PaginationCursorCodec
-            .decode(queryParams.cursor())
+            .decode(cursor)
             .map(lastEvaluatedKeyMapper::toMap)
             .filter(map -> isValidStartKey(map, query))
             .orElse(null);

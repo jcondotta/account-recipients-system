@@ -1,5 +1,7 @@
 package com.jcondotta.account_recipients.get_recipients.usecase;
 
+import com.jcondotta.account_recipients.application.ports.output.cache.AccountRecipientsQueryCacheKey;
+import com.jcondotta.account_recipients.application.ports.output.cache.CacheStore;
 import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.GetAccountRecipientsRepository;
 import com.jcondotta.account_recipients.application.ports.output.repository.shared.PaginatedResult;
 import com.jcondotta.account_recipients.application.usecase.get_recipients.GetAccountRecipientsUseCase;
@@ -12,27 +14,38 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class GetAccountRecipientsUseCaseImpl implements GetAccountRecipientsUseCase {
 
     private final GetAccountRecipientsQueryMapper queryMapper;
+    private final CacheStore<GetAccountRecipientsResult> cacheStore;
     private final GetAccountRecipientsRepository getAccountRecipientsRepository;
 
     @Override
     @Observed(
-        name = "account_recipients.query",
+        name = "account.recipients.query",
         contextualName = "queryAccountRecipients",
-        lowCardinalityKeyValues = {"module", "account-recipients", "operation", "query"}
+        lowCardinalityKeyValues = {"operation", "query"}
     )
-    public GetAccountRecipientsResult execute(GetAccountRecipientsQuery getAccountRecipientsQuery) {
-        PaginatedResult<AccountRecipient> paginatedResult = getAccountRecipientsRepository.findByQuery(getAccountRecipientsQuery);
+    public GetAccountRecipientsResult execute(GetAccountRecipientsQuery query) {
+        var queryCacheKey = AccountRecipientsQueryCacheKey.of(query.bankAccountId(), query.queryParams());
 
-        var accountRecipientDetailsList = paginatedResult.items().stream()
-            .map(queryMapper::toAccountRecipient)
-            .toList();
+        return cacheStore.getIfPresent(queryCacheKey.value())
+            .orElseGet(() -> {
+                PaginatedResult<AccountRecipient> paginatedResult = getAccountRecipientsRepository.findByQuery(query);
 
-        return GetAccountRecipientsResult.of(accountRecipientDetailsList, paginatedResult.nextCursor());
+                var accountRecipientDetailsList = paginatedResult.items().stream()
+                    .map(queryMapper::toAccountRecipient)
+                    .toList();
+
+                var getAccountRecipientsResult = GetAccountRecipientsResult.of(accountRecipientDetailsList, paginatedResult.nextCursor());
+                cacheStore.putIfAbsent(queryCacheKey.value(), getAccountRecipientsResult);
+
+                return getAccountRecipientsResult;
+            });
     }
 }
