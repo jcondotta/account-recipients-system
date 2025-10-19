@@ -30,16 +30,13 @@ public record AccountRecipientsQueryCacheKey(BankAccountId bankAccountId, GetAcc
 
     @Override
     public String value() {
-        return String.format(ACCOUNT_RECIPIENTS_TEMPLATE, bankAccountId.value(), queryParamsHash());
+        return String.format(ACCOUNT_RECIPIENTS_TEMPLATE, bankAccountId.value(), queryParamsHash(queryParams));
     }
 
-    private String queryParamsHash() {
+    public String queryParamsHash(GetAccountRecipientsQueryParams queryParams) {
         try {
-            final var cursorValue = Optional.ofNullable(queryParams.cursor())
-                .map(Object::toString)
-                .orElse("null");
-
-            final String raw = String.format(QUERY_PARAMS_HASH_TEMPLATE, queryParams.limit().value(), cursorValue);
+            final var cursorValue = extractCursorValue();
+            final var raw = String.format(QUERY_PARAMS_HASH_TEMPLATE, queryParams.limit().value(), cursorValue);
 
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] encoded = digest.digest(raw.getBytes(StandardCharsets.UTF_8));
@@ -51,5 +48,11 @@ public record AccountRecipientsQueryCacheKey(BankAccountId bankAccountId, GetAcc
         } catch (Exception e) {
             throw new IllegalStateException(QUERY_HASH_ERROR_MESSAGE, e);
         }
+    }
+
+    private String extractCursorValue(){
+        return Optional.ofNullable(queryParams.cursor())
+            .map(Object::toString)
+            .orElse("null");
     }
 }

@@ -43,7 +43,7 @@ public class GetAccountRecipientsUseCaseImpl implements GetAccountRecipientsUseC
                     .toList();
 
                 var getAccountRecipientsResult = GetAccountRecipientsResult.of(accountRecipientDetailsList, paginatedResult.nextCursor());
-                cacheStore.putIfAbsent(queryCacheKey.value(), getAccountRecipientsResult);
+                cacheStore.put(queryCacheKey.value(), getAccountRecipientsResult);
 
                 return getAccountRecipientsResult;
             });

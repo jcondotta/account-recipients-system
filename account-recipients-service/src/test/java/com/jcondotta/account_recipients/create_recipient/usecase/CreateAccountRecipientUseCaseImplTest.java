@@ -1,10 +1,13 @@
 package com.jcondotta.account_recipients.create_recipient.usecase;
 
 import com.jcondotta.account_recipients.ClockTestFactory;
+import com.jcondotta.account_recipients.application.ports.output.cache.AccountRecipientsRootCacheKey;
+import com.jcondotta.account_recipients.application.ports.output.cache.CacheStore;
 import com.jcondotta.account_recipients.application.ports.output.repository.create_recipient.CreateAccountRecipientRepository;
 import com.jcondotta.account_recipients.application.usecase.create_recipient.CreateAccountRecipientUseCase;
 import com.jcondotta.account_recipients.application.usecase.create_recipient.mapper.CreateAccountRecipientCommandMapper;
 import com.jcondotta.account_recipients.application.usecase.create_recipient.model.CreateAccountRecipientCommand;
+import com.jcondotta.account_recipients.application.usecase.get_recipients.model.result.GetAccountRecipientsResult;
 import com.jcondotta.account_recipients.application.usecase.shared.IdempotencyKey;
 import com.jcondotta.account_recipients.common.fixtures.AccountRecipientFixtures;
 import com.jcondotta.account_recipients.domain.bank_account.entity.BankAccount;
@@ -56,6 +59,9 @@ class CreateAccountRecipientUseCaseImplTest {
     @Mock
     private CreateAccountRecipientRepository createAccountRecipientRepositoryMock;
 
+    @Mock
+    private CacheStore<GetAccountRecipientsResult> cacheStoreMock;
+
     @Captor
     private ArgumentCaptor<AccountRecipient> accountRecipientCaptor;
 
@@ -63,7 +69,7 @@ class CreateAccountRecipientUseCaseImplTest {
 
     @BeforeEach
     public void setUp() {
-        useCase = new CreateAccountRecipientUseCaseImpl(lookupBankAccountFacadeMock, commandMapper, createAccountRecipientRepositoryMock);
+        useCase = new CreateAccountRecipientUseCaseImpl(lookupBankAccountFacadeMock, commandMapper, cacheStoreMock, createAccountRecipientRepositoryMock);
     }
 
     @Test
@@ -73,7 +79,6 @@ class CreateAccountRecipientUseCaseImplTest {
         var createAccountRecipientCommand = buildCreateAccountRecipientCommand();
         useCase.execute(createAccountRecipientCommand, idempotencyKey);
 
-        verify(lookupBankAccountFacadeMock).byId(BANK_ACCOUNT_ID);
         verify(createAccountRecipientRepositoryMock).create(accountRecipientCaptor.capture());
 
         assertThat(accountRecipientCaptor.getValue())
@@ -84,6 +89,13 @@ class CreateAccountRecipientUseCaseImplTest {
                 assertThat(accountRecipient.iban()).isEqualTo(IBAN);
                 assertThat(accountRecipient.createdAt()).isEqualTo(ZonedDateTime.now(TEST_FIXED_CLOCK));
             });
+
+        var cacheKey = AccountRecipientsRootCacheKey.of(BANK_ACCOUNT_ID);
+        verify(cacheStoreMock).evictKeysByPrefix(cacheKey.value());
+        verify(lookupBankAccountFacadeMock).byId(BANK_ACCOUNT_ID);
+
+        verifyNoMoreInteractions(lookupBankAccountFacadeMock, cacheStoreMock, createAccountRecipientRepositoryMock);
+
     }
 
     @Test
@@ -98,7 +110,7 @@ class CreateAccountRecipientUseCaseImplTest {
                 .hasMessage(BankAccountNotFoundException.BANK_ACCOUNT_NOT_FOUND_TEMPLATE);
 
         verify(lookupBankAccountFacadeMock).byId(BANK_ACCOUNT_ID);
-        verifyNoInteractions(createAccountRecipientRepositoryMock);
+        verifyNoInteractions(createAccountRecipientRepositoryMock, cacheStoreMock);
     }
 
     private CreateAccountRecipientCommand buildCreateAccountRecipientCommand() {

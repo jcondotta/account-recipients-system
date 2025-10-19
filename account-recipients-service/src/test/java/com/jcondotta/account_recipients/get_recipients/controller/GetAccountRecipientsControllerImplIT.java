@@ -1,8 +1,16 @@
 package com.jcondotta.account_recipients.get_recipients.controller;
 
+import com.jcondotta.account_recipients.application.ports.output.cache.AccountRecipientsQueryCacheKey;
+import com.jcondotta.account_recipients.application.ports.output.cache.AccountRecipientsRootCacheKey;
+import com.jcondotta.account_recipients.application.ports.output.cache.CacheStore;
 import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model.GetAccountRecipientsQueryParams;
+import com.jcondotta.account_recipients.application.usecase.get_recipients.model.AccountRecipientDetails;
+import com.jcondotta.account_recipients.application.usecase.get_recipients.model.result.GetAccountRecipientsResult;
 import com.jcondotta.account_recipients.common.container.LocalStackTestContainer;
+import com.jcondotta.account_recipients.common.container.RedisTestContainer;
 import com.jcondotta.account_recipients.common.factory.AccountRecipientEntityTestFactory;
+import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientName;
+import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity.AccountRecipientEntity;
 import com.jcondotta.account_recipients.infrastructure.properties.AccountRecipientURIProperties;
 import com.jcondotta.account_recipients.get_recipients.controller.model.response.AccountRecipientResponse;
@@ -29,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("test")
 @AutoConfigureWireMock(port = 0)
-@ContextConfiguration(initializers = { LocalStackTestContainer.class })
+@ContextConfiguration(initializers = { LocalStackTestContainer.class, RedisTestContainer.class })
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class GetAccountRecipientsControllerImplIT {
 
@@ -38,6 +46,9 @@ class GetAccountRecipientsControllerImplIT {
 
     @Autowired
     private AccountRecipientURIProperties uriProperties;
+
+    @Autowired
+    private CacheStore<GetAccountRecipientsResult> cacheStore;
 
     private RequestSpecification requestSpecification;
 
@@ -279,12 +290,90 @@ class GetAccountRecipientsControllerImplIT {
     }
 
     @Nested
+    class Cache {
+
+        @Test
+        void shouldPopulateCache_whenQueryIsExecuted() {
+            accountRecipientsTable.putItem(recipientJefferson);
+            accountRecipientsTable.putItem(recipientPatrizio);
+
+            var pageLimit = 2;
+            given()
+                .spec(requestSpecification)
+                .pathParam("bank-account-id", bankAccountId)
+                .queryParam("limit", pageLimit)
+            .when()
+                .get()
+            .then()
+                .statusCode(HttpStatus.OK.value());
+
+            var queryParams = GetAccountRecipientsQueryParams.of(2);
+            var queryCacheKey = AccountRecipientsQueryCacheKey.of(BankAccountId.of(bankAccountId), queryParams);
+
+            assertThat(cacheStore.getIfPresent(queryCacheKey.value()))
+                .as("Expected cache to be populated after first query")
+                .hasValueSatisfying(accountRecipientsResult -> {
+                    assertThat(accountRecipientsResult.nextCursor()).isBlank();
+                    assertThat(accountRecipientsResult.accountRecipients())
+                        .hasSize(2)
+                        .extracting(AccountRecipientDetails::recipientName)
+                        .map(RecipientName::value)
+                        .containsExactly(JEFFERSON.getRecipientName(), PATRIZIO.getRecipientName());
+                });
+        }
+
+        @Test
+        void shouldReturnSameResultFromCache_whenQueryIsExecutedTwice() {
+            accountRecipientsTable.putItem(recipientJefferson);
+            accountRecipientsTable.putItem(recipientPatrizio);
+
+            var pageLimit = 2;
+            var recipientsResponse1 = given()
+                .spec(requestSpecification)
+                .pathParam("bank-account-id", bankAccountId)
+                .queryParam("limit", pageLimit)
+            .when()
+                .get()
+            .then()
+                .statusCode(HttpStatus.OK.value())
+                    .extract()
+                    .body()
+                    .as(GetAccountRecipientsResponse.class);
+
+            var recipientsResponse2 = given()
+                .spec(requestSpecification)
+                .pathParam("bank-account-id", bankAccountId)
+                .queryParam("limit", 2)
+            .when()
+                .get()
+            .then()
+                .statusCode(HttpStatus.OK.value())
+                    .extract()
+                    .body()
+                    .as(GetAccountRecipientsResponse.class);
+
+            assertThat(recipientsResponse1.nextCursor()).isBlank();
+            assertThat(recipientsResponse2.nextCursor()).isBlank();
+            assertThat(recipientsResponse2.accountRecipients())
+                .extracting(AccountRecipientResponse::recipientName)
+                .containsExactlyElementsOf(
+                    recipientsResponse1.accountRecipients().stream()
+                        .map(AccountRecipientResponse::recipientName)
+                        .toList()
+                );
+
+            var queryParams = GetAccountRecipientsQueryParams.of(2);
+            var queryCacheKey = AccountRecipientsQueryCacheKey.of(BankAccountId.of(bankAccountId), queryParams);
+
+            assertThat(cacheStore.getIfPresent(queryCacheKey.value())).isPresent();
+        }
+    }
+
+    @Nested
     class EmptyResults {
 
         @Test
         void shouldReturnNoContent_whenNoAccountRecipientsAreFound() {
-            var bankAccountId = UUID.randomUUID();
-
             given()
                 .spec(requestSpecification)
                 .pathParam("bank-account-id", bankAccountId)

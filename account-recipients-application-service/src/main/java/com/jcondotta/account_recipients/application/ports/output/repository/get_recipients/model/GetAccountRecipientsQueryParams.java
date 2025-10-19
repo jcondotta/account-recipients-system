@@ -16,4 +16,13 @@ public record GetAccountRecipientsQueryParams(QueryLimit limit, PaginationCursor
     public static GetAccountRecipientsQueryParams of(QueryLimit limit, PaginationCursor cursor) {
         return new GetAccountRecipientsQueryParams(limit, cursor);
     }
+
+    public static GetAccountRecipientsQueryParams of(QueryLimit limit) {
+        return GetAccountRecipientsQueryParams.of(limit, null);
+    }
+
+    public static GetAccountRecipientsQueryParams of(Integer limit) {
+        limit = requireNonNullElse(limit, DEFAULT_LIMIT);
+        return GetAccountRecipientsQueryParams.of(QueryLimit.of(limit));
+    }
 }

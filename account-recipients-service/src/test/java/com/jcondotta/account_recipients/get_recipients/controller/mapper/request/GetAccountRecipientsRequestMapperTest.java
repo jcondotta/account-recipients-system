@@ -51,20 +51,16 @@ class GetAccountRecipientsRequestMapperImplTest {
 
     @Test
     void shouldReturnQueryWithPopulatedQueryParams_whenRequestParamsIsProvided() {
-        // given
         var requestParams = GetAccountRecipientsRestRequestParams.of(15, "cursor-123");
-
-        // when
         var result = mapper.toQuery(BANK_ACCOUNT_UUID, requestParams);
 
-        // then
         assertThat(result)
             .isNotNull()
             .satisfies(it -> {
                 assertThat(it.bankAccountId()).isEqualTo(BankAccountId.of(BANK_ACCOUNT_UUID));
                 GetAccountRecipientsQueryParams params = it.queryParams();
-                assertThat(params.limit()).isEqualTo(15);
-                assertThat(params.cursor()).isEqualTo("cursor-123");
+                assertThat(params.limit().value()).isEqualTo(15);
+                assertThat(params.cursor().value()).isEqualTo("cursor-123");
             });
     }
 }

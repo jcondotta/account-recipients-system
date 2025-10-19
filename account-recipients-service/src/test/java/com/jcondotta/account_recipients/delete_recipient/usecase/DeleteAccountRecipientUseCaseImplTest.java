@@ -1,7 +1,10 @@
 package com.jcondotta.account_recipients.delete_recipient.usecase;
 
+import com.jcondotta.account_recipients.application.ports.output.cache.AccountRecipientsRootCacheKey;
+import com.jcondotta.account_recipients.application.ports.output.cache.CacheStore;
 import com.jcondotta.account_recipients.application.ports.output.repository.delete_recipient.DeleteAccountRecipientRepository;
 import com.jcondotta.account_recipients.application.usecase.delete_recipient.model.DeleteAccountRecipientCommand;
+import com.jcondotta.account_recipients.application.usecase.get_recipients.model.result.GetAccountRecipientsResult;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
 import com.jcondotta.account_recipients.domain.recipient.value_objects.AccountRecipientId;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +33,9 @@ class DeleteAccountRecipientUseCaseImplTest {
     @Mock
     private DeleteAccountRecipientRepository repositoryMock;
 
+    @Mock
+    private CacheStore<GetAccountRecipientsResult> cacheStoreMock;
+
     @Captor
     private ArgumentCaptor<BankAccountId> bankAccountIdCaptor;
 
@@ -40,7 +46,7 @@ class DeleteAccountRecipientUseCaseImplTest {
 
     @BeforeEach
     void setUp() {
-        useCase = new DeleteAccountRecipientUseCaseImpl(repositoryMock);
+        useCase = new DeleteAccountRecipientUseCaseImpl(repositoryMock, cacheStoreMock);
     }
 
     @Test
@@ -50,10 +56,13 @@ class DeleteAccountRecipientUseCaseImplTest {
         useCase.execute(command);
 
         verify(repositoryMock).delete(bankAccountIdCaptor.capture(), accountRecipientIdCaptor.capture());
-        verifyNoMoreInteractions(repositoryMock);
-
         assertThat(bankAccountIdCaptor.getValue()).isEqualTo(BANK_ACCOUNT_ID);
         assertThat(accountRecipientIdCaptor.getValue()).isEqualTo(ACCOUNT_RECIPIENT_ID);
+
+        var cacheKey = AccountRecipientsRootCacheKey.of(BANK_ACCOUNT_ID);
+        verify(cacheStoreMock).evictKeysByPrefix(cacheKey.value());
+
+        verifyNoMoreInteractions(repositoryMock, cacheStoreMock);
     }
 
     @Test
@@ -62,6 +71,6 @@ class DeleteAccountRecipientUseCaseImplTest {
             .isInstanceOf(NullPointerException.class)
             .hasMessage("Command must not be null");
 
-        verifyNoInteractions(repositoryMock);
+        verifyNoInteractions(repositoryMock, cacheStoreMock);
     }
 }
