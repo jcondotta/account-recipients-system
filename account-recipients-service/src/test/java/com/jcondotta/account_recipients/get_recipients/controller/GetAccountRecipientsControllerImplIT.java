@@ -125,9 +125,9 @@ class GetAccountRecipientsControllerImplIT {
 
         @Test
         void shouldReturnFirstPageWithNextCursor_whenItemsExceedLimit() {
-            accountRecipientsTable.putItem(recipientVirginio);
             accountRecipientsTable.putItem(recipientJefferson);
             accountRecipientsTable.putItem(recipientPatrizio);
+            accountRecipientsTable.putItem(recipientVirginio);
 
             var pageLimit = 2;
             var response = given()
