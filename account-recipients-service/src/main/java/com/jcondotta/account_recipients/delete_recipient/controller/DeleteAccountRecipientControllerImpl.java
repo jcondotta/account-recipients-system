@@ -22,7 +22,7 @@ public class DeleteAccountRecipientControllerImpl implements DeleteAccountRecipi
 
     @Override
     @Timed(
-        value = "account-recipient.delete.time",
+        value = "account.recipients.delete.time",
         description = "account recipient creation time measurement",
         percentiles = {0.5, 0.95, 0.99}
     )

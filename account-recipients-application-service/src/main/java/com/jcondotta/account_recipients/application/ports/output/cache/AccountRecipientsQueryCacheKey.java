@@ -1,6 +1,8 @@
 package com.jcondotta.account_recipients.application.ports.output.cache;
 
 import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model.GetAccountRecipientsQueryParams;
+import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model.RecipientNamePrefix;
+import com.jcondotta.account_recipients.application.ports.output.repository.shared.PaginationCursor;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
 
 import java.nio.charset.StandardCharsets;
@@ -14,7 +16,7 @@ public record AccountRecipientsQueryCacheKey(BankAccountId bankAccountId, GetAcc
         implements AccountRecipientsCacheKey {
 
     public static final String ACCOUNT_RECIPIENTS_TEMPLATE = PREFIX_TEMPLATE + ":%s";
-    public static final String QUERY_PARAMS_HASH_TEMPLATE = "limit=%s&cursor=%s";
+    public static final String QUERY_PARAMS_HASH_TEMPLATE = "limit=%s&namePrefix=%s&cursor=%s";
 
     public static final String BANK_ACCOUNT_ID_NOT_NULL_MESSAGE = "bank account id must not be null";
     public static final String QUERY_PARAMS_NOT_NULL_MESSAGE = "query params must not be null";
@@ -33,10 +35,9 @@ public record AccountRecipientsQueryCacheKey(BankAccountId bankAccountId, GetAcc
         return String.format(ACCOUNT_RECIPIENTS_TEMPLATE, bankAccountId.value(), queryParamsHash(queryParams));
     }
 
-    public String queryParamsHash(GetAccountRecipientsQueryParams queryParams) {
+    public static String queryParamsHash(GetAccountRecipientsQueryParams queryParams) {
         try {
-            final var cursorValue = extractCursorValue();
-            final var raw = String.format(QUERY_PARAMS_HASH_TEMPLATE, queryParams.limit().value(), cursorValue);
+            final String raw = buildRawQueryParamsKey(queryParams);
 
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] encoded = digest.digest(raw.getBytes(StandardCharsets.UTF_8));
@@ -45,13 +46,28 @@ public record AccountRecipientsQueryCacheKey(BankAccountId bankAccountId, GetAcc
                 .withoutPadding()
                 .encodeToString(encoded)
                 .substring(0, 10);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new IllegalStateException(QUERY_HASH_ERROR_MESSAGE, e);
         }
     }
 
-    private String extractCursorValue(){
-        return Optional.ofNullable(queryParams.cursor())
+    private static String buildRawQueryParamsKey(GetAccountRecipientsQueryParams queryParams) {
+        final var limitValue = queryParams.limit().value();
+        final var cursorValue = extractCursorValue(queryParams.cursor());
+        final var namePrefixValue = extractNamePrefixValue(queryParams.namePrefix());
+
+        return String.format(QUERY_PARAMS_HASH_TEMPLATE, limitValue, namePrefixValue, cursorValue);
+    }
+
+    private static String extractCursorValue(PaginationCursor cursor){
+        return Optional.ofNullable(cursor)
+            .map(Object::toString)
+            .orElse("null");
+    }
+
+    private static String extractNamePrefixValue(RecipientNamePrefix namePrefix){
+        return Optional.ofNullable(namePrefix)
             .map(Object::toString)
             .orElse("null");
     }

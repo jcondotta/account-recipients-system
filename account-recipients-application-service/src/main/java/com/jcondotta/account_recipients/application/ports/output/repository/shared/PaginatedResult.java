@@ -7,9 +7,14 @@ import java.util.Objects;
 public record PaginatedResult<T>(List<T> items, String nextCursor) {
 
     public static final String ITEMS_NOT_NULL_MESSAGE = "items must not be null";
+    public static final String NEXT_CURSOR_NOT_EMPTY_MESSAGE = "nextCursor must not be empty when present";
 
     public PaginatedResult {
         Objects.requireNonNull(items, ITEMS_NOT_NULL_MESSAGE);
+
+        if (Objects.nonNull(nextCursor) && nextCursor.isBlank()) {
+            throw new IllegalArgumentException(NEXT_CURSOR_NOT_EMPTY_MESSAGE);
+        }
     }
 
     public static <T> PaginatedResult<T> of(List<T> items, String nextCursor) {

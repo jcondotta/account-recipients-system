@@ -24,7 +24,7 @@ public class GetAccountRecipientsControllerImpl implements GetAccountRecipientsC
     private final GetAccountRecipientsResponseMapper responseMapper;
 
     @Timed(
-        value = "account_recipient.query.duration",
+        value = "account.recipients.query.duration",
         description = "Time taken to retrieve account recipients by bank-account-id",
         percentiles = {0.5, 0.95, 0.99}
     )

@@ -1,5 +1,6 @@
 package com.jcondotta.account_recipients.application.ports.output.repository.shared;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,6 +31,13 @@ class PaginationCursorTest {
         assertThatThrownBy(() -> new PaginationCursor(null))
             .isInstanceOf(NullPointerException.class)
             .hasMessage(PaginationCursor.VALUE_NOT_NULL_MESSAGE);
+    }
+
+    @Test
+    void shouldThrowIllegalArgumentException_whenValueIsBlank() {
+        assertThatThrownBy(() -> new PaginationCursor(StringUtils.EMPTY))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage(PaginationCursor.VALUE_NOT_BLANK_MESSAGE);
     }
 
     @Test

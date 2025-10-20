@@ -1,6 +1,7 @@
 package com.jcondotta.account_recipients.create_recipient.controller;
 
 import com.jcondotta.account_recipients.create_recipient.controller.model.CreateAccountRecipientRestRequest;
+import com.jcondotta.account_recipients.interfaces.rest.headers.HttpHeadersCustom;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,8 +16,8 @@ public interface CreateAccountRecipientController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<String> createAccountRecipient(
+        @RequestHeader(name = HttpHeadersCustom.IDEMPOTENCY_KEY) UUID idempotencyKey,
         @PathVariable("bank-account-id") UUID bankAccountId,
-        @Valid @RequestBody CreateAccountRecipientRestRequest request,
-        @RequestHeader(name = "X-Idempotency-Key") UUID idempotencyKey
+        @Valid @RequestBody CreateAccountRecipientRestRequest request
     );
 }

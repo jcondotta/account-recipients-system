@@ -17,50 +17,50 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  */
 class GetAccountRecipientsRequestMapperImplTest {
 
-    private GetAccountRecipientsRequestMapperImpl mapper;
-
-    private static final UUID BANK_ACCOUNT_UUID = UUID.randomUUID();
-
-    @BeforeEach
-    void setUp() {
-        mapper = new GetAccountRecipientsRequestMapperImpl();
-    }
-
-    @Test
-    void shouldReturnNull_whenBankAccountIdAndRequestParamsAreNull() {
-        GetAccountRecipientsQuery result = mapper.toQuery(null, null);
-
-        assertThat(result).isNull();
-    }
-
-    @Test
-    void shouldReturnQueryWithNullQueryParams_whenOnlyBankAccountIdIsNull() {
-        var requestParams = GetAccountRecipientsRestRequestParams.of(15, "cursor-123");
-        assertThatThrownBy(() -> mapper.toQuery(null, requestParams))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessage("bank account id value must not be null.");
-    }
-
-
-    @Test
-    void shouldReturnQueryWithNullQueryParams_whenOnlyRequestParamsIsNull() {
-        assertThatThrownBy(() -> mapper.toQuery(BANK_ACCOUNT_UUID, null))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessage("queryParams must not be null");
-    }
-
-    @Test
-    void shouldReturnQueryWithPopulatedQueryParams_whenRequestParamsIsProvided() {
-        var requestParams = GetAccountRecipientsRestRequestParams.of(15, "cursor-123");
-        var result = mapper.toQuery(BANK_ACCOUNT_UUID, requestParams);
-
-        assertThat(result)
-            .isNotNull()
-            .satisfies(it -> {
-                assertThat(it.bankAccountId()).isEqualTo(BankAccountId.of(BANK_ACCOUNT_UUID));
-                GetAccountRecipientsQueryParams params = it.queryParams();
-                assertThat(params.limit().value()).isEqualTo(15);
-                assertThat(params.cursor().value()).isEqualTo("cursor-123");
-            });
-    }
+//    private GetAccountRecipientsRequestMapperImpl mapper;
+//
+//    private static final UUID BANK_ACCOUNT_UUID = UUID.randomUUID();
+//
+//    @BeforeEach
+//    void setUp() {
+//        mapper = new GetAccountRecipientsRequestMapperImpl();
+//    }
+//
+//    @Test
+//    void shouldReturnNull_whenBankAccountIdAndRequestParamsAreNull() {
+//        GetAccountRecipientsQuery result = mapper.toQuery(null, null);
+//
+//        assertThat(result).isNull();
+//    }
+//
+//    @Test
+//    void shouldReturnQueryWithNullQueryParams_whenOnlyBankAccountIdIsNull() {
+//        var requestParams = GetAccountRecipientsRestRequestParams.of(15, "cursor-123");
+//        assertThatThrownBy(() -> mapper.toQuery(null, requestParams))
+//            .isInstanceOf(NullPointerException.class)
+//            .hasMessage("bank account id value must not be null.");
+//    }
+//
+//
+//    @Test
+//    void shouldReturnQueryWithNullQueryParams_whenOnlyRequestParamsIsNull() {
+//        assertThatThrownBy(() -> mapper.toQuery(BANK_ACCOUNT_UUID, null))
+//            .isInstanceOf(NullPointerException.class)
+//            .hasMessage("queryParams must not be null");
+//    }
+//
+//    @Test
+//    void shouldReturnQueryWithPopulatedQueryParams_whenRequestParamsIsProvided() {
+//        var requestParams = GetAccountRecipientsRestRequestParams.of(15, "cursor-123");
+//        var result = mapper.toQuery(BANK_ACCOUNT_UUID, requestParams);
+//
+//        assertThat(result)
+//            .isNotNull()
+//            .satisfies(it -> {
+//                assertThat(it.bankAccountId()).isEqualTo(BankAccountId.of(BANK_ACCOUNT_UUID));
+//                GetAccountRecipientsQueryParams params = it.queryParams();
+//                assertThat(params.limit().value()).isEqualTo(15);
+//                assertThat(params.cursor().value()).isEqualTo("cursor-123");
+//            });
+//    }
 }

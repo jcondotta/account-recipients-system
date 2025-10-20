@@ -18,7 +18,7 @@ class GetAccountRecipientsQueryTest {
     private static final PaginationCursor PAGINATION_CURSOR = PaginationCursor.of("next-cursor-token");
 
     private static final GetAccountRecipientsQueryParams QUERY_PARAMS =
-        GetAccountRecipientsQueryParams.of(QUERY_LIMIT_10, PAGINATION_CURSOR);
+        GetAccountRecipientsQueryParams.of(QUERY_LIMIT_10, null, PAGINATION_CURSOR);
 
     @Test
     void shouldCreateQuery_whenValidArguments() {

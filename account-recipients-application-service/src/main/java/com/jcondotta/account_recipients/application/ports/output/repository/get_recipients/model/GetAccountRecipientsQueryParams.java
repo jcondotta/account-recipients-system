@@ -5,20 +5,20 @@ import com.jcondotta.account_recipients.application.ports.output.repository.shar
 
 import static java.util.Objects.requireNonNullElse;
 
-public record GetAccountRecipientsQueryParams(QueryLimit limit, PaginationCursor cursor) {
+public record GetAccountRecipientsQueryParams(QueryLimit limit, RecipientNamePrefix namePrefix, PaginationCursor cursor) {
 
-    public static final int DEFAULT_LIMIT = 10;
+    public static final int DEFAULT_LIMIT = 20;
 
     public GetAccountRecipientsQueryParams {
         limit = requireNonNullElse(limit, QueryLimit.of(DEFAULT_LIMIT));
     }
 
-    public static GetAccountRecipientsQueryParams of(QueryLimit limit, PaginationCursor cursor) {
-        return new GetAccountRecipientsQueryParams(limit, cursor);
+    public static GetAccountRecipientsQueryParams of(QueryLimit limit, RecipientNamePrefix namePrefix, PaginationCursor cursor) {
+        return new GetAccountRecipientsQueryParams(limit, namePrefix, cursor);
     }
 
     public static GetAccountRecipientsQueryParams of(QueryLimit limit) {
-        return GetAccountRecipientsQueryParams.of(limit, null);
+        return GetAccountRecipientsQueryParams.of(limit, null, null);
     }
 
     public static GetAccountRecipientsQueryParams of(Integer limit) {
