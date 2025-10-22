@@ -8,8 +8,7 @@ import com.jcondotta.account_recipients.application.usecase.create_recipient.Cre
 import com.jcondotta.account_recipients.application.usecase.create_recipient.mapper.CreateAccountRecipientCommandMapper;
 import com.jcondotta.account_recipients.application.usecase.create_recipient.model.CreateAccountRecipientCommand;
 import com.jcondotta.account_recipients.application.usecase.get_recipients.model.result.GetAccountRecipientsResult;
-import com.jcondotta.account_recipients.application.usecase.shared.IdempotencyKey;
-import com.jcondotta.account_recipients.domain.bank_account.entity.BankAccount;
+import com.jcondotta.account_recipients.application.usecase.shared.value_objects.IdempotencyKey;
 import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

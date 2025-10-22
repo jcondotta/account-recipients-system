@@ -15,7 +15,7 @@ import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountI
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity.AccountRecipientEntity;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.mapper.AccountRecipientEntityMapper;
 import com.jcondotta.account_recipients.infrastructure.properties.AccountRecipientURIProperties;
-import com.jcondotta.account_recipients.interfaces.rest.headers.HttpHeadersCustom;
+import com.jcondotta.account_recipients.infrastructure.interfaces.rest.headers.HttpHeadersCustom;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;

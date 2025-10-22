@@ -1,33 +1,9 @@
 package com.jcondotta.account_recipients.get_recipients.usecase;
 
-import com.jcondotta.account_recipients.application.ports.output.cache.AccountRecipientsQueryCacheKey;
-import com.jcondotta.account_recipients.application.ports.output.cache.CacheStore;
-import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.GetAccountRecipientsRepository;
-import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model.GetAccountRecipientsQueryParams;
-import com.jcondotta.account_recipients.application.ports.output.repository.shared.PaginatedResult;
-import com.jcondotta.account_recipients.application.ports.output.repository.shared.PaginationCursor;
-import com.jcondotta.account_recipients.application.ports.output.repository.shared.QueryLimit;
-import com.jcondotta.account_recipients.application.usecase.get_recipients.mapper.GetAccountRecipientsQueryMapper;
-import com.jcondotta.account_recipients.application.usecase.get_recipients.model.AccountRecipientDetails;
-import com.jcondotta.account_recipients.application.usecase.get_recipients.model.query.GetAccountRecipientsQuery;
-import com.jcondotta.account_recipients.application.usecase.get_recipients.model.result.GetAccountRecipientsResult;
-import com.jcondotta.account_recipients.domain.recipient.entity.AccountRecipient;
-import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import wiremock.com.github.jknack.handlebars.internal.Throwing;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 
 /**
  * Unit tests for {@link GetAccountRecipientsUseCaseImpl}.

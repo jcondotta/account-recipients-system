@@ -7,9 +7,9 @@ import java.time.ZonedDateTime;
 import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record BankAccountCdo(UUID bankAccountId, AccountStatusCdo status) {
+public record BankAccountCdo(UUID bankAccountId, String status) {
 
-    public static BankAccountCdo of(UUID bankAccountId, AccountStatusCdo status) {
+    public static BankAccountCdo of(UUID bankAccountId, String status) {
         return new BankAccountCdo(bankAccountId, status);
     }
 }

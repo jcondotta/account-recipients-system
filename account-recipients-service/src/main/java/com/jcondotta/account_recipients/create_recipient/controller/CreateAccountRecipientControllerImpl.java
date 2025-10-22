@@ -1,7 +1,7 @@
 package com.jcondotta.account_recipients.create_recipient.controller;
 
 import com.jcondotta.account_recipients.application.usecase.create_recipient.CreateAccountRecipientUseCase;
-import com.jcondotta.account_recipients.application.usecase.shared.IdempotencyKey;
+import com.jcondotta.account_recipients.application.usecase.shared.value_objects.IdempotencyKey;
 import com.jcondotta.account_recipients.infrastructure.properties.AccountRecipientURIProperties;
 import com.jcondotta.account_recipients.create_recipient.controller.mapper.CreateAccountRecipientRequestRestMapper;
 import com.jcondotta.account_recipients.create_recipient.controller.model.CreateAccountRecipientRestRequest;

@@ -1,4 +1,4 @@
-package com.jcondotta.account_recipients.interfaces.rest.exception_handler;
+package com.jcondotta.account_recipients.infrastructure.interfaces.rest.exception_handler;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.net.URI;
 import java.time.Clock;
-import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;

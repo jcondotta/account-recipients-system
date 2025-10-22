@@ -2,7 +2,7 @@ package com.jcondotta.account_recipients.get_recipients.controller;
 
 import com.jcondotta.account_recipients.application.usecase.get_recipients.GetAccountRecipientsUseCase;
 import com.jcondotta.account_recipients.application.usecase.get_recipients.model.result.GetAccountRecipientsResult;
-import com.jcondotta.account_recipients.get_recipients.controller.mapper.request.GetAccountRecipientsRequestMapper;
+import com.jcondotta.account_recipients.get_recipients.controller.mapper.request.GetAccountRecipientsRequestRestMapper;
 import com.jcondotta.account_recipients.get_recipients.controller.mapper.response.GetAccountRecipientsResponseMapper;
 import com.jcondotta.account_recipients.get_recipients.controller.model.response.GetAccountRecipientsResponse;
 import com.jcondotta.account_recipients.get_recipients.controller.model.request.GetAccountRecipientsRestRequestParams;
@@ -20,7 +20,7 @@ import java.util.UUID;
 public class GetAccountRecipientsControllerImpl implements GetAccountRecipientsController {
 
     private final GetAccountRecipientsUseCase useCase;
-    private final GetAccountRecipientsRequestMapper requestMapper;
+    private final GetAccountRecipientsRequestRestMapper requestMapper;
     private final GetAccountRecipientsResponseMapper responseMapper;
 
     @Timed(

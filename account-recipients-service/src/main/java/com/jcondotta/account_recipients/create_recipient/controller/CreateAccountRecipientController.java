@@ -1,7 +1,7 @@
 package com.jcondotta.account_recipients.create_recipient.controller;
 
 import com.jcondotta.account_recipients.create_recipient.controller.model.CreateAccountRecipientRestRequest;
-import com.jcondotta.account_recipients.interfaces.rest.headers.HttpHeadersCustom;
+import com.jcondotta.account_recipients.infrastructure.interfaces.rest.headers.HttpHeadersCustom;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

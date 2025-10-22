@@ -34,7 +34,7 @@
 		<spring-cloud-dependencies.version>2024.0.1</spring-cloud-dependencies.version>
 		<commons-validator.version>1.7</commons-validator.version>
 		<commons-codec.version>1.17.1</commons-codec.version>
-
+		<logcaptor.version>2.12.1</logcaptor.version>
 		<testcontainers.version>1.21.1</testcontainers.version>
 		<testcontainers-redis.version>1.6.4</testcontainers-redis.version>
 		<rest-assured.version>5.5.1</rest-assured.version>
@@ -136,6 +136,12 @@
 				<groupId>commons-codec</groupId>
 				<artifactId>commons-codec</artifactId>
 				<version>${commons-codec.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>io.github.hakky54</groupId>
+				<artifactId>logcaptor</artifactId>
+				<version>${logcaptor.version}</version>
 			</dependency>
 
 			<dependency>

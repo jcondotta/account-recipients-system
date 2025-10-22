@@ -1,4 +1,4 @@
-package com.jcondotta.account_recipients.interfaces.rest.headers;
+package com.jcondotta.account_recipients.infrastructure.interfaces.rest.headers;
 
 import lombok.experimental.UtilityClass;
 

@@ -1,7 +1,6 @@
 package com.jcondotta.account_recipients.get_recipients.controller;
 
 import com.jcondotta.account_recipients.application.ports.output.cache.AccountRecipientsQueryCacheKey;
-import com.jcondotta.account_recipients.application.ports.output.cache.AccountRecipientsRootCacheKey;
 import com.jcondotta.account_recipients.application.ports.output.cache.CacheStore;
 import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model.GetAccountRecipientsQueryParams;
 import com.jcondotta.account_recipients.application.usecase.get_recipients.model.AccountRecipientDetails;
@@ -15,7 +14,7 @@ import com.jcondotta.account_recipients.infrastructure.adapters.output.repositor
 import com.jcondotta.account_recipients.infrastructure.properties.AccountRecipientURIProperties;
 import com.jcondotta.account_recipients.get_recipients.controller.model.response.AccountRecipientResponse;
 import com.jcondotta.account_recipients.get_recipients.controller.model.response.GetAccountRecipientsResponse;
-import com.jcondotta.account_recipients.interfaces.rest.headers.HttpHeadersCustom;
+import com.jcondotta.account_recipients.infrastructure.interfaces.rest.headers.HttpHeadersCustom;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;

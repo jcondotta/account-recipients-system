@@ -3,7 +3,7 @@ package com.jcondotta.account_recipients.get_recipients.usecase;
 import com.jcondotta.account_recipients.application.ports.output.cache.AccountRecipientsQueryCacheKey;
 import com.jcondotta.account_recipients.application.ports.output.cache.CacheStore;
 import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.GetAccountRecipientsRepository;
-import com.jcondotta.account_recipients.application.ports.output.repository.shared.PaginatedResult;
+import com.jcondotta.account_recipients.application.ports.output.repository.shared.model.PaginatedResult;
 import com.jcondotta.account_recipients.application.usecase.get_recipients.GetAccountRecipientsUseCase;
 import com.jcondotta.account_recipients.application.usecase.get_recipients.mapper.GetAccountRecipientsQueryMapper;
 import com.jcondotta.account_recipients.application.usecase.get_recipients.model.query.GetAccountRecipientsQuery;
@@ -13,8 +13,6 @@ import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 @Slf4j
 @Component

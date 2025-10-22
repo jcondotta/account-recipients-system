@@ -5,4 +5,8 @@ public record GetAccountRecipientsRestRequestParams(Integer limit, String namePr
     public static GetAccountRecipientsRestRequestParams of(Integer limit, String namePrefix, String cursor) {
         return new GetAccountRecipientsRestRequestParams(limit, namePrefix, cursor);
     }
+
+    public static GetAccountRecipientsRestRequestParams of(Integer limit) {
+        return new GetAccountRecipientsRestRequestParams(limit, null, null);
+    }
 }

@@ -10,8 +10,8 @@ import com.jcondotta.account_recipients.common.container.RedisTestContainer;
 import com.jcondotta.account_recipients.common.fixtures.AccountRecipientFixtures;
 import com.jcondotta.account_recipients.infrastructure.properties.AccountRecipientURIProperties;
 import com.jcondotta.account_recipients.create_recipient.controller.model.CreateAccountRecipientRestRequest;
-import com.jcondotta.account_recipients.interfaces.rest.exception_handler.ProblemTypes;
-import com.jcondotta.account_recipients.interfaces.rest.headers.HttpHeadersCustom;
+import com.jcondotta.account_recipients.infrastructure.interfaces.rest.exception_handler.ProblemTypes;
+import com.jcondotta.account_recipients.infrastructure.interfaces.rest.headers.HttpHeadersCustom;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
@@ -20,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -44,6 +45,7 @@ import static com.jcondotta.account_recipients.domain.bank_account.exceptions.Ba
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 @ActiveProfiles("test")
@@ -92,14 +94,14 @@ class CreateAccountRecipientControllerImplIT {
 
     @Test
     void shouldReturn201Created_whenRequestIsValid() {
-        stubFor(get(urlPathMatching("/api/v1/bank-accounts/" + bankAccountId))
+        stubFor(get(urlPathEqualTo("/api/v1/bank-accounts/" + bankAccountId))
             .willReturn(aResponse()
                 .withStatus(HttpStatus.OK.value())
                 .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .withBodyFile("bank-accounts/bank-account-active.json")));
 
         var restRequest = CreateAccountRecipientRestRequest.of(recipientName, iban);
-        var expectedLocationURI = uriProperties.accountRecipientsURI(bankAccountId).getRawPath();
+        var expectedLocationURI = uriProperties.accountRecipientsURI(bankAccountId).toString();
 
         given()
             .spec(requestSpecification)
@@ -109,7 +111,8 @@ class CreateAccountRecipientControllerImplIT {
             .post()
         .then()
             .statusCode(HttpStatus.CREATED.value())
-            .header("location", equalTo(expectedLocationURI));
+            .header("location", equalTo(expectedLocationURI))
+            .header(HttpHeaders.CONTENT_TYPE, nullValue());
 
         var cacheKey = String.format(AccountRecipientsRootCacheKey.PREFIX_TEMPLATE, bankAccountId);
         assertThat(cacheStore.getIfPresent(cacheKey)).isEmpty();
@@ -165,6 +168,7 @@ class CreateAccountRecipientControllerImplIT {
     }
 
     @ParameterizedTest
+    @NullSource
     @ArgumentsSource(BlankValuesArgumentProvider.class)
     void shouldReturn422UnprocessableEntity_whenRecipientNameIsBlank(String invalidRecipientName) {
         var restRequest = CreateAccountRecipientRestRequest.of(invalidRecipientName, iban);
@@ -181,16 +185,12 @@ class CreateAccountRecipientControllerImplIT {
                 .body()
                 .as(ProblemDetail.class);
 
-        assertAll(
-            () -> assertThat(problemDetail.getType()).isEqualTo(ProblemTypes.VALIDATION_ERRORS),
-            () -> assertThat(problemDetail.getTitle()).hasToString("Request validation failed"),
-            () -> assertThat(problemDetail.getStatus()).isEqualTo(422),
-            () -> assertThat(problemDetail.getInstance()).isEqualTo(uriProperties.accountRecipientsURI(bankAccountId))
-        );
+        assert422ValidationProblem(problemDetail, bankAccountId);
     }
 
     @ParameterizedTest
     @SuppressWarnings("unchecked")
+    @NullSource
     @ArgumentsSource(BlankValuesArgumentProvider.class)
     void shouldReturn422UnprocessableEntity_whenIbanIsBlank(String invalidIban) {
         var restRequest = CreateAccountRecipientRestRequest.of(recipientName, invalidIban);
@@ -207,6 +207,22 @@ class CreateAccountRecipientControllerImplIT {
                 .body()
                 .as(ProblemDetail.class);
 
+        assert422ValidationProblem(problemDetail, bankAccountId);
+    }
+
+    @Test
+    void shouldReturn400BadRequest_whenJsonIsMalformed() {
+        given()
+            .spec(requestSpecification)
+            .pathParam("bank-account-id", bankAccountId)
+            .body("{ invalid-json }")
+        .when()
+            .post()
+        .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    private void assert422ValidationProblem(ProblemDetail problemDetail, UUID bankAccountId) {
         assertAll(
             () -> assertThat(problemDetail.getType()).isEqualTo(ProblemTypes.VALIDATION_ERRORS),
             () -> assertThat(problemDetail.getTitle()).hasToString("Request validation failed"),

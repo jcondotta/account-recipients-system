@@ -1,11 +1,10 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.facade.lookup_bank_account;
 
 import com.jcondotta.account_recipients.application.ports.output.facade.lookup_bank_account.LookupBankAccountFacade;
-import com.jcondotta.account_recipients.domain.bank_account.entity.BankAccount;
+import com.jcondotta.account_recipients.domain.bank_account.enums.AccountStatus;
 import com.jcondotta.account_recipients.domain.bank_account.exceptions.BankAccountNotFoundException;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.client.lookup_bank_account.LookupBankAccountClient;
-import com.jcondotta.account_recipients.infrastructure.adapters.output.client.lookup_bank_account.model.AccountStatusCdo;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.client.lookup_bank_account.model.BankAccountCdo;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.client.lookup_bank_account.model.BankAccountResponseCdo;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.facade.lookup_bank_account.mapper.LookupBankAccountCdoFacadeMapper;
@@ -13,6 +12,9 @@ import feign.FeignException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -25,11 +27,10 @@ import static org.mockito.Mockito.*;
 class LookupBankAccountFacadeImplTest {
 
     private static final UUID BANK_ACCOUNT_UUID = UUID.randomUUID();
-    private static final AccountStatusCdo ACTIVE_ACCOUNT_STATUS_CDO = AccountStatusCdo.ACTIVE;
 
     private static final BankAccountId BANK_ACCOUNT_ID = BankAccountId.of(BANK_ACCOUNT_UUID);
 
-    private final LookupBankAccountCdoFacadeMapper mapper = LookupBankAccountCdoFacadeMapper.INSTANCE;
+    private final LookupBankAccountCdoFacadeMapper mapper = Mappers.getMapper(LookupBankAccountCdoFacadeMapper.class);
     private LookupBankAccountFacade bankAccountFacade;
 
     @Mock
@@ -40,16 +41,17 @@ class LookupBankAccountFacadeImplTest {
         bankAccountFacade = new LookupBankAccountFacadeImpl(clientMock, mapper);
     }
 
-    @Test
-    void shouldReturnBankAccount_whenBankAccountExists() {
-        var bankAccountCdo = BankAccountCdo.of(BANK_ACCOUNT_UUID, ACTIVE_ACCOUNT_STATUS_CDO);
+    @ParameterizedTest
+    @EnumSource(AccountStatus.class)
+    void shouldReturnBankAccount_whenBankAccountExists(AccountStatus accountStatus) {
+        var bankAccountCdo = BankAccountCdo.of(BANK_ACCOUNT_UUID, accountStatus.name());
         when(clientMock.findById(BANK_ACCOUNT_UUID))
             .thenReturn(BankAccountResponseCdo.of(bankAccountCdo));
 
         assertThat(bankAccountFacade.byId(BANK_ACCOUNT_ID))
             .satisfies(bankAccount -> {
                 assertThat(bankAccount.bankAccountId()).hasToString(bankAccountCdo.bankAccountId().toString());
-                assertThat(bankAccount.accountStatus()).hasToString(bankAccountCdo.status().name());
+                assertThat(bankAccount.accountStatus()).hasToString(accountStatus.name());
             });
 
         verify(clientMock).findById(BANK_ACCOUNT_UUID);

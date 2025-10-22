@@ -1,4 +1,4 @@
-package com.jcondotta.account_recipients.interfaces.rest.exception_handler;
+package com.jcondotta.account_recipients.infrastructure.interfaces.rest.exception_handler;
 
 import java.net.URI;
 
