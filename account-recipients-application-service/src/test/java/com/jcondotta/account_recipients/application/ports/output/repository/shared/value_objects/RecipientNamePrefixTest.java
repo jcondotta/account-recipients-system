@@ -1,4 +1,4 @@
-package com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model;
+package com.jcondotta.account_recipients.application.ports.output.repository.shared.value_objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;

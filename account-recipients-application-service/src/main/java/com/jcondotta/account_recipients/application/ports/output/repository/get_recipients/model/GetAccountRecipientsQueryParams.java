@@ -1,7 +1,8 @@
 package com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model;
 
-import com.jcondotta.account_recipients.application.ports.output.repository.shared.PaginationCursor;
-import com.jcondotta.account_recipients.application.ports.output.repository.shared.QueryLimit;
+import com.jcondotta.account_recipients.application.ports.output.repository.shared.value_objects.PaginationCursor;
+import com.jcondotta.account_recipients.application.ports.output.repository.shared.value_objects.QueryLimit;
+import com.jcondotta.account_recipients.application.ports.output.repository.shared.value_objects.RecipientNamePrefix;
 
 import static java.util.Objects.requireNonNullElse;
 

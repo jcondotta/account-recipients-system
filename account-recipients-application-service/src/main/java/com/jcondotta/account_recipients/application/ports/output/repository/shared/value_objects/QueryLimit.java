@@ -1,4 +1,4 @@
-package com.jcondotta.account_recipients.application.ports.output.repository.shared;
+package com.jcondotta.account_recipients.application.ports.output.repository.shared.value_objects;
 
 import static java.util.Objects.requireNonNull;
 

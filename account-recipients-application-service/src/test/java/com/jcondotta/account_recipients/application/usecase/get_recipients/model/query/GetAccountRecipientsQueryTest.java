@@ -1,8 +1,8 @@
 package com.jcondotta.account_recipients.application.usecase.get_recipients.model.query;
 
 import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model.GetAccountRecipientsQueryParams;
-import com.jcondotta.account_recipients.application.ports.output.repository.shared.PaginationCursor;
-import com.jcondotta.account_recipients.application.ports.output.repository.shared.QueryLimit;
+import com.jcondotta.account_recipients.application.ports.output.repository.shared.value_objects.PaginationCursor;
+import com.jcondotta.account_recipients.application.ports.output.repository.shared.value_objects.QueryLimit;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
 import org.junit.jupiter.api.Test;
 

@@ -1,4 +1,4 @@
-package com.jcondotta.account_recipients.application.usecase.shared;
+package com.jcondotta.account_recipients.application.usecase.shared.value_objects;
 
 import java.util.Objects;
 import java.util.UUID;

@@ -1,6 +1,5 @@
 package com.jcondotta.account_recipients.application.usecase.create_recipient.model;
 
-import com.jcondotta.account_recipients.application.common.fixtures.AccountRecipientFixtures;
 import com.jcondotta.account_recipients.application.helper.ClockTestFactory;
 import com.jcondotta.account_recipients.domain.recipient.value_objects.Iban;
 import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientName;
