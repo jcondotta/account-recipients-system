@@ -177,7 +177,10 @@ class GetAccountRecipientsControllerImplIT {
 
         @Test
         void shouldApplyDefaultLimitAndReturnNextCursor_whenLimitParamIsOmitted() {
-            for (int i = 0; i < 12; i++) {
+            bankAccountId = UUID.randomUUID();
+            var numbersOfRecipients = GetAccountRecipientsQueryParams.DEFAULT_LIMIT + 2;
+
+            for (int i = 0; i < numbersOfRecipients; i++) {
                 var recipient = AccountRecipientEntityTestFactory.create(bankAccountId, "Recipient #" + i);
                 accountRecipientsTable.putItem(recipient);
             }

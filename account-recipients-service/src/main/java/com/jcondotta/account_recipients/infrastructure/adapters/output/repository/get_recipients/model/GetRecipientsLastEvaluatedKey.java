@@ -1,6 +1,5 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.repository.get_recipients.model;
 
-import java.util.Objects;
 import java.util.UUID;
 
 import static java.util.Objects.requireNonNull;

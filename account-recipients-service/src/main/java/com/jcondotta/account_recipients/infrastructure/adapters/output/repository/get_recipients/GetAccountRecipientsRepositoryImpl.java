@@ -37,7 +37,7 @@ public class GetAccountRecipientsRepositoryImpl implements GetAccountRecipientsR
     @Override
     public PaginatedResult<AccountRecipient> findByQuery(GetAccountRecipientsQuery query) {
         final var queryParams = query.queryParams();
-        final var queryConditional = buildQueryConditional(query);
+        final var queryConditional = QueryConditionalBuilder.build(query);
 
         final int limit = queryParams.limit().value();
         final String cursor = Objects.nonNull(queryParams.cursor()) ? queryParams.cursor().value() : null;
@@ -50,12 +50,13 @@ public class GetAccountRecipientsRepositoryImpl implements GetAccountRecipientsR
             .orElse(null);
 
         try {
-            var queryRequestBuilder = QueryEnhancedRequest.builder()
+            var queryEnhancedRequest = QueryEnhancedRequest.builder()
                 .queryConditional(queryConditional)
                 .exclusiveStartKey(exclusiveStartKey)
-                .limit(limit + 1);
+                .limit(limit + 1)
+                .build();
 
-            var pageIterable = dynamoDbIndex.query(queryRequestBuilder.build());
+            var pageIterable = dynamoDbIndex.query(queryEnhancedRequest);
             var iterator = pageIterable.iterator();
 
             // Se não há páginas, retorna vazio
@@ -126,14 +127,13 @@ public class GetAccountRecipientsRepositoryImpl implements GetAccountRecipientsR
         }
     }
 
-    private QueryConditional buildQueryConditional(GetAccountRecipientsQuery query) {
+    QueryConditional buildQueryConditional(GetAccountRecipientsQuery query) {
         final var partitionKey = AccountRecipientEntityKey.partitionKey(query.bankAccountId());
         final var queryParams = query.queryParams();
 
         if (Objects.nonNull(queryParams.namePrefix())) {
             return QueryConditional.sortBeginsWith(k ->
-                k.partitionValue(partitionKey)
-                    .sortValue(queryParams.namePrefix().value())
+                k.partitionValue(partitionKey).sortValue(queryParams.namePrefix().value())
             );
         }
 
@@ -158,5 +158,20 @@ public class GetAccountRecipientsRepositoryImpl implements GetAccountRecipientsR
 //            .tag("operation", OPERATION)
             .register(meterRegistry)
             .increment();
+    }
+
+    static class QueryConditionalBuilder {
+
+        public static QueryConditional build(GetAccountRecipientsQuery query) {
+            var partitionKey = AccountRecipientEntityKey.partitionKey(query.bankAccountId());
+            var queryParams = query.queryParams();
+
+            if (Objects.nonNull(queryParams.namePrefix())) {
+                return QueryConditional.sortBeginsWith(k ->
+                    k.partitionValue(partitionKey).sortValue(queryParams.namePrefix().value()));
+            }
+
+            return QueryConditional.keyEqualTo(k -> k.partitionValue(partitionKey));
+        }
     }
 }
