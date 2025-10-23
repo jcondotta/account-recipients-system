@@ -13,6 +13,7 @@ import com.jcondotta.account_recipients.create_recipient.controller.model.Create
 import com.jcondotta.account_recipients.infrastructure.interfaces.rest.exception_handler.ProblemTypes;
 import com.jcondotta.account_recipients.infrastructure.interfaces.rest.headers.HttpHeadersCustom;
 import io.restassured.RestAssured;
+import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeAll;
@@ -84,11 +85,14 @@ class CreateAccountRecipientControllerImplIT {
 
     @BeforeEach
     void beforeEach(@LocalServerPort int port) {
+        RestAssured.baseURI = "http://localhost";
+        RestAssured.port = port;
+
         bankAccountId = UUID.randomUUID();
         recipientName = AccountRecipientFixtures.JEFFERSON.getRecipientName();
         iban = AccountRecipientFixtures.JEFFERSON.getRecipientIban();
 
-        requestSpecification = buildRequestSpecification(port);
+        requestSpecification = buildRequestSpecificationWithIdempotencyKey();
         defaultLocale = localeResolver.resolveLocale(new MockHttpServletRequest());
     }
 
@@ -149,7 +153,7 @@ class CreateAccountRecipientControllerImplIT {
     }
 
     @Test
-    void shouldReturn500InternalServerError_whenBankAccountAPIFails() {
+    void shouldReturn500InternalServerError_whenExternalBankAccountAPIFails() {
         stubFor(get(urlPathMatching("/api/v1/bank-accounts/" + bankAccountId))
                 .willReturn(aResponse()
                     .withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value()))
@@ -222,6 +226,21 @@ class CreateAccountRecipientControllerImplIT {
             .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
+    @Test
+    void shouldReturn400BadRequest_whenRequestIsMissingIdempotencyKeyHeader() {
+        var restRequest = CreateAccountRecipientRestRequest.of(recipientName, iban);
+
+        given()
+            .spec(buildBaseRequestSpecification())
+                .pathParam("bank-account-id", bankAccountId)
+            .body(restRequest)
+        .when()
+            .post()
+        .then()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .body(equalTo("Required header '" + HttpHeadersCustom.IDEMPOTENCY_KEY + "' is missing."));
+    }
+
     private void assert422ValidationProblem(ProblemDetail problemDetail, UUID bankAccountId) {
         assertAll(
             () -> assertThat(problemDetail.getType()).isEqualTo(ProblemTypes.VALIDATION_ERRORS),
@@ -231,13 +250,20 @@ class CreateAccountRecipientControllerImplIT {
         );
     }
 
-    private RequestSpecification buildRequestSpecification(int port) {
-        return given()
-            .baseUri("http://localhost")
-            .port(port)
-            .basePath(uriProperties.rootPath())
-            .header(HttpHeadersCustom.IDEMPOTENCY_KEY, UUID.randomUUID())
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON);
+    private RequestSpecification buildBaseRequestSpecification() {
+        return new RequestSpecBuilder()
+            .setBaseUri(RestAssured.baseURI)
+            .setPort(RestAssured.port)
+            .setBasePath(uriProperties.rootPath())
+            .setContentType(ContentType.JSON)
+            .setAccept(ContentType.JSON)
+            .build();
+    }
+
+    private RequestSpecification buildRequestSpecificationWithIdempotencyKey() {
+        return new RequestSpecBuilder()
+            .addRequestSpecification(buildBaseRequestSpecification())
+            .addHeader(HttpHeadersCustom.IDEMPOTENCY_KEY, UUID.randomUUID().toString())
+            .build();
     }
 }

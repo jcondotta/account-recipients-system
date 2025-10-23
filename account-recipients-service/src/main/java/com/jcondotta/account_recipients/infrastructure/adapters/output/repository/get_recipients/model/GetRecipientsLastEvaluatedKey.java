@@ -3,12 +3,14 @@ package com.jcondotta.account_recipients.infrastructure.adapters.output.reposito
 import java.util.Objects;
 import java.util.UUID;
 
+import static java.util.Objects.requireNonNull;
+
 public record GetRecipientsLastEvaluatedKey(UUID bankAccountId, UUID accountRecipientId, String recipientName) {
 
     public GetRecipientsLastEvaluatedKey {
-        Objects.requireNonNull(bankAccountId, "bank account id must not be null");
-        Objects.requireNonNull(accountRecipientId, "account recipient id must not be null");
-        Objects.requireNonNull(recipientName, "recipient name must not be null");
+        requireNonNull(bankAccountId, "bank account id must not be null");
+        requireNonNull(accountRecipientId, "account recipient id must not be null");
+        requireNonNull(recipientName, "recipient name must not be null");
 
         if(recipientName.isBlank()) {
             throw new IllegalArgumentException("recipient name must not be blank");

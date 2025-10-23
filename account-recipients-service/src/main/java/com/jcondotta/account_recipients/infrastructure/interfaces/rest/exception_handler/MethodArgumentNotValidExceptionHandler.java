@@ -60,10 +60,5 @@ public class MethodArgumentNotValidExceptionHandler {
         public static FieldMessageError of(String field, List<String> messages) {
             return new FieldMessageError(field, messages);
         }
-
-        @Override
-        public String toString() {
-            return "%s: %s".formatted(field, messages);
-        }
     }
 }
