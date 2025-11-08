@@ -5,7 +5,7 @@ import com.jcondotta.account_recipients.domain.bank_account.entity.BankAccount;
 import com.jcondotta.account_recipients.domain.bank_account.exceptions.BankAccountNotFoundException;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.client.lookup_bank_account.LookupBankAccountClient;
-import com.jcondotta.account_recipients.infrastructure.adapters.output.facade.lookup_bank_account.mapper.LookupBankAccountCdoFacadeMapper;
+import com.jcondotta.account_recipients.infrastructure.adapters.output.facade.lookup_bank_account.mapper.BankAccountFacadeMapper;
 import feign.FeignException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 public class LookupBankAccountFacadeImpl implements LookupBankAccountFacade {
 
     private final LookupBankAccountClient client;
-    private final LookupBankAccountCdoFacadeMapper mapper;
+    private final BankAccountFacadeMapper mapper;
 
     @Override
     public BankAccount byId(BankAccountId bankAccountId) {

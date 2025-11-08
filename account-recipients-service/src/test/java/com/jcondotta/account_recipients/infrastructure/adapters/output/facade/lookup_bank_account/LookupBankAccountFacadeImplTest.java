@@ -7,7 +7,10 @@ import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountI
 import com.jcondotta.account_recipients.infrastructure.adapters.output.client.lookup_bank_account.LookupBankAccountClient;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.client.lookup_bank_account.model.BankAccountCdo;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.client.lookup_bank_account.model.BankAccountResponseCdo;
-import com.jcondotta.account_recipients.infrastructure.adapters.output.facade.lookup_bank_account.mapper.LookupBankAccountCdoFacadeMapper;
+import com.jcondotta.account_recipients.infrastructure.adapters.output.facade.lookup_bank_account.mapper.AccountStatusMapper;
+import com.jcondotta.account_recipients.infrastructure.adapters.output.facade.lookup_bank_account.mapper.BankAccountFacadeMapper;
+import com.jcondotta.account_recipients.infrastructure.adapters.output.facade.lookup_bank_account.mapper.BankAccountFacadeMapperImpl;
+import com.jcondotta.account_recipients.infrastructure.adapters.output.facade.lookup_bank_account.mapper.BankAccountIdMapper;
 import feign.FeignException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +33,11 @@ class LookupBankAccountFacadeImplTest {
 
     private static final BankAccountId BANK_ACCOUNT_ID = BankAccountId.of(BANK_ACCOUNT_UUID);
 
-    private final LookupBankAccountCdoFacadeMapper mapper = Mappers.getMapper(LookupBankAccountCdoFacadeMapper.class);
+    private final BankAccountFacadeMapper mapper = new BankAccountFacadeMapperImpl(
+        BankAccountIdMapper.INSTANCE,
+        AccountStatusMapper.INSTANCE
+    );
+
     private LookupBankAccountFacade bankAccountFacade;
 
     @Mock
