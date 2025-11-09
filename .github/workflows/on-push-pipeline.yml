@@ -23,43 +23,33 @@ jobs:
       - name: Build, Run Tests and Generate Coverage
         run: mvn -B clean verify
 
-      - name: Upload Build Outputs (classes + coverage)
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-outputs
-          path: |
-            account-recipients-domain-service/target/classes
-            account-recipients-application-service/target/classes
-            account-recipients-service/target/classes
-            account-recipients-service/target/site/jacoco-aggregate/jacoco.xml
-
-  sonarcloud-analysis:
-    runs-on: ubuntu-latest
-    needs: build-and-test
-    steps:
-      - name: Checkout Source Code
-        uses: actions/checkout@v4
-
-      - name: Download Build Outputs
-        uses: actions/download-artifact@v4
-        with:
-          name: build-outputs
-          path: .
-
-      - name: Set up JDK 21 and Cache Maven
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 21
-          cache: maven
-
-      - name: Run SonarCloud Analysis
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          mvn -B sonar:sonar \
-            -Dsonar.projectKey=jcondotta_account-recipients-system \
-            -Dsonar.organization=jcondotta \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
-            -Dsonar.coverage.jacoco.xmlReportPaths=account-recipients-coverage/target/site/jacoco-aggregate/jacoco.xml
+#  sonarcloud-analysis:
+#    runs-on: ubuntu-latest
+#    needs: build-and-test
+#    steps:
+#      - name: Checkout Source Code
+#        uses: actions/checkout@v4
+#
+#      - name: Download Build Outputs
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: build-outputs
+#          path: .
+#
+#      - name: Set up JDK 21 and Cache Maven
+#        uses: actions/setup-java@v4
+#        with:
+#          distribution: temurin
+#          java-version: 21
+#          cache: maven
+#
+#      - name: Run SonarCloud Analysis
+#        env:
+#          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+#        run: |
+#          mvn -B sonar:sonar \
+#            -Dsonar.projectKey=jcondotta_account-recipients-system \
+#            -Dsonar.organization=jcondotta \
+#            -Dsonar.host.url=https://sonarcloud.io \
+#            -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
+#            -Dsonar.coverage.jacoco.xmlReportPaths=account-recipients-coverage/target/site/jacoco-aggregate/jacoco.xml

@@ -13,8 +13,4 @@ public enum AccountRecipientFixtures {
 
     private final String recipientName;
     private final String recipientIban;
-
-    public String formattedIban() {
-        return recipientIban.replaceAll("....(?!$)", "$0 ");
-    }
 }
