@@ -7,11 +7,14 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = "spring", imports = { AccountRecipientId.class })
+@Mapper(
+    componentModel = "spring",
+    imports = {AccountRecipientId.class})
 public interface CreateAccountRecipientCommandMapper {
 
-    CreateAccountRecipientCommandMapper INSTANCE = Mappers.getMapper(CreateAccountRecipientCommandMapper.class);
+  CreateAccountRecipientCommandMapper INSTANCE =
+      Mappers.getMapper(CreateAccountRecipientCommandMapper.class);
 
-    @Mapping(target = "accountRecipientId", expression = "java(AccountRecipientId.newId())")
-    AccountRecipient toAccountRecipient(CreateAccountRecipientCommand command);
+  @Mapping(target = "accountRecipientId", expression = "java(AccountRecipientId.newId())")
+  AccountRecipient toAccountRecipient(CreateAccountRecipientCommand command);
 }

@@ -6,16 +6,16 @@ import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring",
-    uses = {
-        BankAccountIdMapper.class,
-        AccountStatusMapper.class
-    },
-    injectionStrategy = InjectionStrategy.CONSTRUCTOR
-)
+@Mapper(
+    componentModel = "spring",
+    uses = {BankAccountIdMapper.class, AccountStatusMapper.class},
+    injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface BankAccountFacadeMapper {
 
-    @Mapping(target = "bankAccountId", source = "bankAccountId", qualifiedByName = "mapToBankAccountId")
-    @Mapping(target = "accountStatus", source = "status", qualifiedByName = "mapToAccountStatus")
-    BankAccount map(BankAccountCdo bankAccountCdo);
+  @Mapping(
+      target = "bankAccountId",
+      source = "bankAccountId",
+      qualifiedByName = "mapToBankAccountId")
+  @Mapping(target = "accountStatus", source = "status", qualifiedByName = "mapToAccountStatus")
+  BankAccount map(BankAccountCdo bankAccountCdo);
 }

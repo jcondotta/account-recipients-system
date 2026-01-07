@@ -3,6 +3,8 @@ package com.jcondotta.account_recipients.infrastructure.interfaces.rest.exceptio
 import com.jcondotta.account_recipients.application.ports.output.i18n.MessageResolverPort;
 import com.jcondotta.account_recipients.domain.shared.exceptions.DomainObjectNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import java.net.URI;
+import java.util.Locale;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -12,28 +14,25 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.net.URI;
-import java.util.Locale;
-
 @Slf4j
 @ControllerAdvice
 @AllArgsConstructor
 public class ResourceNotFoundExceptionHandler {
 
-    private final MessageResolverPort messageResolverPort;
+  private final MessageResolverPort messageResolverPort;
 
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(DomainObjectNotFoundException.class)
-    public ResponseEntity<ProblemDetail> handleResourceNotFound(DomainObjectNotFoundException ex, HttpServletRequest request, Locale locale) {
-        var message = messageResolverPort.resolveMessage(ex.getMessage(), ex.getIdentifiers(), locale);
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  @ExceptionHandler(DomainObjectNotFoundException.class)
+  public ResponseEntity<ProblemDetail> handleResourceNotFound(
+      DomainObjectNotFoundException ex, HttpServletRequest request, Locale locale) {
+    var message = messageResolverPort.resolveMessage(ex.getMessage(), ex.getIdentifiers(), locale);
 
-        var problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
-        problemDetail.setType(ProblemTypes.RESOURCE_NOT_FOUND);
-        problemDetail.setTitle(ex.getTitle());
-        problemDetail.setDetail(message);
-        problemDetail.setInstance(URI.create(request.getRequestURI()));
+    var problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+    problemDetail.setType(ProblemTypes.RESOURCE_NOT_FOUND);
+    problemDetail.setTitle(ex.getTitle());
+    problemDetail.setDetail(message);
+    problemDetail.setInstance(URI.create(request.getRequestURI()));
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND.value())
-            .body(problemDetail);
-    }
+    return ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(problemDetail);
+  }
 }

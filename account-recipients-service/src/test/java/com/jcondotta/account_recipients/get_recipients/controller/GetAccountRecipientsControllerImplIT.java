@@ -1,5 +1,9 @@
 package com.jcondotta.account_recipients.get_recipients.controller;
 
+import static com.jcondotta.account_recipients.common.fixtures.AccountRecipientFixtures.*;
+import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.jcondotta.account_recipients.application.ports.output.cache.AccountRecipientsQueryCacheKey;
 import com.jcondotta.account_recipients.application.ports.output.cache.CacheStore;
 import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model.GetAccountRecipientsQueryParams;
@@ -10,14 +14,15 @@ import com.jcondotta.account_recipients.common.container.RedisTestContainer;
 import com.jcondotta.account_recipients.common.factory.AccountRecipientEntityTestFactory;
 import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientName;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
-import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity.AccountRecipientEntity;
-import com.jcondotta.account_recipients.infrastructure.properties.AccountRecipientURIProperties;
 import com.jcondotta.account_recipients.get_recipients.controller.model.response.AccountRecipientResponse;
 import com.jcondotta.account_recipients.get_recipients.controller.model.response.GetAccountRecipientsResponse;
+import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity.AccountRecipientEntity;
 import com.jcondotta.account_recipients.infrastructure.interfaces.rest.headers.HttpHeadersCustom;
+import com.jcondotta.account_recipients.infrastructure.properties.AccountRecipientURIProperties;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
+import java.util.UUID;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,371 +33,379 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 
-import java.util.UUID;
-
-import static com.jcondotta.account_recipients.common.fixtures.AccountRecipientFixtures.*;
-import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
-
 @ActiveProfiles("test")
 @AutoConfigureWireMock(port = 0)
-@ContextConfiguration(initializers = { LocalStackTestContainer.class, RedisTestContainer.class })
+@ContextConfiguration(initializers = {LocalStackTestContainer.class, RedisTestContainer.class})
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class GetAccountRecipientsControllerImplIT {
 
-    @Autowired
-    private DynamoDbTable<AccountRecipientEntity> accountRecipientsTable;
+  @Autowired private DynamoDbTable<AccountRecipientEntity> accountRecipientsTable;
 
-    @Autowired
-    private AccountRecipientURIProperties uriProperties;
+  @Autowired private AccountRecipientURIProperties uriProperties;
 
-    @Autowired
-    private CacheStore<GetAccountRecipientsResult> cacheStore;
+  @Autowired private CacheStore<GetAccountRecipientsResult> cacheStore;
 
-    private RequestSpecification requestSpecification;
+  private RequestSpecification requestSpecification;
 
-    private UUID bankAccountId;
-    private AccountRecipientEntity recipientJefferson;
-    private AccountRecipientEntity recipientPatrizio;
-    private AccountRecipientEntity recipientVirginio;
+  private UUID bankAccountId;
+  private AccountRecipientEntity recipientJefferson;
+  private AccountRecipientEntity recipientPatrizio;
+  private AccountRecipientEntity recipientVirginio;
 
-    @BeforeAll
-    static void beforeAll() {
-        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+  @BeforeAll
+  static void beforeAll() {
+    RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+  }
+
+  @BeforeEach
+  void beforeEach(@LocalServerPort int port) {
+    requestSpecification = buildRequestSpecification(port);
+
+    bankAccountId = UUID.randomUUID();
+    recipientJefferson =
+        AccountRecipientEntityTestFactory.create(bankAccountId, JEFFERSON.getRecipientName());
+    recipientPatrizio =
+        AccountRecipientEntityTestFactory.create(bankAccountId, PATRIZIO.getRecipientName());
+    recipientVirginio =
+        AccountRecipientEntityTestFactory.create(bankAccountId, VIRGINIO.getRecipientName());
+  }
+
+  @Nested
+  class Pagination {
+
+    @Test
+    void shouldReturnFirstPageAndNextCursor_whenMultiplePagesAvailable() {
+      accountRecipientsTable.putItem(recipientJefferson);
+      accountRecipientsTable.putItem(recipientPatrizio);
+      accountRecipientsTable.putItem(recipientVirginio);
+
+      var pageLimit = 2;
+
+      var responsePage1 =
+          given()
+              .spec(requestSpecification)
+              .pathParam("bank-account-id", bankAccountId)
+              .queryParam("limit", pageLimit)
+              .when()
+              .get()
+              .then()
+              .statusCode(HttpStatus.OK.value())
+              .extract()
+              .body()
+              .as(GetAccountRecipientsResponse.class);
+
+      assertThat(responsePage1.accountRecipients())
+          .hasSize(pageLimit)
+          .extracting(AccountRecipientResponse::recipientName)
+          .containsExactly(JEFFERSON.getRecipientName(), PATRIZIO.getRecipientName());
+
+      assertThat(responsePage1.nextCursor()).isNotNull();
+
+      var responsePage2 =
+          given()
+              .spec(requestSpecification)
+              .pathParam("bank-account-id", bankAccountId)
+              .queryParam("limit", pageLimit)
+              .queryParam("cursor", responsePage1.nextCursor())
+              .when()
+              .get()
+              .then()
+              .statusCode(HttpStatus.OK.value())
+              .extract()
+              .body()
+              .as(GetAccountRecipientsResponse.class);
+
+      assertThat(responsePage2.accountRecipients())
+          .hasSize(1)
+          .extracting(AccountRecipientResponse::recipientName)
+          .containsExactly(VIRGINIO.getRecipientName());
+
+      assertThat(responsePage2.nextCursor()).isNull();
     }
 
-    @BeforeEach
-    void beforeEach(@LocalServerPort int port) {
-        requestSpecification = buildRequestSpecification(port);
+    @Test
+    void shouldReturnFirstPageWithNextCursor_whenItemsExceedLimit() {
+      accountRecipientsTable.putItem(recipientJefferson);
+      accountRecipientsTable.putItem(recipientPatrizio);
+      accountRecipientsTable.putItem(recipientVirginio);
 
-        bankAccountId = UUID.randomUUID();
-        recipientJefferson = AccountRecipientEntityTestFactory.create(bankAccountId, JEFFERSON.getRecipientName());
-        recipientPatrizio = AccountRecipientEntityTestFactory.create(bankAccountId, PATRIZIO.getRecipientName());
-        recipientVirginio = AccountRecipientEntityTestFactory.create(bankAccountId, VIRGINIO.getRecipientName());
+      var pageLimit = 2;
+      var response =
+          given()
+              .spec(requestSpecification)
+              .pathParam("bank-account-id", bankAccountId)
+              .queryParam("limit", pageLimit)
+              .when()
+              .get()
+              .then()
+              .statusCode(HttpStatus.OK.value())
+              .extract()
+              .body()
+              .as(GetAccountRecipientsResponse.class);
+
+      assertThat(response.accountRecipients())
+          .hasSize(pageLimit)
+          .extracting(AccountRecipientResponse::recipientName)
+          .containsExactly(JEFFERSON.getRecipientName(), PATRIZIO.getRecipientName());
+
+      assertThat(response.nextCursor()).isNotNull();
     }
 
-    @Nested
-    class Pagination {
+    @Test
+    void shouldReturnAllItemsAndNullCursor_whenItemsExactlyFillPageLimit() {
+      accountRecipientsTable.putItem(recipientJefferson);
+      accountRecipientsTable.putItem(recipientPatrizio);
 
-        @Test
-        void shouldReturnFirstPageAndNextCursor_whenMultiplePagesAvailable() {
-            accountRecipientsTable.putItem(recipientJefferson);
-            accountRecipientsTable.putItem(recipientPatrizio);
-            accountRecipientsTable.putItem(recipientVirginio);
+      var pageLimit = 2;
+      var response =
+          given()
+              .spec(requestSpecification)
+              .pathParam("bank-account-id", bankAccountId)
+              .queryParam("limit", pageLimit)
+              .when()
+              .get()
+              .then()
+              .statusCode(HttpStatus.OK.value())
+              .extract()
+              .body()
+              .as(GetAccountRecipientsResponse.class);
 
-            var pageLimit = 2;
+      assertThat(response.accountRecipients())
+          .hasSize(pageLimit)
+          .extracting(AccountRecipientResponse::recipientName)
+          .containsExactly(JEFFERSON.getRecipientName(), PATRIZIO.getRecipientName());
 
-            var responsePage1 = given()
-                .spec(requestSpecification)
-                .pathParam("bank-account-id", bankAccountId)
-                .queryParam("limit", pageLimit)
-            .when()
-                .get()
-            .then()
-                .statusCode(HttpStatus.OK.value())
-                    .extract()
-                    .body()
-                    .as(GetAccountRecipientsResponse.class);
-
-            assertThat(responsePage1.accountRecipients())
-                .hasSize(pageLimit)
-                .extracting(AccountRecipientResponse::recipientName)
-                .containsExactly(JEFFERSON.getRecipientName(), PATRIZIO.getRecipientName());
-
-            assertThat(responsePage1.nextCursor()).isNotNull();
-
-            var responsePage2 = given()
-                .spec(requestSpecification)
-                .pathParam("bank-account-id", bankAccountId)
-                .queryParam("limit", pageLimit)
-                .queryParam("cursor", responsePage1.nextCursor())
-            .when()
-                .get()
-            .then()
-                .statusCode(HttpStatus.OK.value())
-                    .extract()
-                    .body()
-                    .as(GetAccountRecipientsResponse.class);
-
-            assertThat(responsePage2.accountRecipients())
-                .hasSize(1)
-                .extracting(AccountRecipientResponse::recipientName)
-                .containsExactly(VIRGINIO.getRecipientName());
-
-            assertThat(responsePage2.nextCursor()).isNull();
-        }
-
-        @Test
-        void shouldReturnFirstPageWithNextCursor_whenItemsExceedLimit() {
-            accountRecipientsTable.putItem(recipientJefferson);
-            accountRecipientsTable.putItem(recipientPatrizio);
-            accountRecipientsTable.putItem(recipientVirginio);
-
-            var pageLimit = 2;
-            var response = given()
-                .spec(requestSpecification)
-                .pathParam("bank-account-id", bankAccountId)
-                .queryParam("limit", pageLimit)
-            .when()
-                .get()
-            .then()
-                .statusCode(HttpStatus.OK.value())
-                    .extract()
-                    .body()
-                    .as(GetAccountRecipientsResponse.class);
-
-            assertThat(response.accountRecipients())
-                .hasSize(pageLimit)
-                .extracting(AccountRecipientResponse::recipientName)
-                .containsExactly(JEFFERSON.getRecipientName(), PATRIZIO.getRecipientName());
-
-            assertThat(response.nextCursor()).isNotNull();
-        }
-
-        @Test
-        void shouldReturnAllItemsAndNullCursor_whenItemsExactlyFillPageLimit() {
-            accountRecipientsTable.putItem(recipientJefferson);
-            accountRecipientsTable.putItem(recipientPatrizio);
-
-            var pageLimit = 2;
-            var response = given()
-                .spec(requestSpecification)
-                .pathParam("bank-account-id", bankAccountId)
-                .queryParam("limit", pageLimit)
-            .when()
-                .get()
-            .then()
-                .statusCode(HttpStatus.OK.value())
-                    .extract()
-                    .body()
-                    .as(GetAccountRecipientsResponse.class);
-
-            assertThat(response.accountRecipients())
-                .hasSize(pageLimit)
-                .extracting(AccountRecipientResponse::recipientName)
-                .containsExactly(JEFFERSON.getRecipientName(), PATRIZIO.getRecipientName());
-
-            assertThat(response.nextCursor()).isNull();
-        }
-
-        @Test
-        void shouldApplyDefaultLimitAndReturnNextCursor_whenLimitParamIsOmitted() {
-            bankAccountId = UUID.randomUUID();
-            var numbersOfRecipients = GetAccountRecipientsQueryParams.DEFAULT_LIMIT + 2;
-
-            for (int i = 0; i < numbersOfRecipients; i++) {
-                var recipient = AccountRecipientEntityTestFactory.create(bankAccountId, "Recipient #" + i);
-                accountRecipientsTable.putItem(recipient);
-            }
-
-            var response = given()
-                .spec(requestSpecification)
-                .pathParam("bank-account-id", bankAccountId)
-            .when()
-                .get()
-            .then()
-                .statusCode(HttpStatus.OK.value())
-                    .extract()
-                    .body()
-                    .as(GetAccountRecipientsResponse.class);
-
-            assertThat(response.accountRecipients())
-                .hasSize(GetAccountRecipientsQueryParams.DEFAULT_LIMIT)
-                .extracting(AccountRecipientResponse::recipientName)
-                .allSatisfy(name -> assertThat(name)
-                    .startsWith("Recipient #"));
-
-            assertThat(response.nextCursor()).isNotBlank();
-
-            var responsePage2 = given()
-                .spec(requestSpecification)
-                .pathParam("bank-account-id", bankAccountId)
-                .queryParam("cursor", response.nextCursor())
-            .when()
-                .get()
-            .then()
-                .statusCode(HttpStatus.OK.value())
-                    .extract()
-                    .body()
-                    .as(GetAccountRecipientsResponse.class);
-
-            assertThat(responsePage2.accountRecipients())
-                .hasSize(2)
-                .extracting(AccountRecipientResponse::recipientName)
-                .allSatisfy(name -> assertThat(name).startsWith("Recipient #"));
-
-            assertThat(responsePage2.nextCursor()).isNull();
-        }
+      assertThat(response.nextCursor()).isNull();
     }
 
-    @Nested
-    class Cursor {
+    @Test
+    void shouldApplyDefaultLimitAndReturnNextCursor_whenLimitParamIsOmitted() {
+      bankAccountId = UUID.randomUUID();
+      var numbersOfRecipients = GetAccountRecipientsQueryParams.DEFAULT_LIMIT + 2;
 
-        @Test
-        void shouldReturnAllItemsAndNullCursor_whenLastPageIsReached() {
-            accountRecipientsTable.putItem(recipientVirginio);
-            accountRecipientsTable.putItem(recipientJefferson);
-            accountRecipientsTable.putItem(recipientPatrizio);
+      for (int i = 0; i < numbersOfRecipients; i++) {
+        var recipient = AccountRecipientEntityTestFactory.create(bankAccountId, "Recipient #" + i);
+        accountRecipientsTable.putItem(recipient);
+      }
 
-            var pageLimit = 3;
-            var response = given()
-                .spec(requestSpecification)
-                .pathParam("bank-account-id", bankAccountId)
-                .queryParam("limit", pageLimit)
-            .when()
-                .get()
-            .then()
-                .statusCode(HttpStatus.OK.value())
-                    .extract()
-                    .body()
-                    .as(GetAccountRecipientsResponse.class);
+      var response =
+          given()
+              .spec(requestSpecification)
+              .pathParam("bank-account-id", bankAccountId)
+              .when()
+              .get()
+              .then()
+              .statusCode(HttpStatus.OK.value())
+              .extract()
+              .body()
+              .as(GetAccountRecipientsResponse.class);
 
-            assertThat(response.accountRecipients())
-                .hasSize(pageLimit)
-                .extracting(AccountRecipientResponse::recipientName)
-                .containsExactly(JEFFERSON.getRecipientName(), PATRIZIO.getRecipientName(), VIRGINIO.getRecipientName());
+      assertThat(response.accountRecipients())
+          .hasSize(GetAccountRecipientsQueryParams.DEFAULT_LIMIT)
+          .extracting(AccountRecipientResponse::recipientName)
+          .allSatisfy(name -> assertThat(name).startsWith("Recipient #"));
 
-            assertThat(response.nextCursor()).isNull();
-        }
+      assertThat(response.nextCursor()).isNotBlank();
 
-        @Test
-        void shouldReturnNoContent_whenCursorBelongsToAnotherBankAccount() {
-            accountRecipientsTable.putItem(recipientJefferson);
-            accountRecipientsTable.putItem(recipientPatrizio);
+      var responsePage2 =
+          given()
+              .spec(requestSpecification)
+              .pathParam("bank-account-id", bankAccountId)
+              .queryParam("cursor", response.nextCursor())
+              .when()
+              .get()
+              .then()
+              .statusCode(HttpStatus.OK.value())
+              .extract()
+              .body()
+              .as(GetAccountRecipientsResponse.class);
 
-            var pageLimit = 1;
+      assertThat(responsePage2.accountRecipients())
+          .hasSize(2)
+          .extracting(AccountRecipientResponse::recipientName)
+          .allSatisfy(name -> assertThat(name).startsWith("Recipient #"));
 
-            var response1 = given()
-                .spec(requestSpecification)
-                .pathParam("bank-account-id", bankAccountId)
-                .queryParam("limit", pageLimit)
-            .when()
-                .get()
-            .then()
-                .statusCode(HttpStatus.OK.value())
-                    .extract()
-                    .body()
-                    .as(GetAccountRecipientsResponse.class);
+      assertThat(responsePage2.nextCursor()).isNull();
+    }
+  }
 
-            assertThat(response1.accountRecipients()).hasSize(pageLimit);
-            assertThat(response1.nextCursor()).isNotBlank();
+  @Nested
+  class Cursor {
 
-            var nonExistingBankAccountId = UUID.randomUUID();
+    @Test
+    void shouldReturnAllItemsAndNullCursor_whenLastPageIsReached() {
+      accountRecipientsTable.putItem(recipientVirginio);
+      accountRecipientsTable.putItem(recipientJefferson);
+      accountRecipientsTable.putItem(recipientPatrizio);
 
-            given()
-                .spec(requestSpecification)
-                .pathParam("bank-account-id", nonExistingBankAccountId)
-                .queryParam("limit", pageLimit)
-                .queryParam("cursor", response1.nextCursor())
-            .when()
-                .get()
-            .then()
-                .statusCode(HttpStatus.NO_CONTENT.value());
-        }
+      var pageLimit = 3;
+      var response =
+          given()
+              .spec(requestSpecification)
+              .pathParam("bank-account-id", bankAccountId)
+              .queryParam("limit", pageLimit)
+              .when()
+              .get()
+              .then()
+              .statusCode(HttpStatus.OK.value())
+              .extract()
+              .body()
+              .as(GetAccountRecipientsResponse.class);
+
+      assertThat(response.accountRecipients())
+          .hasSize(pageLimit)
+          .extracting(AccountRecipientResponse::recipientName)
+          .containsExactly(
+              JEFFERSON.getRecipientName(),
+              PATRIZIO.getRecipientName(),
+              VIRGINIO.getRecipientName());
+
+      assertThat(response.nextCursor()).isNull();
     }
 
-    @Nested
-    class Cache {
+    @Test
+    void shouldReturnNoContent_whenCursorBelongsToAnotherBankAccount() {
+      accountRecipientsTable.putItem(recipientJefferson);
+      accountRecipientsTable.putItem(recipientPatrizio);
 
-        @Test
-        void shouldPopulateCache_whenQueryIsExecuted() {
-            accountRecipientsTable.putItem(recipientJefferson);
-            accountRecipientsTable.putItem(recipientPatrizio);
+      var pageLimit = 1;
 
-            var pageLimit = 2;
-            given()
-                .spec(requestSpecification)
-                .pathParam("bank-account-id", bankAccountId)
-                .queryParam("limit", pageLimit)
-            .when()
-                .get()
-            .then()
-                .statusCode(HttpStatus.OK.value());
+      var response1 =
+          given()
+              .spec(requestSpecification)
+              .pathParam("bank-account-id", bankAccountId)
+              .queryParam("limit", pageLimit)
+              .when()
+              .get()
+              .then()
+              .statusCode(HttpStatus.OK.value())
+              .extract()
+              .body()
+              .as(GetAccountRecipientsResponse.class);
 
-            var queryParams = GetAccountRecipientsQueryParams.of(2);
-            var queryCacheKey = AccountRecipientsQueryCacheKey.of(BankAccountId.of(bankAccountId), queryParams);
+      assertThat(response1.accountRecipients()).hasSize(pageLimit);
+      assertThat(response1.nextCursor()).isNotBlank();
 
-            assertThat(cacheStore.getIfPresent(queryCacheKey.value()))
-                .as("Expected cache to be populated after first query")
-                .hasValueSatisfying(accountRecipientsResult -> {
-                    assertThat(accountRecipientsResult.nextCursor()).isBlank();
-                    assertThat(accountRecipientsResult.accountRecipients())
-                        .hasSize(2)
-                        .extracting(AccountRecipientDetails::recipientName)
-                        .map(RecipientName::value)
-                        .containsExactly(JEFFERSON.getRecipientName(), PATRIZIO.getRecipientName());
-                });
-        }
+      var nonExistingBankAccountId = UUID.randomUUID();
 
-        @Test
-        void shouldReturnSameResultFromCache_whenQueryIsExecutedTwice() {
-            accountRecipientsTable.putItem(recipientJefferson);
-            accountRecipientsTable.putItem(recipientPatrizio);
+      given()
+          .spec(requestSpecification)
+          .pathParam("bank-account-id", nonExistingBankAccountId)
+          .queryParam("limit", pageLimit)
+          .queryParam("cursor", response1.nextCursor())
+          .when()
+          .get()
+          .then()
+          .statusCode(HttpStatus.NO_CONTENT.value());
+    }
+  }
 
-            var pageLimit = 2;
-            var recipientsResponse1 = given()
-                .spec(requestSpecification)
-                .pathParam("bank-account-id", bankAccountId)
-                .queryParam("limit", pageLimit)
-            .when()
-                .get()
-            .then()
-                .statusCode(HttpStatus.OK.value())
-                    .extract()
-                    .body()
-                    .as(GetAccountRecipientsResponse.class);
+  @Nested
+  class Cache {
 
-            var recipientsResponse2 = given()
-                .spec(requestSpecification)
-                .pathParam("bank-account-id", bankAccountId)
-                .queryParam("limit", 2)
-            .when()
-                .get()
-            .then()
-                .statusCode(HttpStatus.OK.value())
-                    .extract()
-                    .body()
-                    .as(GetAccountRecipientsResponse.class);
+    @Test
+    void shouldPopulateCache_whenQueryIsExecuted() {
+      accountRecipientsTable.putItem(recipientJefferson);
+      accountRecipientsTable.putItem(recipientPatrizio);
 
-            assertThat(recipientsResponse1.nextCursor()).isBlank();
-            assertThat(recipientsResponse2.nextCursor()).isBlank();
-            assertThat(recipientsResponse2.accountRecipients())
-                .extracting(AccountRecipientResponse::recipientName)
-                .containsExactlyElementsOf(
-                    recipientsResponse1.accountRecipients().stream()
-                        .map(AccountRecipientResponse::recipientName)
-                        .toList()
-                );
+      var pageLimit = 2;
+      given()
+          .spec(requestSpecification)
+          .pathParam("bank-account-id", bankAccountId)
+          .queryParam("limit", pageLimit)
+          .when()
+          .get()
+          .then()
+          .statusCode(HttpStatus.OK.value());
 
-            var queryParams = GetAccountRecipientsQueryParams.of(2);
-            var queryCacheKey = AccountRecipientsQueryCacheKey.of(BankAccountId.of(bankAccountId), queryParams);
+      var queryParams = GetAccountRecipientsQueryParams.of(2);
+      var queryCacheKey =
+          AccountRecipientsQueryCacheKey.of(BankAccountId.of(bankAccountId), queryParams);
 
-            assertThat(cacheStore.getIfPresent(queryCacheKey.value())).isPresent();
-        }
+      assertThat(cacheStore.getIfPresent(queryCacheKey.value()))
+          .as("Expected cache to be populated after first query")
+          .hasValueSatisfying(
+              accountRecipientsResult -> {
+                assertThat(accountRecipientsResult.nextCursor()).isBlank();
+                assertThat(accountRecipientsResult.accountRecipients())
+                    .hasSize(2)
+                    .extracting(AccountRecipientDetails::recipientName)
+                    .map(RecipientName::value)
+                    .containsExactly(JEFFERSON.getRecipientName(), PATRIZIO.getRecipientName());
+              });
     }
 
-    @Nested
-    class EmptyResults {
+    @Test
+    void shouldReturnSameResultFromCache_whenQueryIsExecutedTwice() {
+      accountRecipientsTable.putItem(recipientJefferson);
+      accountRecipientsTable.putItem(recipientPatrizio);
 
-        @Test
-        void shouldReturnNoContent_whenNoAccountRecipientsAreFound() {
-            given()
-                .spec(requestSpecification)
-                .pathParam("bank-account-id", bankAccountId)
-            .when()
-                .get()
-            .then()
-                .statusCode(HttpStatus.NO_CONTENT.value());
-        }
-    }
+      var pageLimit = 2;
+      var recipientsResponse1 =
+          given()
+              .spec(requestSpecification)
+              .pathParam("bank-account-id", bankAccountId)
+              .queryParam("limit", pageLimit)
+              .when()
+              .get()
+              .then()
+              .statusCode(HttpStatus.OK.value())
+              .extract()
+              .body()
+              .as(GetAccountRecipientsResponse.class);
 
-    private RequestSpecification buildRequestSpecification(int port) {
-        return given()
-            .baseUri("http://localhost")
-            .port(port)
-            .basePath(uriProperties.rootPath())
-            .header(HttpHeadersCustom.IDEMPOTENCY_KEY, UUID.randomUUID())
-            .contentType(ContentType.JSON)
-            .accept(ContentType.JSON);
+      var recipientsResponse2 =
+          given()
+              .spec(requestSpecification)
+              .pathParam("bank-account-id", bankAccountId)
+              .queryParam("limit", 2)
+              .when()
+              .get()
+              .then()
+              .statusCode(HttpStatus.OK.value())
+              .extract()
+              .body()
+              .as(GetAccountRecipientsResponse.class);
+
+      assertThat(recipientsResponse1.nextCursor()).isBlank();
+      assertThat(recipientsResponse2.nextCursor()).isBlank();
+      assertThat(recipientsResponse2.accountRecipients())
+          .extracting(AccountRecipientResponse::recipientName)
+          .containsExactlyElementsOf(
+              recipientsResponse1.accountRecipients().stream()
+                  .map(AccountRecipientResponse::recipientName)
+                  .toList());
+
+      var queryParams = GetAccountRecipientsQueryParams.of(2);
+      var queryCacheKey =
+          AccountRecipientsQueryCacheKey.of(BankAccountId.of(bankAccountId), queryParams);
+
+      assertThat(cacheStore.getIfPresent(queryCacheKey.value())).isPresent();
     }
+  }
+
+  @Nested
+  class EmptyResults {
+
+    @Test
+    void shouldReturnNoContent_whenNoAccountRecipientsAreFound() {
+      given()
+          .spec(requestSpecification)
+          .pathParam("bank-account-id", bankAccountId)
+          .when()
+          .get()
+          .then()
+          .statusCode(HttpStatus.NO_CONTENT.value());
+    }
+  }
+
+  private RequestSpecification buildRequestSpecification(int port) {
+    return given()
+        .baseUri("http://localhost")
+        .port(port)
+        .basePath(uriProperties.rootPath())
+        .header(HttpHeadersCustom.IDEMPOTENCY_KEY, UUID.randomUUID())
+        .contentType(ContentType.JSON)
+        .accept(ContentType.JSON);
+  }
 }

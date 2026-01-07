@@ -5,6 +5,5 @@ import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountI
 
 public interface LookupBankAccountFacade {
 
-    BankAccount byId(BankAccountId bankAccountId);
-
+  BankAccount byId(BankAccountId bankAccountId);
 }

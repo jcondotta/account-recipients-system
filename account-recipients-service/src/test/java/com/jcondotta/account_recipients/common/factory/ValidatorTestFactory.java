@@ -6,12 +6,13 @@ import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator
 
 public class ValidatorTestFactory {
 
-    public static Validator getValidator() {
-        try (var factory = Validation.byDefaultProvider()
+  public static Validator getValidator() {
+    try (var factory =
+        Validation.byDefaultProvider()
             .configure()
             .messageInterpolator(new ParameterMessageInterpolator())
             .buildValidatorFactory()) {
-            return factory.getValidator();
-        }
+      return factory.getValidator();
     }
+  }
 }

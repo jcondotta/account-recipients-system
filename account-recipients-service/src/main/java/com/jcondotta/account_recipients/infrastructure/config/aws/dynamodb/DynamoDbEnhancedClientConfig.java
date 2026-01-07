@@ -9,11 +9,9 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 @Configuration
 public class DynamoDbEnhancedClientConfig {
 
-    @Bean
-    @ConditionalOnBean(DynamoDbClient.class)
-    public DynamoDbEnhancedClient dynamoDbEnhancedClient(DynamoDbClient dynamoDbClient) {
-        return DynamoDbEnhancedClient.builder()
-                .dynamoDbClient(dynamoDbClient)
-                .build();
-    }
+  @Bean
+  @ConditionalOnBean(DynamoDbClient.class)
+  public DynamoDbEnhancedClient dynamoDbEnhancedClient(DynamoDbClient dynamoDbClient) {
+    return DynamoDbEnhancedClient.builder().dynamoDbClient(dynamoDbClient).build();
+  }
 }

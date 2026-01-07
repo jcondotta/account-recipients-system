@@ -19,28 +19,31 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CreateAccountRecipientUseCaseImpl implements CreateAccountRecipientUseCase {
 
-    private final LookupBankAccountFacade lookupBankAccountFacade;
-    private final CreateAccountRecipientCommandMapper commandMapper;
-    private final CacheStore<GetAccountRecipientsResult> cacheStore;
-    private final CreateAccountRecipientRepository createAccountRecipientRepository;
+  private final LookupBankAccountFacade lookupBankAccountFacade;
+  private final CreateAccountRecipientCommandMapper commandMapper;
+  private final CacheStore<GetAccountRecipientsResult> cacheStore;
+  private final CreateAccountRecipientRepository createAccountRecipientRepository;
 
-    @Override
-    @Observed(
-        name = "account.recipients.create",
-        contextualName = "createAccountRecipient",
-        lowCardinalityKeyValues = {"operation", "create"}
-    )
-    public void execute(CreateAccountRecipientCommand command, IdempotencyKey idempotencyKey) {
-        log.info("Attempting to create a recipient [bankAccountId={}, accountRecipientId={}]",
-            command.bankAccountId(), command.recipientName());
+  @Override
+  @Observed(
+      name = "account.recipients.create",
+      contextualName = "createAccountRecipient",
+      lowCardinalityKeyValues = {"operation", "create"})
+  public void execute(CreateAccountRecipientCommand command, IdempotencyKey idempotencyKey) {
+    log.info(
+        "Attempting to create a recipient [bankAccountId={}, accountRecipientId={}]",
+        command.bankAccountId(),
+        command.recipientName());
 
-        lookupBankAccountFacade.byId(command.bankAccountId());
-        createAccountRecipientRepository.create(commandMapper.toAccountRecipient(command));
+    lookupBankAccountFacade.byId(command.bankAccountId());
+    createAccountRecipientRepository.create(commandMapper.toAccountRecipient(command));
 
-        log.info("Recipient created successfully [bankAccountId={}, accountRecipientId={}]",
-            command.bankAccountId(), command.recipientName());
+    log.info(
+        "Recipient created successfully [bankAccountId={}, accountRecipientId={}]",
+        command.bankAccountId(),
+        command.recipientName());
 
-        var accountRecipientsRootCacheKey = AccountRecipientsRootCacheKey.of(command.bankAccountId());
-        cacheStore.evictKeysByPrefix(accountRecipientsRootCacheKey.value());
-    }
+    var accountRecipientsRootCacheKey = AccountRecipientsRootCacheKey.of(command.bankAccountId());
+    cacheStore.evictKeysByPrefix(accountRecipientsRootCacheKey.value());
+  }
 }

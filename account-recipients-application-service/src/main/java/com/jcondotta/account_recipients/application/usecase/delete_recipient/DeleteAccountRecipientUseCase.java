@@ -4,5 +4,5 @@ import com.jcondotta.account_recipients.application.usecase.delete_recipient.mod
 
 public interface DeleteAccountRecipientUseCase {
 
-    void execute(DeleteAccountRecipientCommand command);
+  void execute(DeleteAccountRecipientCommand command);
 }

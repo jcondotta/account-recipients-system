@@ -1,5 +1,9 @@
 package com.jcondotta.account_recipients.create_recipient.usecase;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.*;
+
 import com.jcondotta.account_recipients.ClockTestFactory;
 import com.jcondotta.account_recipients.application.ports.output.cache.AccountRecipientsRootCacheKey;
 import com.jcondotta.account_recipients.application.ports.output.cache.CacheStore;
@@ -17,6 +21,9 @@ import com.jcondotta.account_recipients.domain.recipient.value_objects.Iban;
 import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientName;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.facade.lookup_bank_account.LookupBankAccountFacadeImpl;
+import java.time.Clock;
+import java.time.ZonedDateTime;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,100 +32,95 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.Clock;
-import java.time.ZonedDateTime;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 class CreateAccountRecipientUseCaseImplTest {
 
-    private static final UUID BANK_ACCOUNT_UUID = UUID.randomUUID();
-    private static final BankAccountId BANK_ACCOUNT_ID = BankAccountId.of(BANK_ACCOUNT_UUID);
+  private static final UUID BANK_ACCOUNT_UUID = UUID.randomUUID();
+  private static final BankAccountId BANK_ACCOUNT_ID = BankAccountId.of(BANK_ACCOUNT_UUID);
 
-    private static final String RECIPIENT_NAME_JEFFERSON = AccountRecipientFixtures.JEFFERSON.getRecipientName();
-    private static final RecipientName RECIPIENT_NAME = RecipientName.of(RECIPIENT_NAME_JEFFERSON);
+  private static final String RECIPIENT_NAME_JEFFERSON =
+      AccountRecipientFixtures.JEFFERSON.getRecipientName();
+  private static final RecipientName RECIPIENT_NAME = RecipientName.of(RECIPIENT_NAME_JEFFERSON);
 
-    private static final String VALID_IBAN_NO_SPACES = AccountRecipientFixtures.JEFFERSON.getRecipientIban();
-    private static final Iban IBAN = Iban.of(VALID_IBAN_NO_SPACES);
+  private static final String VALID_IBAN_NO_SPACES =
+      AccountRecipientFixtures.JEFFERSON.getRecipientIban();
+  private static final Iban IBAN = Iban.of(VALID_IBAN_NO_SPACES);
 
-    private final IdempotencyKey idempotencyKey = IdempotencyKey.of(UUID.randomUUID());
-    private static final Clock TEST_FIXED_CLOCK = ClockTestFactory.TEST_CLOCK_FIXED;
+  private final IdempotencyKey idempotencyKey = IdempotencyKey.of(UUID.randomUUID());
+  private static final Clock TEST_FIXED_CLOCK = ClockTestFactory.TEST_CLOCK_FIXED;
 
-    private final CreateAccountRecipientCommandMapper commandMapper = CreateAccountRecipientCommandMapper.INSTANCE;
+  private final CreateAccountRecipientCommandMapper commandMapper =
+      CreateAccountRecipientCommandMapper.INSTANCE;
 
-    @Mock
-    private BankAccount bankAccountMock;
+  @Mock private BankAccount bankAccountMock;
 
-    @Mock
-    private LookupBankAccountFacadeImpl lookupBankAccountFacadeMock;
+  @Mock private LookupBankAccountFacadeImpl lookupBankAccountFacadeMock;
 
-    @Mock
-    private CreateAccountRecipientRepository createAccountRecipientRepositoryMock;
+  @Mock private CreateAccountRecipientRepository createAccountRecipientRepositoryMock;
 
-    @Mock
-    private CacheStore<GetAccountRecipientsResult> cacheStoreMock;
+  @Mock private CacheStore<GetAccountRecipientsResult> cacheStoreMock;
 
-    @Captor
-    private ArgumentCaptor<AccountRecipient> accountRecipientCaptor;
+  @Captor private ArgumentCaptor<AccountRecipient> accountRecipientCaptor;
 
-    private CreateAccountRecipientUseCase useCase;
+  private CreateAccountRecipientUseCase useCase;
 
-    @BeforeEach
-    public void setUp() {
-        useCase = new CreateAccountRecipientUseCaseImpl(lookupBankAccountFacadeMock, commandMapper, cacheStoreMock, createAccountRecipientRepositoryMock);
-    }
+  @BeforeEach
+  public void setUp() {
+    useCase =
+        new CreateAccountRecipientUseCaseImpl(
+            lookupBankAccountFacadeMock,
+            commandMapper,
+            cacheStoreMock,
+            createAccountRecipientRepositoryMock);
+  }
 
-    @Test
-    void shouldCreateRecipient_whenCommandIsValidAndBankAccountExists() {
-        when(lookupBankAccountFacadeMock.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccountMock);
+  @Test
+  void shouldCreateRecipient_whenCommandIsValidAndBankAccountExists() {
+    when(lookupBankAccountFacadeMock.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccountMock);
 
-        var createAccountRecipientCommand = buildCreateAccountRecipientCommand();
-        useCase.execute(createAccountRecipientCommand, idempotencyKey);
+    var createAccountRecipientCommand = buildCreateAccountRecipientCommand();
+    useCase.execute(createAccountRecipientCommand, idempotencyKey);
 
-        verify(createAccountRecipientRepositoryMock).create(accountRecipientCaptor.capture());
+    verify(createAccountRecipientRepositoryMock).create(accountRecipientCaptor.capture());
 
-        assertThat(accountRecipientCaptor.getValue())
-            .satisfies(accountRecipient -> {
-                assertThat(accountRecipient.accountRecipientId()).isNotNull();
-                assertThat(accountRecipient.bankAccountId()).isEqualTo(BANK_ACCOUNT_ID);
-                assertThat(accountRecipient.recipientName()).isEqualTo(RECIPIENT_NAME);
-                assertThat(accountRecipient.iban()).isEqualTo(IBAN);
-                assertThat(accountRecipient.createdAt()).isEqualTo(ZonedDateTime.now(TEST_FIXED_CLOCK));
+    assertThat(accountRecipientCaptor.getValue())
+        .satisfies(
+            accountRecipient -> {
+              assertThat(accountRecipient.accountRecipientId()).isNotNull();
+              assertThat(accountRecipient.bankAccountId()).isEqualTo(BANK_ACCOUNT_ID);
+              assertThat(accountRecipient.recipientName()).isEqualTo(RECIPIENT_NAME);
+              assertThat(accountRecipient.iban()).isEqualTo(IBAN);
+              assertThat(accountRecipient.createdAt())
+                  .isEqualTo(ZonedDateTime.now(TEST_FIXED_CLOCK));
             });
 
-        var cacheKey = AccountRecipientsRootCacheKey.of(BANK_ACCOUNT_ID);
-        verify(cacheStoreMock).evictKeysByPrefix(cacheKey.value());
-        verify(lookupBankAccountFacadeMock).byId(BANK_ACCOUNT_ID);
+    var cacheKey = AccountRecipientsRootCacheKey.of(BANK_ACCOUNT_ID);
+    verify(cacheStoreMock).evictKeysByPrefix(cacheKey.value());
+    verify(lookupBankAccountFacadeMock).byId(BANK_ACCOUNT_ID);
 
-        verifyNoMoreInteractions(lookupBankAccountFacadeMock, cacheStoreMock, createAccountRecipientRepositoryMock);
+    verifyNoMoreInteractions(
+        lookupBankAccountFacadeMock, cacheStoreMock, createAccountRecipientRepositoryMock);
+  }
 
-    }
+  @Test
+  void shouldThrowBankAccountNotFoundException_whenBankAccountDoesNotExist() {
+    when(lookupBankAccountFacadeMock.byId(BANK_ACCOUNT_ID))
+        .thenThrow(
+            new BankAccountNotFoundException(
+                BANK_ACCOUNT_ID, new RuntimeException("404 simulated")));
 
-    @Test
-    void shouldThrowBankAccountNotFoundException_whenBankAccountDoesNotExist() {
-        when(lookupBankAccountFacadeMock.byId(BANK_ACCOUNT_ID))
-            .thenThrow(new BankAccountNotFoundException(BANK_ACCOUNT_ID, new RuntimeException("404 simulated")));
+    var createAccountRecipientCommand = buildCreateAccountRecipientCommand();
 
-        var createAccountRecipientCommand = buildCreateAccountRecipientCommand();
+    assertThatThrownBy(() -> useCase.execute(createAccountRecipientCommand, idempotencyKey))
+        .isInstanceOf(BankAccountNotFoundException.class)
+        .hasMessage(BankAccountNotFoundException.BANK_ACCOUNT_NOT_FOUND_TEMPLATE);
 
-        assertThatThrownBy(() -> useCase.execute(createAccountRecipientCommand, idempotencyKey))
-                .isInstanceOf(BankAccountNotFoundException.class)
-                .hasMessage(BankAccountNotFoundException.BANK_ACCOUNT_NOT_FOUND_TEMPLATE);
+    verify(lookupBankAccountFacadeMock).byId(BANK_ACCOUNT_ID);
+    verifyNoInteractions(createAccountRecipientRepositoryMock, cacheStoreMock);
+  }
 
-        verify(lookupBankAccountFacadeMock).byId(BANK_ACCOUNT_ID);
-        verifyNoInteractions(createAccountRecipientRepositoryMock, cacheStoreMock);
-    }
-
-    private CreateAccountRecipientCommand buildCreateAccountRecipientCommand() {
-        return CreateAccountRecipientCommand.of(
-            BANK_ACCOUNT_ID,
-            RECIPIENT_NAME,
-            IBAN,
-            ZonedDateTime.now(TEST_FIXED_CLOCK)
-        );
-    }
+  private CreateAccountRecipientCommand buildCreateAccountRecipientCommand() {
+    return CreateAccountRecipientCommand.of(
+        BANK_ACCOUNT_ID, RECIPIENT_NAME, IBAN, ZonedDateTime.now(TEST_FIXED_CLOCK));
+  }
 }

@@ -14,11 +14,11 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 @RequiredArgsConstructor
 public class CreateAccountRecipientRepositoryImpl implements CreateAccountRecipientRepository {
 
-    private final DynamoDbTable<AccountRecipientEntity> dynamoDbTable;
-    private final AccountRecipientEntityMapper entityMapper;
+  private final DynamoDbTable<AccountRecipientEntity> dynamoDbTable;
+  private final AccountRecipientEntityMapper entityMapper;
 
-    @Override
-    public void create(AccountRecipient accountRecipient) {
-        dynamoDbTable.putItem(entityMapper.toEntity(accountRecipient));
-    }
+  @Override
+  public void create(AccountRecipient accountRecipient) {
+    dynamoDbTable.putItem(entityMapper.toEntity(accountRecipient));
+  }
 }

@@ -5,6 +5,5 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public final class HttpHeadersCustom {
 
-    public static final String IDEMPOTENCY_KEY = "X-Idempotency-Key";
-    
+  public static final String IDEMPOTENCY_KEY = "X-Idempotency-Key";
 }

@@ -8,14 +8,14 @@ import org.springframework.context.support.ResourceBundleMessageSource;
 @Configuration
 public class MessageSourceConfig {
 
-    @Bean
-    public MessageSource errorMessageSource() {
-        var messageSource = new ResourceBundleMessageSource();
+  @Bean
+  public MessageSource errorMessageSource() {
+    var messageSource = new ResourceBundleMessageSource();
 
-        messageSource.setBasename("i18n/exceptions/exceptions");
-        messageSource.setDefaultEncoding("UTF-8");
-        messageSource.setUseCodeAsDefaultMessage(false);
+    messageSource.setBasename("i18n/exceptions/exceptions");
+    messageSource.setDefaultEncoding("UTF-8");
+    messageSource.setUseCodeAsDefaultMessage(false);
 
-        return messageSource;
-    }
+    return messageSource;
+  }
 }

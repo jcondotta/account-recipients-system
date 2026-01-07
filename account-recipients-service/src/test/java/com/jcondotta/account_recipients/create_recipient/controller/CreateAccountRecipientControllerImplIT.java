@@ -1,5 +1,14 @@
 package com.jcondotta.account_recipients.create_recipient.controller;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.jcondotta.account_recipients.domain.bank_account.exceptions.BankAccountNotFoundException.BANK_ACCOUNT_NOT_FOUND_TEMPLATE;
+import static com.jcondotta.account_recipients.domain.bank_account.exceptions.BankAccountNotFoundException.BANK_ACCOUNT_NOT_FOUND_TITLE;
+import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertAll;
+
 import com.jcondotta.account_recipients.application.ports.output.cache.AccountRecipientsRootCacheKey;
 import com.jcondotta.account_recipients.application.ports.output.cache.CacheStore;
 import com.jcondotta.account_recipients.application.ports.output.i18n.MessageResolverPort;
@@ -8,14 +17,17 @@ import com.jcondotta.account_recipients.common.argument_provider.BlankValuesArgu
 import com.jcondotta.account_recipients.common.container.LocalStackTestContainer;
 import com.jcondotta.account_recipients.common.container.RedisTestContainer;
 import com.jcondotta.account_recipients.common.fixtures.AccountRecipientFixtures;
-import com.jcondotta.account_recipients.infrastructure.properties.AccountRecipientURIProperties;
 import com.jcondotta.account_recipients.create_recipient.controller.model.CreateAccountRecipientRestRequest;
 import com.jcondotta.account_recipients.infrastructure.interfaces.rest.exception_handler.ProblemTypes;
 import com.jcondotta.account_recipients.infrastructure.interfaces.rest.headers.HttpHeadersCustom;
+import com.jcondotta.account_recipients.infrastructure.properties.AccountRecipientURIProperties;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
+import java.time.Clock;
+import java.util.Locale;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,234 +48,225 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.servlet.LocaleResolver;
 
-import java.time.Clock;
-import java.util.Locale;
-import java.util.UUID;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.jcondotta.account_recipients.domain.bank_account.exceptions.BankAccountNotFoundException.BANK_ACCOUNT_NOT_FOUND_TEMPLATE;
-import static com.jcondotta.account_recipients.domain.bank_account.exceptions.BankAccountNotFoundException.BANK_ACCOUNT_NOT_FOUND_TITLE;
-import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertAll;
-
 @ActiveProfiles("test")
 @AutoConfigureWireMock(port = 0)
-@ContextConfiguration(initializers = { LocalStackTestContainer.class, RedisTestContainer.class })
+@ContextConfiguration(initializers = {LocalStackTestContainer.class, RedisTestContainer.class})
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class CreateAccountRecipientControllerImplIT {
 
-    @Autowired
-    private AccountRecipientURIProperties uriProperties;
+  @Autowired private AccountRecipientURIProperties uriProperties;
 
-    @Autowired
-    private MessageResolverPort messageResolverPort;
+  @Autowired private MessageResolverPort messageResolverPort;
 
-    @Autowired
-    private Clock fixedClock;
+  @Autowired private Clock fixedClock;
 
-    @Autowired
-    private CacheStore<GetAccountRecipientsResult> cacheStore;
+  @Autowired private CacheStore<GetAccountRecipientsResult> cacheStore;
 
-    @Autowired
-    private LocaleResolver localeResolver;
+  @Autowired private LocaleResolver localeResolver;
 
-    private Locale defaultLocale;
+  private Locale defaultLocale;
 
-    private UUID bankAccountId;
-    private String recipientName;
-    private String iban;
+  private UUID bankAccountId;
+  private String recipientName;
+  private String iban;
 
-    private RequestSpecification requestSpecification;
+  private RequestSpecification requestSpecification;
 
-    @BeforeAll
-    static void beforeAll(){
-        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
-    }
+  @BeforeAll
+  static void beforeAll() {
+    RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+  }
 
-    @BeforeEach
-    void beforeEach(@LocalServerPort int port) {
-        RestAssured.baseURI = "http://localhost";
-        RestAssured.port = port;
+  @BeforeEach
+  void beforeEach(@LocalServerPort int port) {
+    RestAssured.baseURI = "http://localhost";
+    RestAssured.port = port;
 
-        bankAccountId = UUID.randomUUID();
-        recipientName = AccountRecipientFixtures.JEFFERSON.getRecipientName();
-        iban = AccountRecipientFixtures.JEFFERSON.getRecipientIban();
+    bankAccountId = UUID.randomUUID();
+    recipientName = AccountRecipientFixtures.JEFFERSON.getRecipientName();
+    iban = AccountRecipientFixtures.JEFFERSON.getRecipientIban();
 
-        requestSpecification = buildRequestSpecificationWithIdempotencyKey();
-        defaultLocale = localeResolver.resolveLocale(new MockHttpServletRequest());
-    }
+    requestSpecification = buildRequestSpecificationWithIdempotencyKey();
+    defaultLocale = localeResolver.resolveLocale(new MockHttpServletRequest());
+  }
 
-    @Test
-    void shouldReturn201Created_whenRequestIsValid() {
-        stubFor(get(urlPathEqualTo("/api/v1/bank-accounts/" + bankAccountId))
-            .willReturn(aResponse()
-                .withStatus(HttpStatus.OK.value())
-                .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .withBodyFile("bank-accounts/bank-account-active.json")));
+  @Test
+  void shouldReturn201Created_whenRequestIsValid() {
+    stubFor(
+        get(urlPathEqualTo("/api/v1/bank-accounts/" + bankAccountId))
+            .willReturn(
+                aResponse()
+                    .withStatus(HttpStatus.OK.value())
+                    .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .withBodyFile("bank-accounts/bank-account-active.json")));
 
-        var restRequest = CreateAccountRecipientRestRequest.of(recipientName, iban);
-        var expectedLocationURI = uriProperties.accountRecipientsURI(bankAccountId).toString();
+    var restRequest = CreateAccountRecipientRestRequest.of(recipientName, iban);
+    var expectedLocationURI = uriProperties.accountRecipientsURI(bankAccountId).toString();
 
+    given()
+        .spec(requestSpecification)
+        .pathParam("bank-account-id", bankAccountId)
+        .body(restRequest)
+        .when()
+        .post()
+        .then()
+        .statusCode(HttpStatus.CREATED.value())
+        .header("location", equalTo(expectedLocationURI))
+        .header(HttpHeaders.CONTENT_TYPE, nullValue());
+
+    var cacheKey = String.format(AccountRecipientsRootCacheKey.PREFIX_TEMPLATE, bankAccountId);
+    assertThat(cacheStore.getIfPresent(cacheKey)).isEmpty();
+  }
+
+  @Test
+  void shouldReturn404NotFound_whenBankAccountIsNotFound() {
+    stubFor(
+        get(urlPathMatching("/api/v1/bank-accounts/" + bankAccountId))
+            .willReturn(aResponse().withStatus(HttpStatus.NOT_FOUND.value())));
+
+    var restRequest = CreateAccountRecipientRestRequest.of(recipientName, iban);
+
+    var problemDetail =
         given()
             .spec(requestSpecification)
-                .pathParam("bank-account-id", bankAccountId)
+            .pathParam("bank-account-id", bankAccountId)
             .body(restRequest)
-        .when()
+            .when()
             .post()
-        .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .header("location", equalTo(expectedLocationURI))
-            .header(HttpHeaders.CONTENT_TYPE, nullValue());
-
-        var cacheKey = String.format(AccountRecipientsRootCacheKey.PREFIX_TEMPLATE, bankAccountId);
-        assertThat(cacheStore.getIfPresent(cacheKey)).isEmpty();
-    }
-
-    @Test
-    void shouldReturn404NotFound_whenBankAccountIsNotFound() {
-        stubFor(get(urlPathMatching("/api/v1/bank-accounts/" + bankAccountId))
-            .willReturn(aResponse()
-                .withStatus(HttpStatus.NOT_FOUND.value()))
-        );
-
-        var restRequest = CreateAccountRecipientRestRequest.of(recipientName, iban);
-
-        var problemDetail = given()
-            .spec(requestSpecification)
-                .pathParam("bank-account-id", bankAccountId)
-            .body(restRequest)
-        .when()
-            .post()
-        .then()
+            .then()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .extract()
             .body()
             .as(ProblemDetail.class);
 
-        var expectedMessageError = messageResolverPort.resolveMessage(BANK_ACCOUNT_NOT_FOUND_TEMPLATE, new Object[]{ bankAccountId }, defaultLocale);
-        assertAll(
-            () -> assertThat(problemDetail.getType()).hasToString(ProblemTypes.RESOURCE_NOT_FOUND.toString()),
-            () -> assertThat(problemDetail.getTitle()).hasToString(BANK_ACCOUNT_NOT_FOUND_TITLE),
-            () -> assertThat(problemDetail.getDetail()).isEqualTo(expectedMessageError),
-            () -> assertThat(problemDetail.getInstance()).isEqualTo(uriProperties.accountRecipientsURI(bankAccountId))
-        );
-    }
+    var expectedMessageError =
+        messageResolverPort.resolveMessage(
+            BANK_ACCOUNT_NOT_FOUND_TEMPLATE, new Object[] {bankAccountId}, defaultLocale);
+    assertAll(
+        () ->
+            assertThat(problemDetail.getType())
+                .hasToString(ProblemTypes.RESOURCE_NOT_FOUND.toString()),
+        () -> assertThat(problemDetail.getTitle()).hasToString(BANK_ACCOUNT_NOT_FOUND_TITLE),
+        () -> assertThat(problemDetail.getDetail()).isEqualTo(expectedMessageError),
+        () ->
+            assertThat(problemDetail.getInstance())
+                .isEqualTo(uriProperties.accountRecipientsURI(bankAccountId)));
+  }
 
-    @Test
-    void shouldReturn500InternalServerError_whenExternalBankAccountAPIFails() {
-        stubFor(get(urlPathMatching("/api/v1/bank-accounts/" + bankAccountId))
-                .willReturn(aResponse()
-                    .withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value()))
-        );
+  @Test
+  void shouldReturn500InternalServerError_whenExternalBankAccountAPIFails() {
+    stubFor(
+        get(urlPathMatching("/api/v1/bank-accounts/" + bankAccountId))
+            .willReturn(aResponse().withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())));
 
-        var restRequest = CreateAccountRecipientRestRequest.of(recipientName, iban);
+    var restRequest = CreateAccountRecipientRestRequest.of(recipientName, iban);
 
-        given()
-            .spec(requestSpecification)
-                .pathParam("bank-account-id", bankAccountId)
-            .body(restRequest)
+    given()
+        .spec(requestSpecification)
+        .pathParam("bank-account-id", bankAccountId)
+        .body(restRequest)
         .when()
-            .post()
+        .post()
         .then()
-            .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
-    }
+        .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+  }
 
-    @ParameterizedTest
-    @NullSource
-    @ArgumentsSource(BlankValuesArgumentProvider.class)
-    void shouldReturn422UnprocessableEntity_whenRecipientNameIsBlank(String invalidRecipientName) {
-        var restRequest = CreateAccountRecipientRestRequest.of(invalidRecipientName, iban);
+  @ParameterizedTest
+  @NullSource
+  @ArgumentsSource(BlankValuesArgumentProvider.class)
+  void shouldReturn422UnprocessableEntity_whenRecipientNameIsBlank(String invalidRecipientName) {
+    var restRequest = CreateAccountRecipientRestRequest.of(invalidRecipientName, iban);
 
-        var problemDetail = given()
-            .spec(requestSpecification)
-                .pathParam("bank-account-id", bankAccountId)
-            .body(restRequest)
-        .when()
-            .post()
-        .then()
-            .statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value())
-                .extract()
-                .body()
-                .as(ProblemDetail.class);
-
-        assert422ValidationProblem(problemDetail, bankAccountId);
-    }
-
-    @ParameterizedTest
-    @SuppressWarnings("unchecked")
-    @NullSource
-    @ArgumentsSource(BlankValuesArgumentProvider.class)
-    void shouldReturn422UnprocessableEntity_whenIbanIsBlank(String invalidIban) {
-        var restRequest = CreateAccountRecipientRestRequest.of(recipientName, invalidIban);
-
-        var problemDetail = given()
-            .spec(requestSpecification)
-                .pathParam("bank-account-id", bankAccountId)
-            .body(restRequest)
-        .when()
-            .post()
-        .then()
-            .statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value())
-                .extract()
-                .body()
-                .as(ProblemDetail.class);
-
-        assert422ValidationProblem(problemDetail, bankAccountId);
-    }
-
-    @Test
-    void shouldReturn400BadRequest_whenJsonIsMalformed() {
+    var problemDetail =
         given()
             .spec(requestSpecification)
             .pathParam("bank-account-id", bankAccountId)
-            .body("{ invalid-json }")
-        .when()
-            .post()
-        .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value());
-    }
-
-    @Test
-    void shouldReturn400BadRequest_whenRequestIsMissingIdempotencyKeyHeader() {
-        var restRequest = CreateAccountRecipientRestRequest.of(recipientName, iban);
-
-        given()
-            .spec(buildBaseRequestSpecification())
-                .pathParam("bank-account-id", bankAccountId)
             .body(restRequest)
-        .when()
+            .when()
             .post()
+            .then()
+            .statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value())
+            .extract()
+            .body()
+            .as(ProblemDetail.class);
+
+    assert422ValidationProblem(problemDetail, bankAccountId);
+  }
+
+  @ParameterizedTest
+  @SuppressWarnings("unchecked")
+  @NullSource
+  @ArgumentsSource(BlankValuesArgumentProvider.class)
+  void shouldReturn422UnprocessableEntity_whenIbanIsBlank(String invalidIban) {
+    var restRequest = CreateAccountRecipientRestRequest.of(recipientName, invalidIban);
+
+    var problemDetail =
+        given()
+            .spec(requestSpecification)
+            .pathParam("bank-account-id", bankAccountId)
+            .body(restRequest)
+            .when()
+            .post()
+            .then()
+            .statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value())
+            .extract()
+            .body()
+            .as(ProblemDetail.class);
+
+    assert422ValidationProblem(problemDetail, bankAccountId);
+  }
+
+  @Test
+  void shouldReturn400BadRequest_whenJsonIsMalformed() {
+    given()
+        .spec(requestSpecification)
+        .pathParam("bank-account-id", bankAccountId)
+        .body("{ invalid-json }")
+        .when()
+        .post()
         .then()
-            .statusCode(HttpStatus.BAD_REQUEST.value())
-            .body(equalTo("Required header '" + HttpHeadersCustom.IDEMPOTENCY_KEY + "' is missing."));
-    }
+        .statusCode(HttpStatus.BAD_REQUEST.value());
+  }
 
-    private void assert422ValidationProblem(ProblemDetail problemDetail, UUID bankAccountId) {
-        assertAll(
-            () -> assertThat(problemDetail.getType()).isEqualTo(ProblemTypes.VALIDATION_ERRORS),
-            () -> assertThat(problemDetail.getTitle()).hasToString("Request validation failed"),
-            () -> assertThat(problemDetail.getStatus()).isEqualTo(422),
-            () -> assertThat(problemDetail.getInstance()).isEqualTo(uriProperties.accountRecipientsURI(bankAccountId))
-        );
-    }
+  @Test
+  void shouldReturn400BadRequest_whenRequestIsMissingIdempotencyKeyHeader() {
+    var restRequest = CreateAccountRecipientRestRequest.of(recipientName, iban);
 
-    private RequestSpecification buildBaseRequestSpecification() {
-        return new RequestSpecBuilder()
-            .setBaseUri(RestAssured.baseURI)
-            .setPort(RestAssured.port)
-            .setBasePath(uriProperties.rootPath())
-            .setContentType(ContentType.JSON)
-            .setAccept(ContentType.JSON)
-            .build();
-    }
+    given()
+        .spec(buildBaseRequestSpecification())
+        .pathParam("bank-account-id", bankAccountId)
+        .body(restRequest)
+        .when()
+        .post()
+        .then()
+        .statusCode(HttpStatus.BAD_REQUEST.value())
+        .body(equalTo("Required header '" + HttpHeadersCustom.IDEMPOTENCY_KEY + "' is missing."));
+  }
 
-    private RequestSpecification buildRequestSpecificationWithIdempotencyKey() {
-        return new RequestSpecBuilder()
-            .addRequestSpecification(buildBaseRequestSpecification())
-            .addHeader(HttpHeadersCustom.IDEMPOTENCY_KEY, UUID.randomUUID().toString())
-            .build();
-    }
+  private void assert422ValidationProblem(ProblemDetail problemDetail, UUID bankAccountId) {
+    assertAll(
+        () -> assertThat(problemDetail.getType()).isEqualTo(ProblemTypes.VALIDATION_ERRORS),
+        () -> assertThat(problemDetail.getTitle()).hasToString("Request validation failed"),
+        () -> assertThat(problemDetail.getStatus()).isEqualTo(422),
+        () ->
+            assertThat(problemDetail.getInstance())
+                .isEqualTo(uriProperties.accountRecipientsURI(bankAccountId)));
+  }
+
+  private RequestSpecification buildBaseRequestSpecification() {
+    return new RequestSpecBuilder()
+        .setBaseUri(RestAssured.baseURI)
+        .setPort(RestAssured.port)
+        .setBasePath(uriProperties.rootPath())
+        .setContentType(ContentType.JSON)
+        .setAccept(ContentType.JSON)
+        .build();
+  }
+
+  private RequestSpecification buildRequestSpecificationWithIdempotencyKey() {
+    return new RequestSpecBuilder()
+        .addRequestSpecification(buildBaseRequestSpecification())
+        .addHeader(HttpHeadersCustom.IDEMPOTENCY_KEY, UUID.randomUUID().toString())
+        .build();
+  }
 }

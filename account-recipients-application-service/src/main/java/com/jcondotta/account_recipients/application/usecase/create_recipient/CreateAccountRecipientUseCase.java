@@ -5,5 +5,5 @@ import com.jcondotta.account_recipients.application.usecase.shared.value_objects
 
 public interface CreateAccountRecipientUseCase {
 
-    void execute(CreateAccountRecipientCommand command, IdempotencyKey idempotencyKey);
+  void execute(CreateAccountRecipientCommand command, IdempotencyKey idempotencyKey);
 }

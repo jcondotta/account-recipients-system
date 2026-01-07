@@ -13,16 +13,15 @@ import org.springframework.http.ProblemDetail;
 @Configuration
 public class JacksonConfig {
 
-    @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper()
-                .registerModule(new JavaTimeModule())
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY)
-                .addMixIn(ProblemDetail.class, ProblemDetailMixIn.class);
-    }
+  @Bean
+  public ObjectMapper objectMapper() {
+    return new ObjectMapper()
+        .registerModule(new JavaTimeModule())
+        .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        .setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY)
+        .addMixIn(ProblemDetail.class, ProblemDetailMixIn.class);
+  }
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private abstract static class ProblemDetailMixIn {
-    }
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private abstract static class ProblemDetailMixIn {}
 }

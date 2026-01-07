@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record BankAccountResponseCdo(@JsonProperty("bankAccount") BankAccountCdo bankAccountCdo) {
 
-    public static BankAccountResponseCdo of(BankAccountCdo bankAccountCdo) {
-        return new BankAccountResponseCdo(bankAccountCdo);
-    }
+  public static BankAccountResponseCdo of(BankAccountCdo bankAccountCdo) {
+    return new BankAccountResponseCdo(bankAccountCdo);
+  }
 }

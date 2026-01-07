@@ -6,5 +6,5 @@ import com.jcondotta.account_recipients.domain.recipient.entity.AccountRecipient
 
 public interface GetAccountRecipientsRepository {
 
-    PaginatedResult<AccountRecipient> findByQuery(GetAccountRecipientsQuery query);
+  PaginatedResult<AccountRecipient> findByQuery(GetAccountRecipientsQuery query);
 }

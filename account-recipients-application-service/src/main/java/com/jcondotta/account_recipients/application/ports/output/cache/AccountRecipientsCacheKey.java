@@ -4,12 +4,13 @@ import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountI
 
 public interface AccountRecipientsCacheKey {
 
-    String PREFIX_TEMPLATE = "accountRecipients::%s";
+  String PREFIX_TEMPLATE = "accountRecipients::%s";
 
-    BankAccountId bankAccountId();
-    String value();
+  BankAccountId bankAccountId();
 
-    default String rootPrefix(){
-        return String.format(PREFIX_TEMPLATE, bankAccountId());
-    }
+  String value();
+
+  default String rootPrefix() {
+    return String.format(PREFIX_TEMPLATE, bankAccountId());
+  }
 }

@@ -4,36 +4,37 @@ import com.jcondotta.account_recipients.application.usecase.get_recipients.GetAc
 import com.jcondotta.account_recipients.application.usecase.get_recipients.model.result.GetAccountRecipientsResult;
 import com.jcondotta.account_recipients.get_recipients.controller.mapper.request.GetAccountRecipientsRequestRestMapper;
 import com.jcondotta.account_recipients.get_recipients.controller.mapper.response.GetAccountRecipientsResponseMapper;
-import com.jcondotta.account_recipients.get_recipients.controller.model.response.GetAccountRecipientsResponse;
 import com.jcondotta.account_recipients.get_recipients.controller.model.request.GetAccountRecipientsRestRequestParams;
+import com.jcondotta.account_recipients.get_recipients.controller.model.response.GetAccountRecipientsResponse;
 import io.micrometer.core.annotation.Timed;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.UUID;
 
 @Validated
 @RestController
 @AllArgsConstructor
 public class GetAccountRecipientsControllerImpl implements GetAccountRecipientsController {
 
-    private final GetAccountRecipientsUseCase useCase;
-    private final GetAccountRecipientsRequestRestMapper requestMapper;
-    private final GetAccountRecipientsResponseMapper responseMapper;
+  private final GetAccountRecipientsUseCase useCase;
+  private final GetAccountRecipientsRequestRestMapper requestMapper;
+  private final GetAccountRecipientsResponseMapper responseMapper;
 
-    @Timed(
-        value = "account.recipients.query.duration",
-        description = "Time taken to retrieve account recipients by bank-account-id",
-        percentiles = {0.5, 0.95, 0.99}
-    )
-    public ResponseEntity<GetAccountRecipientsResponse> byQuery(UUID bankAccountId, GetAccountRecipientsRestRequestParams restRequestParams) {
-        GetAccountRecipientsResult result = useCase.execute(requestMapper.toQuery(bankAccountId, restRequestParams));
-        if(result.accountRecipients().isEmpty()){
-            return ResponseEntity.noContent().build();
-        }
-
-        return ResponseEntity.ok(responseMapper.toResponse(result.accountRecipients(), result.nextCursor()));
+  @Timed(
+      value = "account.recipients.query.duration",
+      description = "Time taken to retrieve account recipients by bank-account-id",
+      percentiles = {0.5, 0.95, 0.99})
+  public ResponseEntity<GetAccountRecipientsResponse> byQuery(
+      UUID bankAccountId, GetAccountRecipientsRestRequestParams restRequestParams) {
+    GetAccountRecipientsResult result =
+        useCase.execute(requestMapper.toQuery(bankAccountId, restRequestParams));
+    if (result.accountRecipients().isEmpty()) {
+      return ResponseEntity.noContent().build();
     }
+
+    return ResponseEntity.ok(
+        responseMapper.toResponse(result.accountRecipients(), result.nextCursor()));
+  }
 }

@@ -19,32 +19,32 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class GetAccountRecipientsUseCaseImpl implements GetAccountRecipientsUseCase {
 
-    private final GetAccountRecipientsQueryMapper queryMapper;
-    private final CacheStore<GetAccountRecipientsResult> cacheStore;
-    private final GetAccountRecipientsRepository getAccountRecipientsRepository;
+  private final GetAccountRecipientsQueryMapper queryMapper;
+  private final CacheStore<GetAccountRecipientsResult> cacheStore;
+  private final GetAccountRecipientsRepository getAccountRecipientsRepository;
 
-    @Override
-    @Observed(
-        name = "account.recipients.query",
-        contextualName = "queryAccountRecipients",
-        lowCardinalityKeyValues = {"operation", "query"}
-    )
-    public GetAccountRecipientsResult execute(GetAccountRecipientsQuery query) {
-        var queryCacheKey = AccountRecipientsQueryCacheKey.of(query.bankAccountId(), query.queryParams());
+  @Override
+  @Observed(
+      name = "account.recipients.query",
+      contextualName = "queryAccountRecipients",
+      lowCardinalityKeyValues = {"operation", "query"})
+  public GetAccountRecipientsResult execute(GetAccountRecipientsQuery query) {
+    var queryCacheKey =
+        AccountRecipientsQueryCacheKey.of(query.bankAccountId(), query.queryParams());
 
-//        return cacheStore.getIfPresent(queryCacheKey.value())
-//            .orElseGet(() -> {
-                PaginatedResult<AccountRecipient> paginatedResult = getAccountRecipientsRepository.findByQuery(query);
+    //        return cacheStore.getIfPresent(queryCacheKey.value())
+    //            .orElseGet(() -> {
+    PaginatedResult<AccountRecipient> paginatedResult =
+        getAccountRecipientsRepository.findByQuery(query);
 
-                var accountRecipientDetailsList = paginatedResult.items()
-                    .stream()
-                    .map(queryMapper::toAccountRecipient)
-                    .toList();
+    var accountRecipientDetailsList =
+        paginatedResult.items().stream().map(queryMapper::toAccountRecipient).toList();
 
-                var getAccountRecipientsResult = GetAccountRecipientsResult.of(accountRecipientDetailsList, paginatedResult.nextCursor());
-                cacheStore.put(queryCacheKey.value(), getAccountRecipientsResult);
+    var getAccountRecipientsResult =
+        GetAccountRecipientsResult.of(accountRecipientDetailsList, paginatedResult.nextCursor());
+    cacheStore.put(queryCacheKey.value(), getAccountRecipientsResult);
 
-                return getAccountRecipientsResult;
-//            });
-    }
+    return getAccountRecipientsResult;
+    //            });
+  }
 }

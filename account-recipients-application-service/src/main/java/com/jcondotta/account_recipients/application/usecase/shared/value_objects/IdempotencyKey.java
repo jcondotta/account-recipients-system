@@ -5,16 +5,16 @@ import java.util.UUID;
 
 public record IdempotencyKey(UUID value) {
 
-    public IdempotencyKey {
-        Objects.requireNonNull(value, "IdempotencyKey value must not be null");
-    }
+  public IdempotencyKey {
+    Objects.requireNonNull(value, "IdempotencyKey value must not be null");
+  }
 
-    public static IdempotencyKey of(UUID uuid) {
-        return new IdempotencyKey(uuid);
-    }
+  public static IdempotencyKey of(UUID uuid) {
+    return new IdempotencyKey(uuid);
+  }
 
-    @Override
-    public String toString() {
-        return value.toString();
-    }
+  @Override
+  public String toString() {
+    return value.toString();
+  }
 }

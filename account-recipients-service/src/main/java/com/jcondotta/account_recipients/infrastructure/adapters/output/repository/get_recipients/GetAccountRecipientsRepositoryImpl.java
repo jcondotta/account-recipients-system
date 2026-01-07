@@ -13,6 +13,8 @@ import com.jcondotta.account_recipients.infrastructure.adapters.output.repositor
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.DistributionSummary;
 import io.micrometer.core.instrument.MeterRegistry;
+import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -21,157 +23,152 @@ import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
 
-import java.util.List;
-import java.util.Objects;
-
 @Slf4j
 @Repository
 @RequiredArgsConstructor
 public class GetAccountRecipientsRepositoryImpl implements GetAccountRecipientsRepository {
 
-    private final DynamoDbIndex<AccountRecipientEntity> dynamoDbIndex;
-    private final AccountRecipientEntityMapper entityMapper;
-    private final GetRecipientsLastEvaluatedKeyMapper lastEvaluatedKeyMapper;
-    private final MeterRegistry meterRegistry;
+  private final DynamoDbIndex<AccountRecipientEntity> dynamoDbIndex;
+  private final AccountRecipientEntityMapper entityMapper;
+  private final GetRecipientsLastEvaluatedKeyMapper lastEvaluatedKeyMapper;
+  private final MeterRegistry meterRegistry;
 
-    @Override
-    public PaginatedResult<AccountRecipient> findByQuery(GetAccountRecipientsQuery query) {
-        final var queryParams = query.queryParams();
-        final var queryConditional = QueryConditionalBuilder.build(query);
+  @Override
+  public PaginatedResult<AccountRecipient> findByQuery(GetAccountRecipientsQuery query) {
+    final var queryParams = query.queryParams();
+    final var queryConditional = QueryConditionalBuilder.build(query);
 
-        final int limit = queryParams.limit().value();
-        final String cursor = Objects.nonNull(queryParams.cursor()) ? queryParams.cursor().value() : null;
+    final int limit = queryParams.limit().value();
+    final String cursor =
+        Objects.nonNull(queryParams.cursor()) ? queryParams.cursor().value() : null;
 
-        // --- decode e validação segura do cursor ---
-        var exclusiveStartKey = PaginationCursorCodec
-            .decode(cursor)
+    // --- decode e validação segura do cursor ---
+    var exclusiveStartKey =
+        PaginationCursorCodec.decode(cursor)
             .map(lastEvaluatedKeyMapper::toMap)
             .filter(map -> isValidStartKey(map, query))
             .orElse(null);
 
-        try {
-            var queryEnhancedRequest = QueryEnhancedRequest.builder()
-                .queryConditional(queryConditional)
-                .exclusiveStartKey(exclusiveStartKey)
-                .limit(limit + 1)
-                .build();
+    try {
+      var queryEnhancedRequest =
+          QueryEnhancedRequest.builder()
+              .queryConditional(queryConditional)
+              .exclusiveStartKey(exclusiveStartKey)
+              .limit(limit + 1)
+              .build();
 
-            var pageIterable = dynamoDbIndex.query(queryEnhancedRequest);
-            var iterator = pageIterable.iterator();
+      var pageIterable = dynamoDbIndex.query(queryEnhancedRequest);
+      var iterator = pageIterable.iterator();
 
-            // Se não há páginas, retorna vazio
-            if (!iterator.hasNext()) {
-                return new PaginatedResult<>(List.of(), null);
-            }
+      // Se não há páginas, retorna vazio
+      if (!iterator.hasNext()) {
+        return new PaginatedResult<>(List.of(), null);
+      }
 
-            var firstPage = iterator.next();
+      var firstPage = iterator.next();
 
-            // se a página não tem itens, retorna vazio
-            if (firstPage.items().isEmpty()) {
-                recordEmptyResult();
-                return new PaginatedResult<>(List.of(), null);
-            }
+      // se a página não tem itens, retorna vazio
+      if (firstPage.items().isEmpty()) {
+        recordEmptyResult();
+        return new PaginatedResult<>(List.of(), null);
+      }
 
-            var items = firstPage.items().stream()
-                .map(entityMapper::toDomain)
-                .toList();
+      var items = firstPage.items().stream().map(entityMapper::toDomain).toList();
 
-            recordItemsReturned(items.size());
+      recordItemsReturned(items.size());
 
-            // calcula o nextCursor, se houver
-            String nextCursor = null;
-            List<AccountRecipient> resultItems = items;
+      // calcula o nextCursor, se houver
+      String nextCursor = null;
+      List<AccountRecipient> resultItems = items;
 
-            if (items.size() > limit) {
-                resultItems = items.subList(0, limit);
+      if (items.size() > limit) {
+        resultItems = items.subList(0, limit);
 
-                var lastReturnedItem = items.get(limit - 1);
+        var lastReturnedItem = items.get(limit - 1);
 
-                GetRecipientsLastEvaluatedKey lek = new GetRecipientsLastEvaluatedKey(
-                    lastReturnedItem.bankAccountId().value(),
-                    lastReturnedItem.accountRecipientId().value(),
-                    lastReturnedItem.recipientName().value()
-                );
-                nextCursor = PaginationCursorCodec.encode(lek);
-            }
+        GetRecipientsLastEvaluatedKey lek =
+            new GetRecipientsLastEvaluatedKey(
+                lastReturnedItem.bankAccountId().value(),
+                lastReturnedItem.accountRecipientId().value(),
+                lastReturnedItem.recipientName().value());
+        nextCursor = PaginationCursorCodec.encode(lek);
+      }
 
-            return new PaginatedResult<>(resultItems, nextCursor);
+      return new PaginatedResult<>(resultItems, nextCursor);
 
-        } catch (DynamoDbException e) {
-            log.warn("Ignoring invalid exclusiveStartKey for bankAccountId={}, cause={}",
-                query.bankAccountId().value(), e.getMessage());
-            return new PaginatedResult<>(List.of(), null);
-        }
+    } catch (DynamoDbException e) {
+      log.warn(
+          "Ignoring invalid exclusiveStartKey for bankAccountId={}, cause={}",
+          query.bankAccountId().value(),
+          e.getMessage());
+      return new PaginatedResult<>(List.of(), null);
+    }
+  }
+
+  /** Verifica se o exclusiveStartKey pertence à mesma partition key do query atual. */
+  private boolean isValidStartKey(
+      java.util.Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> map,
+      GetAccountRecipientsQuery query) {
+    try {
+      if (map == null
+          || !map.containsKey(GetRecipientsLastEvaluatedKeyMapper.PARTITION_KEY_PARAM_NAME)) {
+        return false;
+      }
+
+      var pkAttr = map.get(GetRecipientsLastEvaluatedKeyMapper.PARTITION_KEY_PARAM_NAME);
+      var extractedBankAccountId =
+          AccountRecipientEntityKey.extractBankAccountId(pkAttr.s()).value();
+
+      // se pertence à mesma conta, é válido
+      return extractedBankAccountId.equals(query.bankAccountId().value());
+    } catch (Exception e) {
+      log.debug("Invalid start key provided: {}", e.getMessage());
+      return false;
+    }
+  }
+
+  QueryConditional buildQueryConditional(GetAccountRecipientsQuery query) {
+    final var partitionKey = AccountRecipientEntityKey.partitionKey(query.bankAccountId());
+    final var queryParams = query.queryParams();
+
+    if (Objects.nonNull(queryParams.namePrefix())) {
+      return QueryConditional.sortBeginsWith(
+          k -> k.partitionValue(partitionKey).sortValue(queryParams.namePrefix().value()));
     }
 
-    /**
-     * Verifica se o exclusiveStartKey pertence à mesma partition key do query atual.
-     */
-    private boolean isValidStartKey(
-        java.util.Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> map,
-        GetAccountRecipientsQuery query
-    ) {
-        try {
-            if (map == null || !map.containsKey(GetRecipientsLastEvaluatedKeyMapper.PARTITION_KEY_PARAM_NAME)) {
-                return false;
-            }
+    return QueryConditional.keyEqualTo(k -> k.partitionValue(partitionKey));
+  }
 
-            var pkAttr = map.get(GetRecipientsLastEvaluatedKeyMapper.PARTITION_KEY_PARAM_NAME);
-            var extractedBankAccountId = AccountRecipientEntityKey.extractBankAccountId(pkAttr.s()).value();
+  private void recordItemsReturned(int count) {
+    DistributionSummary.builder("account_recipients_repository_items_returned")
+        .description("Number of AccountRecipients returned per query")
+        //            .tag("module", MODULE)
+        //            .tag("operation", OPERATION)
+        .register(meterRegistry)
+        .record(count);
+  }
 
-            // se pertence à mesma conta, é válido
-            return extractedBankAccountId.equals(query.bankAccountId().value());
-        } catch (Exception e) {
-            log.debug("Invalid start key provided: {}", e.getMessage());
-            return false;
-        }
+  private void recordEmptyResult() {
+    Counter.builder("account_recipients_repository_empty_results_total")
+        .description("Number of repository queries returning no items")
+        //            .tag("module", MODULE)
+        //            .tag("operation", OPERATION)
+        .register(meterRegistry)
+        .increment();
+  }
+
+  static class QueryConditionalBuilder {
+
+    public static QueryConditional build(GetAccountRecipientsQuery query) {
+      var partitionKey = AccountRecipientEntityKey.partitionKey(query.bankAccountId());
+      var queryParams = query.queryParams();
+
+      if (Objects.nonNull(queryParams.namePrefix())) {
+        return QueryConditional.sortBeginsWith(
+            k -> k.partitionValue(partitionKey).sortValue(queryParams.namePrefix().value()));
+      }
+
+      return QueryConditional.keyEqualTo(k -> k.partitionValue(partitionKey));
     }
-
-    QueryConditional buildQueryConditional(GetAccountRecipientsQuery query) {
-        final var partitionKey = AccountRecipientEntityKey.partitionKey(query.bankAccountId());
-        final var queryParams = query.queryParams();
-
-        if (Objects.nonNull(queryParams.namePrefix())) {
-            return QueryConditional.sortBeginsWith(k ->
-                k.partitionValue(partitionKey).sortValue(queryParams.namePrefix().value())
-            );
-        }
-
-        return QueryConditional.keyEqualTo(k ->
-            k.partitionValue(partitionKey)
-        );
-    }
-
-    private void recordItemsReturned(int count) {
-        DistributionSummary.builder("account_recipients_repository_items_returned")
-            .description("Number of AccountRecipients returned per query")
-//            .tag("module", MODULE)
-//            .tag("operation", OPERATION)
-            .register(meterRegistry)
-            .record(count);
-    }
-
-    private void recordEmptyResult() {
-        Counter.builder("account_recipients_repository_empty_results_total")
-            .description("Number of repository queries returning no items")
-//            .tag("module", MODULE)
-//            .tag("operation", OPERATION)
-            .register(meterRegistry)
-            .increment();
-    }
-
-    static class QueryConditionalBuilder {
-
-        public static QueryConditional build(GetAccountRecipientsQuery query) {
-            var partitionKey = AccountRecipientEntityKey.partitionKey(query.bankAccountId());
-            var queryParams = query.queryParams();
-
-            if (Objects.nonNull(queryParams.namePrefix())) {
-                return QueryConditional.sortBeginsWith(k ->
-                    k.partitionValue(partitionKey).sortValue(queryParams.namePrefix().value()));
-            }
-
-            return QueryConditional.keyEqualTo(k -> k.partitionValue(partitionKey));
-        }
-    }
+  }
 }

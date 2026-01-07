@@ -8,7 +8,8 @@ import org.mapstruct.factory.Mappers;
 @Mapper(componentModel = "spring")
 public interface GetAccountRecipientsQueryMapper {
 
-    GetAccountRecipientsQueryMapper INSTANCE = Mappers.getMapper(GetAccountRecipientsQueryMapper.class);
+  GetAccountRecipientsQueryMapper INSTANCE =
+      Mappers.getMapper(GetAccountRecipientsQueryMapper.class);
 
-    AccountRecipientDetails toAccountRecipient(AccountRecipient accountRecipient);
+  AccountRecipientDetails toAccountRecipient(AccountRecipient accountRecipient);
 }

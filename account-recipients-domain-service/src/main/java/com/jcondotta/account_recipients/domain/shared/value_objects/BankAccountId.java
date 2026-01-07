@@ -5,18 +5,18 @@ import java.util.UUID;
 
 public record BankAccountId(UUID value) {
 
-    public static final String ID_NOT_NULL_MESSAGE = "bank account id value must not be null.";
+  public static final String ID_NOT_NULL_MESSAGE = "bank account id value must not be null.";
 
-    public BankAccountId {
-        Objects.requireNonNull(value, ID_NOT_NULL_MESSAGE);
-    }
+  public BankAccountId {
+    Objects.requireNonNull(value, ID_NOT_NULL_MESSAGE);
+  }
 
-    public static BankAccountId of(UUID value) {
-        return new BankAccountId(value);
-    }
+  public static BankAccountId of(UUID value) {
+    return new BankAccountId(value);
+  }
 
-    @Override
-    public String toString() {
-        return value.toString();
-    }
+  @Override
+  public String toString() {
+    return value.toString();
+  }
 }

@@ -5,5 +5,5 @@ import com.jcondotta.account_recipients.application.usecase.get_recipients.model
 
 public interface GetAccountRecipientsUseCase {
 
-    GetAccountRecipientsResult execute(GetAccountRecipientsQuery accountRecipientsQuery);
+  GetAccountRecipientsResult execute(GetAccountRecipientsQuery accountRecipientsQuery);
 }

@@ -5,5 +5,5 @@ import java.util.Locale;
 @FunctionalInterface
 public interface MessageResolverPort {
 
-    String resolveMessage(String messageCode, Object[] args, Locale locale);
+  String resolveMessage(String messageCode, Object[] args, Locale locale);
 }

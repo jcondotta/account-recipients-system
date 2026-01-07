@@ -7,35 +7,35 @@ import com.jcondotta.account_recipients.application.usecase.delete_recipient.Del
 import com.jcondotta.account_recipients.application.usecase.delete_recipient.model.DeleteAccountRecipientCommand;
 import com.jcondotta.account_recipients.application.usecase.get_recipients.model.result.GetAccountRecipientsResult;
 import io.micrometer.observation.annotation.Observed;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
-import java.util.Objects;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class DeleteAccountRecipientUseCaseImpl implements DeleteAccountRecipientUseCase {
 
-    private final DeleteAccountRecipientRepository repository;
-    private final CacheStore<GetAccountRecipientsResult> cacheStore;
+  private final DeleteAccountRecipientRepository repository;
+  private final CacheStore<GetAccountRecipientsResult> cacheStore;
 
-    @Override
-    @Observed(
-        name = "account.recipients.delete",
-        contextualName = "deleteAccountRecipient",
-        lowCardinalityKeyValues = {"operation", "delete"}
-    )
-    public void execute(DeleteAccountRecipientCommand command) {
-        Objects.requireNonNull(command, "Command must not be null");
+  @Override
+  @Observed(
+      name = "account.recipients.delete",
+      contextualName = "deleteAccountRecipient",
+      lowCardinalityKeyValues = {"operation", "delete"})
+  public void execute(DeleteAccountRecipientCommand command) {
+    Objects.requireNonNull(command, "Command must not be null");
 
-        log.info("Attempting to delete a recipient [bankAccountId={}, accountRecipientId={}]",
-            command.bankAccountId(), command.accountRecipientId());
+    log.info(
+        "Attempting to delete a recipient [bankAccountId={}, accountRecipientId={}]",
+        command.bankAccountId(),
+        command.accountRecipientId());
 
-        repository.delete(command.bankAccountId(), command.accountRecipientId());
+    repository.delete(command.bankAccountId(), command.accountRecipientId());
 
-        var accountRecipientsRootCacheKey = AccountRecipientsRootCacheKey.of(command.bankAccountId());
-        cacheStore.evictKeysByPrefix(accountRecipientsRootCacheKey.value());
-    }
+    var accountRecipientsRootCacheKey = AccountRecipientsRootCacheKey.of(command.bankAccountId());
+    cacheStore.evictKeysByPrefix(accountRecipientsRootCacheKey.value());
+  }
 }

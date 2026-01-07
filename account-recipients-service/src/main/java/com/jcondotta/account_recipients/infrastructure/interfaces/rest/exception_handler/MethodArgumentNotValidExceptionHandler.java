@@ -1,6 +1,11 @@
 package com.jcondotta.account_recipients.infrastructure.interfaces.rest.exception_handler;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.net.URI;
+import java.time.Clock;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -13,52 +18,46 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.net.URI;
-import java.time.Clock;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Slf4j
 @AllArgsConstructor
 @RestControllerAdvice
 public class MethodArgumentNotValidExceptionHandler {
 
-    private final Clock clock;
+  private final Clock clock;
 
-    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ProblemDetail> handleValidationException(MethodArgumentNotValidException ex, HttpServletRequest request) {
-        var groupedByField = ex.getBindingResult()
-            .getFieldErrors()
-            .stream()
-            .collect(Collectors.groupingBy(
-                FieldError::getField,
-                Collectors.mapping(DefaultMessageSourceResolvable::getDefaultMessage, Collectors.toList())
-            ));
+  @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<ProblemDetail> handleValidationException(
+      MethodArgumentNotValidException ex, HttpServletRequest request) {
+    var groupedByField =
+        ex.getBindingResult().getFieldErrors().stream()
+            .collect(
+                Collectors.groupingBy(
+                    FieldError::getField,
+                    Collectors.mapping(
+                        DefaultMessageSourceResolvable::getDefaultMessage, Collectors.toList())));
 
-        var fieldMessageErrors = groupedByField.entrySet()
-            .stream()
+    var fieldMessageErrors =
+        groupedByField.entrySet().stream()
             .map(entry -> FieldMessageError.of(entry.getKey(), entry.getValue()))
             .toList();
 
-        log.warn("Validation error at {} -> {}", request.getRequestURI(), groupedByField);
+    log.warn("Validation error at {} -> {}", request.getRequestURI(), groupedByField);
 
-        var problemDetail = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_ENTITY);
-        problemDetail.setType(ProblemTypes.VALIDATION_ERRORS);
-        problemDetail.setTitle("Request validation failed");
-        problemDetail.setInstance(URI.create(request.getRequestURI()));
-        problemDetail.setProperty("timestamp", ZonedDateTime.now(clock));
-        problemDetail.setProperty("errors", fieldMessageErrors);
+    var problemDetail = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_ENTITY);
+    problemDetail.setType(ProblemTypes.VALIDATION_ERRORS);
+    problemDetail.setTitle("Request validation failed");
+    problemDetail.setInstance(URI.create(request.getRequestURI()));
+    problemDetail.setProperty("timestamp", ZonedDateTime.now(clock));
+    problemDetail.setProperty("errors", fieldMessageErrors);
 
-        return ResponseEntity.unprocessableEntity()
-            .body(problemDetail);
+    return ResponseEntity.unprocessableEntity().body(problemDetail);
+  }
+
+  private record FieldMessageError(String field, List<String> messages) {
+
+    public static FieldMessageError of(String field, List<String> messages) {
+      return new FieldMessageError(field, messages);
     }
-
-    private record FieldMessageError(String field, List<String> messages) {
-
-        public static FieldMessageError of(String field, List<String> messages) {
-            return new FieldMessageError(field, messages);
-        }
-    }
+  }
 }
