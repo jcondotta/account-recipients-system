@@ -1,8 +1,5 @@
 # Account Recipients Service – v1.0
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=jcondotta_bank-account-recipients&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=jcondotta_bank-account-recipients)  
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=jcondotta_bank-account-recipients&metric=coverage)](https://sonarcloud.io/summary/new_code?id=jcondotta_bank-account-recipients)
-
 This project is part of a **microservice-based architecture** responsible for managing **bank account recipients**.  
 It provides RESTful APIs to **create, retrieve, and delete recipients**, while publishing **domain events** to downstream systems in a reliable and idempotent way.
 
@@ -38,7 +35,6 @@ The service is designed with **scalability, resilience, and maintainability** in
 ---
 
 ### Architecture & Design
-- Domain-Driven Design (DDD)
 - Clean Architecture / Hexagonal Architecture
 - Domain Events
 - Integration Events
@@ -48,12 +44,12 @@ The service is designed with **scalability, resilience, and maintainability** in
 ---
 
 ### Infrastructure
-- Amazon DynamoDB (Enhanced Client)
+- Amazon DynamoDB
 - Apache Kafka
 - Redis
 - AWS (LocalStack for local development)
 - Docker & Docker Compose
-- Terraform (Infrastructure as Code)
+- Terraform
 
 ---
 
@@ -66,7 +62,6 @@ The service is designed with **scalability, resilience, and maintainability** in
 
 ### Mapping & Utilities
 - MapStruct (compile-time mapping)
-- Commons Codec
 - Lombok
 
 ---
@@ -105,42 +100,3 @@ The service is designed with **scalability, resilience, and maintainability** in
   - Designed for GitHub Actions pipelines
 
 ---
-
-## 📦 Project Structure
-
-account-recipients-system
-│
-├── account-recipients-domain-service
-│ └── Domain model, value objects, events
-│
-├── account-recipients-application-service
-│ └── Use cases, mappers, ports
-│
-├── account-recipients-service
-│ └── REST controllers, Kafka publishers, Redis, AWS adapters
-│
-└── terraform
-└── Infrastructure definitions
-
-
----
-
-## 🔑 Prerequisites
-
-- Java 17
-- Maven
-- Docker
-- Docker Compose
-- Terraform
-- LocalStack
-- tflocal
-
----
-
-## 🚀 Getting Started
-
-### Clone the repository
-```bash
-git clone https://github.com/jcondotta/bank-account-recipients.git
-cd bank-account-recipients
-```
