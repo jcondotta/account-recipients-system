@@ -1,9 +1,9 @@
 package com.jcondotta.account_recipients.domain.bank_account.entity;
 
-import static java.util.Objects.requireNonNull;
-
 import com.jcondotta.account_recipients.domain.bank_account.enums.AccountStatus;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
+
+import static java.util.Objects.requireNonNull;
 
 public record BankAccount(BankAccountId bankAccountId, AccountStatus accountStatus) {
 

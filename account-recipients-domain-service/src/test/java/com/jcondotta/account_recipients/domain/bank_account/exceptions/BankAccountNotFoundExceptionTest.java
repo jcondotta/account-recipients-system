@@ -1,11 +1,12 @@
 package com.jcondotta.account_recipients.domain.bank_account.exceptions;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.jcondotta.account_recipients.domain.shared.exceptions.DomainObjectNotFoundException;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
-import java.util.UUID;
 import org.junit.jupiter.api.Test;
+
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class BankAccountNotFoundExceptionTest {
 

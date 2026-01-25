@@ -1,9 +1,10 @@
 package com.jcondotta.account_recipients.domain.recipient.value_objects;
 
-import java.util.Locale;
-import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.checkdigit.IBANCheckDigit;
+
+import java.util.Locale;
+import java.util.Objects;
 
 public record Iban(String value) {
 

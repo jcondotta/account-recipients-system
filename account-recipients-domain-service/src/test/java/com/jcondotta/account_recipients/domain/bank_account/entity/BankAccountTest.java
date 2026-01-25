@@ -1,16 +1,17 @@
 package com.jcondotta.account_recipients.domain.bank_account.entity;
 
+import com.jcondotta.account_recipients.domain.bank_account.enums.AccountStatus;
+import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+
+import java.util.UUID;
+
 import static com.jcondotta.account_recipients.domain.bank_account.entity.BankAccount.ACCOUNT_STATUS_NOT_NULL;
 import static com.jcondotta.account_recipients.domain.bank_account.entity.BankAccount.BANK_ACCOUNT_ID_NOT_NULL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
-import com.jcondotta.account_recipients.domain.bank_account.enums.AccountStatus;
-import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
-import java.util.UUID;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
 
 class BankAccountTest {
 

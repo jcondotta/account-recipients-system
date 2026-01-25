@@ -1,7 +1,8 @@
 package com.jcondotta.account_recipients.domain.recipient.value_objects;
 
-import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.Objects;
 
 public record RecipientName(String value) {
 

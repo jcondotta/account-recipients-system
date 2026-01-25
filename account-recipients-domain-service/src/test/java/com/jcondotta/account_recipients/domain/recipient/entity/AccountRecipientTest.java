@@ -1,173 +1,178 @@
 package com.jcondotta.account_recipients.domain.recipient.entity;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
-import com.jcondotta.account_recipients.domain.recipient.value_objects.AccountRecipientId;
 import com.jcondotta.account_recipients.domain.recipient.value_objects.Iban;
+import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientId;
 import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientName;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.UUID;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.UUID;
+import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 class AccountRecipientTest {
 
-  private static final AccountRecipientId ACCOUNT_RECIPIENT_ID_1 = AccountRecipientId.newId();
-  private static final AccountRecipientId ACCOUNT_RECIPIENT_ID_2 = AccountRecipientId.newId();
+  private static final BankAccountId BANK_ACCOUNT_ID = BankAccountId.of(UUID.randomUUID());
+  private static final RecipientId RECIPIENT_ID = RecipientId.newId();
+  private static final RecipientName RECIPIENT_NAME_JEFFERSON = RecipientName.of("Jefferson Condotta");
+  private static final Iban IBAN = Iban.of("GB82WEST12345698765432");
 
-  private static final BankAccountId BANK_ACCOUNT_ID_1 = BankAccountId.of(UUID.randomUUID());
-  private static final BankAccountId BANK_ACCOUNT_ID_2 = BankAccountId.of(UUID.randomUUID());
-
-  private static final RecipientName RECIPIENT_NAME_JEFFERSON =
-      RecipientName.of("Jefferson Condotta");
-  private static final RecipientName RECIPIENT_NAME_PATRIZIO =
-      RecipientName.of("Patrizio Condotta");
-
-  private static final Iban IBAN_1 = Iban.of("GB82WEST12345698765432");
-  private static final Iban IBAN_2 = Iban.of("DE89370400440532013000");
-
-  private static final ZonedDateTime CREATED_AT =
-      ZonedDateTime.of(2024, 6, 1, 12, 0, 0, 0, ZoneOffset.UTC);
-
-  @Test
-  void shouldCreateAccountRecipient_whenAllValuesAreValid() {
-    var accountRecipient =
-        AccountRecipient.of(
-            ACCOUNT_RECIPIENT_ID_1,
-            BANK_ACCOUNT_ID_1,
-            RECIPIENT_NAME_JEFFERSON,
-            IBAN_1,
-            CREATED_AT);
-
-    assertThat(accountRecipient)
-        .isNotNull()
-        .extracting(
-            AccountRecipient::accountRecipientId,
-            AccountRecipient::bankAccountId,
-            AccountRecipient::recipientName,
-            AccountRecipient::iban,
-            AccountRecipient::createdAt)
-        .containsExactly(
-            ACCOUNT_RECIPIENT_ID_1,
-            BANK_ACCOUNT_ID_1,
-            RECIPIENT_NAME_JEFFERSON,
-            IBAN_1,
-            CREATED_AT);
-  }
-
-  @Test
-  void shouldBeEqual_whenAccountRecipientsHaveSameValues() {
-    var accountRecipient1 =
-        AccountRecipient.of(
-            ACCOUNT_RECIPIENT_ID_1,
-            BANK_ACCOUNT_ID_1,
-            RECIPIENT_NAME_JEFFERSON,
-            IBAN_1,
-            CREATED_AT);
-    var accountRecipient2 =
-        AccountRecipient.of(
-            ACCOUNT_RECIPIENT_ID_1,
-            BANK_ACCOUNT_ID_1,
-            RECIPIENT_NAME_JEFFERSON,
-            IBAN_1,
-            CREATED_AT);
-
-    assertThat(accountRecipient1).isEqualTo(accountRecipient2).hasSameHashCodeAs(accountRecipient2);
-  }
-
-  @Test
-  void shouldNotBeEqual_whenAccountRecipientsHaveDifferentValues() {
-    var accountRecipient1 =
-        AccountRecipient.of(
-            ACCOUNT_RECIPIENT_ID_1,
-            BANK_ACCOUNT_ID_1,
-            RECIPIENT_NAME_JEFFERSON,
-            IBAN_1,
-            CREATED_AT);
-    var accountRecipient2 =
-        AccountRecipient.of(
-            ACCOUNT_RECIPIENT_ID_2,
-            BANK_ACCOUNT_ID_2,
-            RECIPIENT_NAME_PATRIZIO,
-            IBAN_2,
-            CREATED_AT.plusDays(1));
-
-    assertThat(accountRecipient1).isNotEqualTo(accountRecipient2);
-  }
-
-  @Test
-  void shouldReturnStringRepresentation_whenCallingToString() {
-    var accountRecipient =
-        AccountRecipient.of(
-            ACCOUNT_RECIPIENT_ID_1,
-            BANK_ACCOUNT_ID_1,
-            RECIPIENT_NAME_JEFFERSON,
-            IBAN_1,
-            CREATED_AT);
-
-    assertThat(accountRecipient.toString())
-        .contains(ACCOUNT_RECIPIENT_ID_1.toString())
-        .contains(BANK_ACCOUNT_ID_1.toString())
-        .contains(RECIPIENT_NAME_JEFFERSON.toString())
-        .contains(IBAN_1.toString())
-        .contains(CREATED_AT.toString());
-  }
-
-  @ParameterizedTest(name = "shouldThrowNullPointerException_when{0}IsNull")
-  @MethodSource("nullFieldProvider")
-  void shouldThrowNullPointerException_whenAnyFieldIsNull(
-      String fieldName,
-      AccountRecipientId accountRecipientId,
-      BankAccountId bankAccountId,
-      RecipientName recipientName,
-      Iban iban,
-      ZonedDateTime createdAt) {
-
-    assertThatThrownBy(
-            () ->
-                AccountRecipient.of(
-                    accountRecipientId, bankAccountId, recipientName, iban, createdAt))
-        .isInstanceOf(NullPointerException.class)
-        .hasMessageContaining(fieldName + " must not be null");
-  }
+  private static final Clock CLOCK = Clock.fixed(Instant.parse("2022-06-24T12:45:01Z"), ZoneOffset.UTC);
+  private static final ZonedDateTime CREATED_AT = ZonedDateTime.now(CLOCK);
 
   static Stream<Arguments> nullFieldProvider() {
     return Stream.of(
         Arguments.of(
-            "accountRecipientId",
+            "recipientId",
             null,
-            BANK_ACCOUNT_ID_1,
+            BANK_ACCOUNT_ID,
             RECIPIENT_NAME_JEFFERSON,
-            IBAN_1,
-            CREATED_AT),
+            IBAN,
+            CREATED_AT,
+            null),
         Arguments.of(
             "bankAccountId",
-            ACCOUNT_RECIPIENT_ID_1,
+            RECIPIENT_ID,
             null,
             RECIPIENT_NAME_JEFFERSON,
-            IBAN_1,
-            CREATED_AT),
+            IBAN,
+            CREATED_AT,
+            null),
         Arguments.of(
-            "recipientName", ACCOUNT_RECIPIENT_ID_1, BANK_ACCOUNT_ID_1, null, IBAN_1, CREATED_AT),
+            "recipientName",
+            RECIPIENT_ID,
+            BANK_ACCOUNT_ID,
+            null,
+            IBAN,
+            CREATED_AT,
+            null),
         Arguments.of(
             "iban",
-            ACCOUNT_RECIPIENT_ID_1,
-            BANK_ACCOUNT_ID_1,
+            RECIPIENT_ID,
+            BANK_ACCOUNT_ID,
             RECIPIENT_NAME_JEFFERSON,
             null,
-            CREATED_AT),
+            CREATED_AT,
+            null),
         Arguments.of(
             "createdAt",
-            ACCOUNT_RECIPIENT_ID_1,
-            BANK_ACCOUNT_ID_1,
+            RECIPIENT_ID,
+            BANK_ACCOUNT_ID,
             RECIPIENT_NAME_JEFFERSON,
-            IBAN_1,
+            IBAN,
+            null,
             null));
+  }
+
+  @Test
+  void shouldCreateAccountRecipientUsingFactoryMethod_whenAllValuesAreValid() {
+    var accountRecipient = AccountRecipient.create(BANK_ACCOUNT_ID, RECIPIENT_NAME_JEFFERSON, IBAN, CLOCK);
+
+    assertThat(accountRecipient.recipientId()).isNotNull();
+
+    assertThat(accountRecipient)
+        .extracting(
+            AccountRecipient::bankAccountId,
+            AccountRecipient::recipientName,
+            AccountRecipient::iban,
+            AccountRecipient::createdAt,
+            AccountRecipient::deletedAt)
+        .containsExactly(
+            BANK_ACCOUNT_ID,
+            RECIPIENT_NAME_JEFFERSON,
+            IBAN,
+            ZonedDateTime.now(CLOCK),
+            null);
+
+    assertThat(accountRecipient.isDeleted()).isFalse();
+  }
+
+  @Test
+  void shouldMarkAccountRecipientAsDeleted_whenDeleteIsCalled() {
+    var accountRecipient = createValidAccountRecipient();
+
+    accountRecipient.delete(CLOCK);
+
+    assertThat(accountRecipient.isDeleted()).isTrue();
+    assertThat(accountRecipient.deletedAt()).isEqualTo(ZonedDateTime.now(CLOCK));
+  }
+
+  @Test
+  void shouldNotChangeDeletedAt_whenDeleteIsCalledMoreThanOnce() {
+    var accountRecipient = createValidAccountRecipient();
+
+    accountRecipient.delete(CLOCK);
+    var firstDeletedAt = accountRecipient.deletedAt();
+
+    Clock laterClock = Clock.fixed(
+        Instant.now(CLOCK).plusSeconds(5_000),
+        ZoneOffset.UTC);
+
+    accountRecipient.delete(laterClock);
+
+    assertThat(accountRecipient.deletedAt())
+        .isEqualTo(firstDeletedAt);
+  }
+
+  @Test
+  void shouldHaveSameIdentity_whenRestoredWithSameRecipientId() {
+    var recipientId = RecipientId.newId();
+
+    var accountRecipient1 = AccountRecipient.restore(recipientId, BANK_ACCOUNT_ID, RECIPIENT_NAME_JEFFERSON, IBAN, CREATED_AT, null);
+    var accountRecipient2 = AccountRecipient.restore(recipientId, BANK_ACCOUNT_ID, RECIPIENT_NAME_JEFFERSON, IBAN, CREATED_AT, null);
+
+    assertThat(accountRecipient1.recipientId()).isEqualTo(accountRecipient2.recipientId());
+  }
+
+  @Test
+  void shouldHaveDifferentIdentity_whenAccountRecipientsAreCreatedSeparately() {
+    var accountRecipient1 = AccountRecipient.create(BANK_ACCOUNT_ID, RECIPIENT_NAME_JEFFERSON, IBAN, CLOCK);
+    var accountRecipient2 = AccountRecipient.create(BANK_ACCOUNT_ID, RECIPIENT_NAME_JEFFERSON, IBAN, CLOCK);
+
+    assertThat(accountRecipient1.recipientId()).isNotEqualTo(accountRecipient2.recipientId());
+  }
+
+  @Test
+  void shouldThrowNullPointerException_whenClockIsNull() {
+    assertThatThrownBy(() -> AccountRecipient.create(BANK_ACCOUNT_ID, RECIPIENT_NAME_JEFFERSON, IBAN, null))
+        .isInstanceOf(NullPointerException.class)
+        .hasMessageContaining("clock must not be null");
+  }
+
+  @ParameterizedTest(name = "{0} should throw NullPointerException when null")
+  @MethodSource("nullFieldProvider")
+  void shouldThrowNullPointerException_whenAnyRequiredFieldIsNull(
+      String fieldName,
+      RecipientId recipientId,
+      BankAccountId bankAccountId,
+      RecipientName recipientName,
+      Iban iban,
+      ZonedDateTime createdAt,
+      ZonedDateTime deletedAt) {
+
+    assertThatThrownBy(
+        () ->
+            AccountRecipient.restore(
+                recipientId,
+                bankAccountId,
+                recipientName,
+                iban,
+                createdAt,
+                deletedAt))
+        .isInstanceOf(NullPointerException.class)
+        .hasMessageContaining(fieldName + " must not be null");
+  }
+
+  private AccountRecipient createValidAccountRecipient() {
+    return AccountRecipient.create(BANK_ACCOUNT_ID, RECIPIENT_NAME_JEFFERSON, IBAN, CLOCK);
   }
 }

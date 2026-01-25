@@ -1,13 +1,13 @@
 package com.jcondotta.account_recipients.domain.recipient.value_objects;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import com.jcondotta.account_recipients.domain.argument_provider.BlankValuesArgumentProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.ValueSource;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class IbanTest {
 
@@ -16,10 +16,10 @@ class IbanTest {
   @ParameterizedTest(name = "{index} => input={0}")
   @ValueSource(
       strings = {
-        "GB82WEST12345698765432",
-        "GB82 WEST 1234 5698 7654 32",
-        "   GB82WEST12345698765432   ",
-        "GB82\tWEST\n1234\t5698\n7654\t32"
+          "GB82WEST12345698765432",
+          "GB82 WEST 1234 5698 7654 32",
+          "   GB82WEST12345698765432   ",
+          "GB82\tWEST\n1234\t5698\n7654\t32"
       })
   void shouldCreateIban_whenValueIsValid(String rawValidIban) {
     assertThat(Iban.of(rawValidIban)).extracting(Iban::value).isEqualTo(VALID_IBAN_NO_SPACES);
@@ -43,12 +43,12 @@ class IbanTest {
   @ParameterizedTest(name = "{index} => invalid input={0}")
   @ValueSource(
       strings = {
-        "", // empty
-        "GB82WEST123", // too short
-        "GB82WEST1234569876543212345678901234567890", // too long
-        "1B82WEST12345698765432", // invalid country code
-        "GB00WEST12345698765432", // bad check digits
-        "GB82WEST1234$698765432" // invalid chars
+          "", // empty
+          "GB82WEST123", // too short
+          "GB82WEST1234569876543212345678901234567890", // too long
+          "1B82WEST12345698765432", // invalid country code
+          "GB00WEST12345698765432", // bad check digits
+          "GB82WEST1234$698765432" // invalid chars
       })
   void shouldThrowIllegalArgumentException_whenIbanFormatIsInvalid(String invalidIban) {
     assertThatThrownBy(() -> Iban.of(invalidIban))

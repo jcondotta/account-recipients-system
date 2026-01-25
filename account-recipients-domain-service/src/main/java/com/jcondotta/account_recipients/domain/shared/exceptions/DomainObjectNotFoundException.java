@@ -7,9 +7,14 @@ public abstract class DomainObjectNotFoundException extends RuntimeException {
   private final String title;
   private final Serializable[] identifiers;
 
-  public DomainObjectNotFoundException(
-      String message, String title, Throwable cause, Serializable... identifiers) {
+  public DomainObjectNotFoundException(String message, String title, Throwable cause, Serializable... identifiers) {
     super(message, cause);
+    this.title = title;
+    this.identifiers = identifiers;
+  }
+
+  public DomainObjectNotFoundException(String message, String title, Serializable... identifiers) {
+    super(message);
     this.title = title;
     this.identifiers = identifiers;
   }
