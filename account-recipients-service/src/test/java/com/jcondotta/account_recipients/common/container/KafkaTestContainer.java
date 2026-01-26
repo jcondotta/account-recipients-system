@@ -17,7 +17,8 @@ public class KafkaTestContainer implements ApplicationContextInitializer<Configu
   private static final String KAFKA_IMAGE_NAME = "confluentinc/cp-kafka:7.6.0";
   private static final DockerImageName KAFKA_IMAGE = DockerImageName.parse(KAFKA_IMAGE_NAME);
 
-  private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(KAFKA_IMAGE);
+  private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(KAFKA_IMAGE)
+      .withReuse(true);
 
   private static void startContainer() {
     try {
