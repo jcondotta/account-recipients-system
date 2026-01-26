@@ -25,7 +25,7 @@ class GetAccountRecipientsResultTest {
       RecipientName.of(JEFFERSON.getRecipientName());
   private static final Iban IBAN = Iban.of(JEFFERSON.getIban());
   private static final ZonedDateTime CREATED_AT =
-      ZonedDateTime.now(ClockTestFactory.testClockFixed);
+      ZonedDateTime.now(ClockTestFactory.TEST_CLOCK_FIXED);
 
   private AccountRecipientDetails accountRecipientDetails;
   private String nextCursor;

@@ -9,8 +9,6 @@ import org.mapstruct.factory.Mappers;
 @Mapper(componentModel = "spring")
 public interface RecipientDeletedEventMapper {
 
-  RecipientDeletedEventMapper INSTANCE = Mappers.getMapper(RecipientDeletedEventMapper.class);
-
   @Mapping(target = "recipientId", source = "recipientId")
   @Mapping(target = "bankAccountId", source = "bankAccountId")
   @Mapping(target = "occurredAt", expression = "java(accountRecipient.getDeletedAt().toInstant())")

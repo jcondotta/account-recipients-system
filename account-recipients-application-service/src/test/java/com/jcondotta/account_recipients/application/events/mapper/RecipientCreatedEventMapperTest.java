@@ -8,6 +8,7 @@ import com.jcondotta.account_recipients.domain.recipient.value_objects.Recipient
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
 import org.junit.jupiter.api.Test;
 
+import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
@@ -21,36 +22,31 @@ class RecipientCreatedEventMapperTest {
       RecipientName.of(JEFFERSON.getRecipientName());
 
   private static final Iban IBAN = Iban.of(JEFFERSON.getIban());
-  private static final ZonedDateTime CREATED_AT =
-      ZonedDateTime.now(ClockTestFactory.testClockFixed);
 
-//  private final RecipientCreatedEventMapper mapper = RecipientCreatedEventMapper.INSTANCE;
+  private static final Clock FIXED_CLOCK = ClockTestFactory.TEST_CLOCK_FIXED;
 
-//  @Test
-//  void shouldMapAccountRecipientToRecipientCreatedEvent_whenAccountRecipientIsValid() {
-//    var accountRecipient = AccountRecipient.of(BANK_ACCOUNT_ID, RECIPIENT_NAME, IBAN, CREATED_AT);
-//
-//    RecipientCreatedEvent createdEvent = mapper.fromAccountRecipient(accountRecipient);
-//
-//    assertThat(createdEvent)
-//        .satisfies(
-//            recipientCreatedEvent -> {
-//              assertThat(recipientCreatedEvent.recipientId())
-//                  .isEqualTo(accountRecipient.recipientId());
-//              assertThat(recipientCreatedEvent.recipientName())
-//                  .isEqualTo(accountRecipient.recipientName());
-//              assertThat(recipientCreatedEvent.bankAccountId())
-//                  .isEqualTo(accountRecipient.bankAccountId());
-//              assertThat(recipientCreatedEvent.iban()).isEqualTo(accountRecipient.iban());
-//              assertThat(recipientCreatedEvent.occurredAt())
-//                  .isEqualTo(accountRecipient.createdAt().toInstant());
-//              assertThat(recipientCreatedEvent.occurredAtZone())
-//                  .isEqualTo(accountRecipient.createdAt().getZone());
-//            });
-//  }
+  private final RecipientCreatedEventMapper mapper = new RecipientCreatedEventMapperImpl();
 
-//  @Test
-//  void shouldReturnNull_whenAccountRecipientIsNull() {
-//    assertThat(mapper.fromAccountRecipient(null)).isNull();
-//  }
+  @Test
+  void shouldMapAccountRecipientToRecipientCreatedEvent_whenAccountRecipientIsValid() {
+    var accountRecipient = AccountRecipient.create(BANK_ACCOUNT_ID, RECIPIENT_NAME, IBAN, FIXED_CLOCK);
+
+    RecipientCreatedEvent createdEvent = mapper.fromAccountRecipient(accountRecipient);
+
+    assertThat(createdEvent)
+        .satisfies(
+            recipientCreatedEvent -> {
+              assertThat(recipientCreatedEvent.recipientId()).isEqualTo(accountRecipient.getRecipientId());
+              assertThat(recipientCreatedEvent.recipientName()).isEqualTo(accountRecipient.getRecipientName());
+              assertThat(recipientCreatedEvent.bankAccountId()).isEqualTo(accountRecipient.getBankAccountId());
+              assertThat(recipientCreatedEvent.iban()).isEqualTo(accountRecipient.getIban());
+              assertThat(recipientCreatedEvent.occurredAt()).isEqualTo(accountRecipient.getCreatedAt().toInstant());
+              assertThat(recipientCreatedEvent.occurredAtZone()).isEqualTo(accountRecipient.getCreatedAt().getZone());
+            });
+  }
+
+  @Test
+  void shouldReturnNull_whenAccountRecipientIsNull() {
+    assertThat(mapper.fromAccountRecipient(null)).isNull();
+  }
 }
