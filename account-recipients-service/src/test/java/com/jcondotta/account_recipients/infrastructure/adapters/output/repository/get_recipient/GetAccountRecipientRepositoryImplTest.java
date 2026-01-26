@@ -1,15 +1,11 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.repository.get_recipient;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-
 import com.jcondotta.account_recipients.domain.recipient.entity.AccountRecipient;
 import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientId;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity.AccountRecipientEntity;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity.AccountRecipientEntityKey;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.mapper.AccountRecipientEntityMapper;
-import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,60 +14,59 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 class GetAccountRecipientRepositoryImplTest {
 
- @Mock
- private DynamoDbTable<AccountRecipientEntity> dynamoDbTable;
+  private static final BankAccountId BANK_ACCOUNT_ID = BankAccountId.of(UUID.randomUUID());
+  private static final RecipientId RECIPIENT_ID = RecipientId.newId();
+  @Mock
+  private DynamoDbTable<AccountRecipientEntity> dynamoDbTable;
+  @Mock
+  private AccountRecipientEntityMapper accountRecipientEntityMapper;
+  @Mock
+  private AccountRecipientEntity accountRecipientEntityMock;
+  @Mock
+  private AccountRecipient accountRecipientMock;
+  @InjectMocks
+  private GetAccountRecipientRepositoryImpl repository;
 
- @Mock
- private AccountRecipientEntityMapper accountRecipientEntityMapper;
+  @Test
+  void shouldReturnAccountRecipient_whenEntityExists() {
+    Key key = Key.builder()
+        .partitionValue(AccountRecipientEntityKey.partitionKey(BANK_ACCOUNT_ID))
+        .sortValue(AccountRecipientEntityKey.sortKey(RECIPIENT_ID))
+        .build();
 
- @Mock
- private AccountRecipientEntity accountRecipientEntityMock;
+    when(dynamoDbTable.getItem(key)).thenReturn(accountRecipientEntityMock);
+    when(accountRecipientEntityMapper.toDomain(accountRecipientEntityMock)).thenReturn(accountRecipientMock);
 
- @Mock
- private AccountRecipient accountRecipientMock;
+    assertThat(repository.getAccountRecipient(BANK_ACCOUNT_ID, RECIPIENT_ID))
+        .hasValue(accountRecipientMock);
 
- @InjectMocks
- private GetAccountRecipientRepositoryImpl repository;
+    verify(dynamoDbTable).getItem(key);
+    verify(accountRecipientEntityMapper).toDomain(accountRecipientEntityMock);
 
- private static final BankAccountId BANK_ACCOUNT_ID = BankAccountId.of(UUID.randomUUID());
+    verifyNoMoreInteractions(dynamoDbTable, accountRecipientEntityMapper);
+  }
 
- private static final RecipientId RECIPIENT_ID = RecipientId.newId();
+  @Test
+  void shouldReturnEmptyOptional_whenEntityDoesNotExist() {
+    Key key = Key.builder()
+        .partitionValue(AccountRecipientEntityKey.partitionKey(BANK_ACCOUNT_ID))
+        .sortValue(AccountRecipientEntityKey.sortKey(RECIPIENT_ID))
+        .build();
 
- @Test
- void shouldReturnAccountRecipient_whenEntityExists() {
-  Key key = Key.builder()
-      .partitionValue(AccountRecipientEntityKey.partitionKey(BANK_ACCOUNT_ID))
-      .sortValue(AccountRecipientEntityKey.sortKey(RECIPIENT_ID))
-      .build();
+    when(dynamoDbTable.getItem(key)).thenReturn(null);
 
-  when(dynamoDbTable.getItem(key)).thenReturn(accountRecipientEntityMock);
-  when(accountRecipientEntityMapper.toDomain(accountRecipientEntityMock)).thenReturn(accountRecipientMock);
+    assertThat(repository.getAccountRecipient(BANK_ACCOUNT_ID, RECIPIENT_ID))
+        .isEmpty();
 
-  assertThat(repository.getAccountRecipient(BANK_ACCOUNT_ID, RECIPIENT_ID))
-      .hasValue(accountRecipientMock);
-
-  verify(dynamoDbTable).getItem(key);
-  verify(accountRecipientEntityMapper).toDomain(accountRecipientEntityMock);
-
-  verifyNoMoreInteractions(dynamoDbTable, accountRecipientEntityMapper);
- }
-
- @Test
- void shouldReturnEmptyOptional_whenEntityDoesNotExist() {
-  Key key = Key.builder()
-      .partitionValue(AccountRecipientEntityKey.partitionKey(BANK_ACCOUNT_ID))
-      .sortValue(AccountRecipientEntityKey.sortKey(RECIPIENT_ID))
-      .build();
-
-  when(dynamoDbTable.getItem(key)).thenReturn(null);
-
-  assertThat(repository.getAccountRecipient(BANK_ACCOUNT_ID, RECIPIENT_ID))
-      .isEmpty();
-
-  verify(dynamoDbTable).getItem(key);
-  verifyNoInteractions(accountRecipientEntityMapper);
- }
+    verify(dynamoDbTable).getItem(key);
+    verifyNoInteractions(accountRecipientEntityMapper);
+  }
 }

@@ -1,7 +1,5 @@
 package com.jcondotta.account_recipients.create_recipient.controller.model;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.jcondotta.account_recipients.common.argument_provider.BlankValuesArgumentProvider;
 import com.jcondotta.account_recipients.common.factory.ValidatorTestFactory;
 import com.jcondotta.account_recipients.common.fixtures.AccountRecipientFixtures;
@@ -10,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.NullSource;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class CreateAccountRecipientRestRequestTest {
 

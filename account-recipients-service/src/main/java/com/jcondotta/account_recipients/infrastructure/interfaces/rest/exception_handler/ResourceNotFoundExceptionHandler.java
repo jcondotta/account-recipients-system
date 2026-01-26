@@ -3,8 +3,6 @@ package com.jcondotta.account_recipients.infrastructure.interfaces.rest.exceptio
 import com.jcondotta.account_recipients.application.ports.output.i18n.MessageResolverPort;
 import com.jcondotta.account_recipients.domain.shared.exceptions.DomainObjectNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
-import java.net.URI;
-import java.util.Locale;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -13,6 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+
+import java.net.URI;
+import java.util.Locale;
 
 @Slf4j
 @ControllerAdvice

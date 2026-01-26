@@ -1,0 +1,19 @@
+package com.jcondotta.account_recipients.application.events.mapper;
+
+import com.jcondotta.account_recipients.domain.recipient.entity.AccountRecipient;
+import com.jcondotta.account_recipients.domain.recipient.events.RecipientDeletedEvent;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
+
+@Mapper(componentModel = "spring")
+public interface RecipientDeletedEventMapper {
+
+  RecipientDeletedEventMapper INSTANCE = Mappers.getMapper(RecipientDeletedEventMapper.class);
+
+  @Mapping(target = "recipientId", source = "recipientId")
+  @Mapping(target = "bankAccountId", source = "bankAccountId")
+  @Mapping(target = "occurredAt", expression = "java(accountRecipient.getDeletedAt().toInstant())")
+  @Mapping(target = "occurredAtZone", expression = "java(accountRecipient.getDeletedAt().getZone())")
+  RecipientDeletedEvent fromAccountRecipient(AccountRecipient accountRecipient);
+}

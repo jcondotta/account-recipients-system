@@ -1,12 +1,13 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.facade.lookup_bank_account.mapper;
 
 import com.jcondotta.account_recipients.domain.bank_account.enums.AccountStatus;
-import java.util.Objects;
 import org.mapstruct.Mapper;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 @Mapper(componentModel = "spring")
 public interface AccountStatusMapper {

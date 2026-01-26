@@ -23,5 +23,6 @@ public class JacksonConfig {
   }
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
-  private abstract static class ProblemDetailMixIn {}
+  private abstract static class ProblemDetailMixIn {
+  }
 }

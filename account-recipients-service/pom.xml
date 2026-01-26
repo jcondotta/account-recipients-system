@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -20,14 +20,14 @@
         </dependency>
 
         <dependency>
-            <groupId>com.google.googlejavaformat</groupId>
-            <artifactId>google-java-format</artifactId>
-            <version>1.0</version>
+            <groupId>com.jcondotta</groupId>
+            <artifactId>account-recipients-application-service</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.jcondotta</groupId>
-            <artifactId>account-recipients-application-service</artifactId>
+            <groupId>com.google.googlejavaformat</groupId>
+            <artifactId>google-java-format</artifactId>
+            <version>1.0</version>
         </dependency>
 
         <dependency>
@@ -38,6 +38,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
         </dependency>
 
         <dependency>
@@ -73,19 +78,19 @@
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <groupId>io.prometheus</groupId>-->
-<!--                    <artifactId>prometheus-metrics-exposition-textformats</artifactId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
+            <!--            <exclusions>-->
+            <!--                <exclusion>-->
+            <!--                    <groupId>io.prometheus</groupId>-->
+            <!--                    <artifactId>prometheus-metrics-exposition-textformats</artifactId>-->
+            <!--                </exclusion>-->
+            <!--            </exclusions>-->
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>io.prometheus</groupId>-->
-<!--            <artifactId>prometheus-metrics-exposition-textformats</artifactId>-->
-<!--            <version>1.3.6</version>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>io.prometheus</groupId>-->
+        <!--            <artifactId>prometheus-metrics-exposition-textformats</artifactId>-->
+        <!--            <version>1.3.6</version>-->
+        <!--        </dependency>-->
 
         <dependency>
             <groupId>commons-codec</groupId>
@@ -127,6 +132,11 @@
         <dependency>
             <groupId>com.redis.testcontainers</groupId>
             <artifactId>testcontainers-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>kafka</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>

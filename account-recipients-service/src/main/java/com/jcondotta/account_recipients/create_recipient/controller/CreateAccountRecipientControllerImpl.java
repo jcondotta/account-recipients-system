@@ -6,14 +6,15 @@ import com.jcondotta.account_recipients.create_recipient.controller.mapper.Creat
 import com.jcondotta.account_recipients.create_recipient.controller.model.CreateAccountRecipientRestRequest;
 import com.jcondotta.account_recipients.infrastructure.properties.AccountRecipientURIProperties;
 import io.micrometer.core.annotation.Timed;
-import java.time.Clock;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.Clock;
+import java.util.UUID;
 
 @Validated
 @RestController

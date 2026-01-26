@@ -1,9 +1,5 @@
 package com.jcondotta.account_recipients.get_recipients.controller;
 
-import static com.jcondotta.account_recipients.common.fixtures.AccountRecipientFixtures.*;
-import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.jcondotta.account_recipients.application.ports.output.cache.AccountRecipientsQueryCacheKey;
 import com.jcondotta.account_recipients.application.ports.output.cache.CacheStore;
 import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model.GetAccountRecipientsQueryParams;
@@ -22,8 +18,10 @@ import com.jcondotta.account_recipients.infrastructure.properties.AccountRecipie
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
-import java.util.UUID;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -33,17 +31,26 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 
+import java.util.UUID;
+
+import static com.jcondotta.account_recipients.common.fixtures.AccountRecipientFixtures.*;
+import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+
 @ActiveProfiles("test")
 @AutoConfigureWireMock(port = 0)
 @ContextConfiguration(initializers = {LocalStackTestContainer.class, RedisTestContainer.class})
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class GetAccountRecipientsControllerImplIT {
 
-  @Autowired private DynamoDbTable<AccountRecipientEntity> accountRecipientsTable;
+  @Autowired
+  private DynamoDbTable<AccountRecipientEntity> accountRecipientsTable;
 
-  @Autowired private AccountRecipientURIProperties uriProperties;
+  @Autowired
+  private AccountRecipientURIProperties uriProperties;
 
-  @Autowired private CacheStore<GetAccountRecipientsResult> cacheStore;
+  @Autowired
+  private CacheStore<GetAccountRecipientsResult> cacheStore;
 
   private RequestSpecification requestSpecification;
 
@@ -68,6 +75,16 @@ class GetAccountRecipientsControllerImplIT {
         AccountRecipientEntityTestFactory.create(bankAccountId, PATRIZIO.getRecipientName());
     recipientVirginio =
         AccountRecipientEntityTestFactory.create(bankAccountId, VIRGINIO.getRecipientName());
+  }
+
+  private RequestSpecification buildRequestSpecification(int port) {
+    return given()
+        .baseUri("http://localhost")
+        .port(port)
+        .basePath(uriProperties.rootPath())
+        .header(HttpHeadersCustom.IDEMPOTENCY_KEY, UUID.randomUUID())
+        .contentType(ContentType.JSON)
+        .accept(ContentType.JSON);
   }
 
   @Nested
@@ -397,15 +414,5 @@ class GetAccountRecipientsControllerImplIT {
           .then()
           .statusCode(HttpStatus.NO_CONTENT.value());
     }
-  }
-
-  private RequestSpecification buildRequestSpecification(int port) {
-    return given()
-        .baseUri("http://localhost")
-        .port(port)
-        .basePath(uriProperties.rootPath())
-        .header(HttpHeadersCustom.IDEMPOTENCY_KEY, UUID.randomUUID())
-        .contentType(ContentType.JSON)
-        .accept(ContentType.JSON);
   }
 }

@@ -1,15 +1,16 @@
 package com.jcondotta.account_recipients.application.ports.output.cache;
 
-import static java.util.Objects.requireNonNull;
-
 import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model.GetAccountRecipientsQueryParams;
 import com.jcondotta.account_recipients.application.ports.output.repository.shared.value_objects.PaginationCursor;
 import com.jcondotta.account_recipients.application.ports.output.repository.shared.value_objects.RecipientNamePrefix;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.Optional;
+
+import static java.util.Objects.requireNonNull;
 
 public record AccountRecipientsQueryCacheKey(
     BankAccountId bankAccountId, GetAccountRecipientsQueryParams queryParams)
@@ -29,12 +30,6 @@ public record AccountRecipientsQueryCacheKey(
     requireNonNull(queryParams, QUERY_PARAMS_NOT_NULL_MESSAGE);
 
     return new AccountRecipientsQueryCacheKey(bankAccountId, queryParams);
-  }
-
-  @Override
-  public String value() {
-    return String.format(
-        ACCOUNT_RECIPIENTS_TEMPLATE, bankAccountId.value(), queryParamsHash(queryParams));
   }
 
   public static String queryParamsHash(GetAccountRecipientsQueryParams queryParams) {
@@ -64,5 +59,11 @@ public record AccountRecipientsQueryCacheKey(
 
   private static String extractNamePrefixValue(RecipientNamePrefix namePrefix) {
     return Optional.ofNullable(namePrefix).map(Object::toString).orElse("null");
+  }
+
+  @Override
+  public String value() {
+    return String.format(
+        ACCOUNT_RECIPIENTS_TEMPLATE, bankAccountId.value(), queryParamsHash(queryParams));
   }
 }

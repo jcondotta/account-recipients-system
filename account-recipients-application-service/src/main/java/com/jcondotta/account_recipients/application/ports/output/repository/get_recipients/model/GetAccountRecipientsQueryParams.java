@@ -1,10 +1,10 @@
 package com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model;
 
-import static java.util.Objects.requireNonNullElse;
-
 import com.jcondotta.account_recipients.application.ports.output.repository.shared.value_objects.PaginationCursor;
 import com.jcondotta.account_recipients.application.ports.output.repository.shared.value_objects.QueryLimit;
 import com.jcondotta.account_recipients.application.ports.output.repository.shared.value_objects.RecipientNamePrefix;
+
+import static java.util.Objects.requireNonNullElse;
 
 public record GetAccountRecipientsQueryParams(
     QueryLimit limit, RecipientNamePrefix namePrefix, PaginationCursor cursor) {

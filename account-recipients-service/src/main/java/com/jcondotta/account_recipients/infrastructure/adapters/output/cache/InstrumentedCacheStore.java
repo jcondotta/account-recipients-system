@@ -3,8 +3,9 @@ package com.jcondotta.account_recipients.infrastructure.adapters.output.cache;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Optional;
 
 /**
  * Base genérica para caches instrumentados com Micrometer. Mede hits, misses, puts, evictions,
@@ -41,14 +42,18 @@ public abstract class InstrumentedCacheStore<K, V> {
             .register(meterRegistry);
   }
 
-  /** Implementações concretas definem a lógica real de acesso ao cache. */
+  /**
+   * Implementações concretas definem a lógica real de acesso ao cache.
+   */
   protected abstract Optional<V> doGet(K key);
 
   protected abstract void doPut(K key, V value);
 
   protected abstract void doEvict(K key);
 
-  /** Consulta com contagem de hit/miss. */
+  /**
+   * Consulta com contagem de hit/miss.
+   */
   public Optional<V> get(K key) {
     try {
       Optional<V> result = doGet(key);
@@ -67,7 +72,9 @@ public abstract class InstrumentedCacheStore<K, V> {
     }
   }
 
-  /** Inserção com tempo e contagem. */
+  /**
+   * Inserção com tempo e contagem.
+   */
   public void put(K key, V value) {
     try {
       loadTimer.record(() -> doPut(key, value));
@@ -79,7 +86,9 @@ public abstract class InstrumentedCacheStore<K, V> {
     }
   }
 
-  /** Remoção com contagem. */
+  /**
+   * Remoção com contagem.
+   */
   public void evict(K key) {
     try {
       doEvict(key);

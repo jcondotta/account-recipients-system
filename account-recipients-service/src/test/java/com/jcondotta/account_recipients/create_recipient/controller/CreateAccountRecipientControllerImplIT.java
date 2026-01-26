@@ -1,19 +1,11 @@
 package com.jcondotta.account_recipients.create_recipient.controller;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.jcondotta.account_recipients.domain.bank_account.exceptions.BankAccountNotFoundException.BANK_ACCOUNT_NOT_FOUND_TEMPLATE;
-import static com.jcondotta.account_recipients.domain.bank_account.exceptions.BankAccountNotFoundException.BANK_ACCOUNT_NOT_FOUND_TITLE;
-import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertAll;
-
 import com.jcondotta.account_recipients.application.ports.output.cache.AccountRecipientsRootCacheKey;
 import com.jcondotta.account_recipients.application.ports.output.cache.CacheStore;
 import com.jcondotta.account_recipients.application.ports.output.i18n.MessageResolverPort;
 import com.jcondotta.account_recipients.application.usecase.get_recipients.model.result.GetAccountRecipientsResult;
 import com.jcondotta.account_recipients.common.argument_provider.BlankValuesArgumentProvider;
+import com.jcondotta.account_recipients.common.container.KafkaTestContainer;
 import com.jcondotta.account_recipients.common.container.LocalStackTestContainer;
 import com.jcondotta.account_recipients.common.container.RedisTestContainer;
 import com.jcondotta.account_recipients.common.fixtures.AccountRecipientFixtures;
@@ -25,9 +17,6 @@ import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
-import java.time.Clock;
-import java.util.Locale;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,21 +37,39 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.servlet.LocaleResolver;
 
+import java.time.Clock;
+import java.util.Locale;
+import java.util.UUID;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.jcondotta.account_recipients.domain.bank_account.exceptions.BankAccountNotFoundException.BANK_ACCOUNT_NOT_FOUND_TEMPLATE;
+import static com.jcondotta.account_recipients.domain.bank_account.exceptions.BankAccountNotFoundException.BANK_ACCOUNT_NOT_FOUND_TITLE;
+import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertAll;
+
 @ActiveProfiles("test")
 @AutoConfigureWireMock(port = 0)
-@ContextConfiguration(initializers = {LocalStackTestContainer.class, RedisTestContainer.class})
+@ContextConfiguration(initializers = {LocalStackTestContainer.class, RedisTestContainer.class, KafkaTestContainer.class})
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class CreateAccountRecipientControllerImplIT {
 
-  @Autowired private AccountRecipientURIProperties uriProperties;
+  @Autowired
+  private AccountRecipientURIProperties uriProperties;
 
-  @Autowired private MessageResolverPort messageResolverPort;
+  @Autowired
+  private MessageResolverPort messageResolverPort;
 
-  @Autowired private Clock fixedClock;
+  @Autowired
+  private Clock fixedClock;
 
-  @Autowired private CacheStore<GetAccountRecipientsResult> cacheStore;
+  @Autowired
+  private CacheStore<GetAccountRecipientsResult> cacheStore;
 
-  @Autowired private LocaleResolver localeResolver;
+  @Autowired
+  private LocaleResolver localeResolver;
 
   private Locale defaultLocale;
 
@@ -139,18 +146,14 @@ class CreateAccountRecipientControllerImplIT {
             .body()
             .as(ProblemDetail.class);
 
-    var expectedMessageError =
-        messageResolverPort.resolveMessage(
-            BANK_ACCOUNT_NOT_FOUND_TEMPLATE, new Object[] {bankAccountId}, defaultLocale);
+    var expectedMessageError = messageResolverPort.resolveMessage(
+            BANK_ACCOUNT_NOT_FOUND_TEMPLATE, new Object[]{bankAccountId}, defaultLocale);
+
     assertAll(
-        () ->
-            assertThat(problemDetail.getType())
-                .hasToString(ProblemTypes.RESOURCE_NOT_FOUND.toString()),
+        () -> assertThat(problemDetail.getType()).hasToString(ProblemTypes.RESOURCE_NOT_FOUND.toString()),
         () -> assertThat(problemDetail.getTitle()).hasToString(BANK_ACCOUNT_NOT_FOUND_TITLE),
         () -> assertThat(problemDetail.getDetail()).isEqualTo(expectedMessageError),
-        () ->
-            assertThat(problemDetail.getInstance())
-                .isEqualTo(uriProperties.accountRecipientsURI(bankAccountId)));
+        () -> assertThat(problemDetail.getInstance()).isEqualTo(uriProperties.accountRecipientsURI(bankAccountId)));
   }
 
   @Test

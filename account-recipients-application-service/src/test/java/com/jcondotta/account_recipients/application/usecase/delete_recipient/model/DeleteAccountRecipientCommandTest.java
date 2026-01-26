@@ -1,17 +1,18 @@
 package com.jcondotta.account_recipients.application.usecase.delete_recipient.model;
 
+import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientId;
+import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
+import org.junit.jupiter.api.Test;
+
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
-import com.jcondotta.account_recipients.domain.recipient.value_objects.AccountRecipientId;
-import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
-import java.util.UUID;
-import org.junit.jupiter.api.Test;
 
 class DeleteAccountRecipientCommandTest {
 
   private static final BankAccountId BANK_ACCOUNT_ID = BankAccountId.of(UUID.randomUUID());
-  private static final AccountRecipientId ACCOUNT_RECIPIENT_ID = AccountRecipientId.newId();
+  private static final RecipientId ACCOUNT_RECIPIENT_ID = RecipientId.newId();
 
   @Test
   void shouldCreateCommand_whenAllParamsAreValid() {
@@ -20,7 +21,7 @@ class DeleteAccountRecipientCommandTest {
     assertThat(command)
         .extracting(
             DeleteAccountRecipientCommand::bankAccountId,
-            DeleteAccountRecipientCommand::accountRecipientId)
+            DeleteAccountRecipientCommand::recipientId)
         .containsExactly(BANK_ACCOUNT_ID, ACCOUNT_RECIPIENT_ID);
   }
 
@@ -32,9 +33,9 @@ class DeleteAccountRecipientCommandTest {
   }
 
   @Test
-  void shouldThrowNullPointerException_whenAccountRecipientIdIsNull() {
+  void shouldThrowNullPointerException_whenRecipientIdIsNull() {
     assertThatThrownBy(() -> new DeleteAccountRecipientCommand(BANK_ACCOUNT_ID, null))
         .isInstanceOf(NullPointerException.class)
-        .hasMessage("accountRecipientId must not be null");
+        .hasMessage("recipientId must not be null");
   }
 }

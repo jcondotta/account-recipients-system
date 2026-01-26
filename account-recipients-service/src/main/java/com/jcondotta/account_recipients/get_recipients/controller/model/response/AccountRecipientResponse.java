@@ -3,10 +3,10 @@ package com.jcondotta.account_recipients.get_recipients.controller.model.respons
 import java.util.UUID;
 
 public record AccountRecipientResponse(
-    UUID accountRecipientId, UUID bankAccountId, String recipientName, String iban) {
+    UUID recipientId, UUID bankAccountId, String recipientName, String iban) {
 
   public static AccountRecipientResponse of(
-      UUID accountRecipientId, UUID bankAccountId, String recipientName, String iban) {
-    return new AccountRecipientResponse(accountRecipientId, bankAccountId, recipientName, iban);
+      UUID recipientId, UUID bankAccountId, String recipientName, String iban) {
+    return new AccountRecipientResponse(recipientId, bankAccountId, recipientName, iban);
   }
 }

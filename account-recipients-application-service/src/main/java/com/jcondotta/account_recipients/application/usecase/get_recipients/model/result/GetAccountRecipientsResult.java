@@ -1,9 +1,10 @@
 package com.jcondotta.account_recipients.application.usecase.get_recipients.model.result;
 
-import static java.util.Objects.requireNonNull;
-
 import com.jcondotta.account_recipients.application.usecase.get_recipients.model.AccountRecipientDetails;
+
 import java.util.List;
+
+import static java.util.Objects.requireNonNull;
 
 public record GetAccountRecipientsResult(
     List<AccountRecipientDetails> accountRecipients, String nextCursor) {

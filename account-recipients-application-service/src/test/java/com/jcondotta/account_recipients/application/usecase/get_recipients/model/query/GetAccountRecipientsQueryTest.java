@@ -1,14 +1,15 @@
 package com.jcondotta.account_recipients.application.usecase.get_recipients.model.query;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model.GetAccountRecipientsQueryParams;
 import com.jcondotta.account_recipients.application.ports.output.repository.shared.value_objects.PaginationCursor;
 import com.jcondotta.account_recipients.application.ports.output.repository.shared.value_objects.QueryLimit;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
-import java.util.UUID;
 import org.junit.jupiter.api.Test;
+
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class GetAccountRecipientsQueryTest {
 

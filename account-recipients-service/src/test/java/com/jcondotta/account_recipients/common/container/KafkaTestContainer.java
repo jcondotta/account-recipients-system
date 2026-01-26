@@ -1,0 +1,50 @@
+package com.jcondotta.account_recipients.common.container;
+
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.boot.test.util.TestPropertyValues;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.lifecycle.Startables;
+import org.testcontainers.utility.DockerImageName;
+
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+@Slf4j
+public class KafkaTestContainer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
+//  private static final String KAFKA_IMAGE_NAME = "confluentinc/cp-kafka:7.6.0";
+//  private static final DockerImageName KAFKA_IMAGE = DockerImageName.parse(KAFKA_IMAGE_NAME);
+//
+//  private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(KAFKA_IMAGE);
+//
+//  private static final AtomicBoolean CONTAINER_STARTED = new AtomicBoolean(false);
+
+  private static void startContainer() {
+//    try {
+//      Startables.deepStart(KAFKA_CONTAINER).join();
+//      log.info("Kafka container started with bootstrap servers: {}", KAFKA_CONTAINER.getBootstrapServers());
+//    }
+//    catch (Exception e) {
+//      log.error("Failed to start Kafka container: {}", e.getMessage());
+//      throw new RuntimeException("Failed to start Kafka container", e);
+//    }
+  }
+
+//  private static Map<String, String> getContainerProperties() {
+//    return Map.of("spring.kafka.bootstrap-servers", KAFKA_CONTAINER.getBootstrapServers());
+//  }
+//
+  @Override
+  public void initialize(@NotNull ConfigurableApplicationContext applicationContext) {
+//    if (CONTAINER_STARTED.compareAndSet(false, true)) {
+//      startContainer();
+//      TestPropertyValues.of(getContainerProperties()).applyTo(applicationContext.getEnvironment());
+//    }
+//    else {
+//      log.warn("initialize() called multiple times; Kafka container already started.");
+//    }
+  }
+}

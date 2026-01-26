@@ -40,8 +40,8 @@ public class AccountRecipient {
         return new AccountRecipient(RecipientId.newId(), bankAccountId, recipientName, iban, ZonedDateTime.now(clock));
     }
 
-    public static AccountRecipient restore(RecipientId recipientId, BankAccountId bankAccountId, RecipientName recipientName, Iban iban, ZonedDateTime createdAt, ZonedDateTime deletedAt) {
-        return new AccountRecipient(recipientId, bankAccountId, recipientName, iban, createdAt, deletedAt);
+    public static AccountRecipient restore(RecipientId recipientId, BankAccountId bankAccountId, RecipientName recipientName, Iban iban, ZonedDateTime createdAt) {
+        return new AccountRecipient(recipientId, bankAccountId, recipientName, iban, createdAt);
     }
 
     public void delete(Clock clock) {
@@ -52,27 +52,27 @@ public class AccountRecipient {
         }
     }
 
-    public RecipientId recipientId() {
+    public RecipientId getRecipientId() {
         return recipientId;
     }
 
-    public BankAccountId bankAccountId() {
+    public BankAccountId getBankAccountId() {
         return bankAccountId;
     }
 
-    public RecipientName recipientName() {
+    public RecipientName getRecipientName() {
         return recipientName;
     }
 
-    public Iban iban() {
+    public Iban getIban() {
         return iban;
     }
 
-    public ZonedDateTime createdAt() {
+    public ZonedDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public ZonedDateTime deletedAt() {
+    public ZonedDateTime getDeletedAt() {
         return deletedAt;
     }
 

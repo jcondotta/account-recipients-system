@@ -1,9 +1,11 @@
 # Account Recipients Service – v1.0
 
 This project is part of a **microservice-based architecture** responsible for managing **bank account recipients**.  
-It provides RESTful APIs to **create, retrieve, and delete recipients**, while publishing **domain events** to downstream systems in a reliable and idempotent way.
+It provides RESTful APIs to **create, retrieve, and delete recipients**, while publishing **domain events** to
+downstream systems in a reliable and idempotent way.
 
-The service is designed with **scalability, resilience, and maintainability** in mind, following **DDD, Clean Architecture, and event-driven principles**.
+The service is designed with **scalability, resilience, and maintainability** in mind, following **DDD, Clean
+Architecture, and event-driven principles**.
 
 ---
 
@@ -11,9 +13,9 @@ The service is designed with **scalability, resilience, and maintainability** in
 
 - Multi-module Maven project
 - Clear separation of concerns
-  - Domain
-  - Application
-  - Infrastructure / Service
+    - Domain
+    - Application
+    - Infrastructure / Service
 - Event-driven architecture
 - Idempotent command & event processing
 - Cloud-ready, locally reproducible
@@ -23,6 +25,7 @@ The service is designed with **scalability, resilience, and maintainability** in
 ## 🛠️ Tech Stack
 
 ### Languages & Frameworks
+
 - Java 17
 - Spring Boot 3.x
 - Spring MVC
@@ -35,6 +38,7 @@ The service is designed with **scalability, resilience, and maintainability** in
 ---
 
 ### Architecture & Design
+
 - Clean Architecture / Hexagonal Architecture
 - Domain Events
 - Integration Events
@@ -44,6 +48,7 @@ The service is designed with **scalability, resilience, and maintainability** in
 ---
 
 ### Infrastructure
+
 - Amazon DynamoDB
 - Apache Kafka
 - Redis
@@ -54,6 +59,7 @@ The service is designed with **scalability, resilience, and maintainability** in
 ---
 
 ### Observability & Monitoring
+
 - Micrometer
 - Prometheus
 - Spring Boot Actuator
@@ -61,18 +67,20 @@ The service is designed with **scalability, resilience, and maintainability** in
 ---
 
 ### Mapping & Utilities
+
 - MapStruct (compile-time mapping)
 - Lombok
 
 ---
 
 ### Testing
+
 - JUnit 5
 - Mockito
 - AssertJ
 - Testcontainers
-  - LocalStack
-  - Redis
+    - LocalStack
+    - Redis
 - WireMock
 - Rest-Assured
 - LogCaptor
@@ -82,21 +90,21 @@ The service is designed with **scalability, resilience, and maintainability** in
 ## ✨ Features
 
 - Recipient Management
-  - Create recipients
-  - Fetch recipients
-  - Delete recipients
+    - Create recipients
+    - Fetch recipients
+    - Delete recipients
 - Domain Events
-  - RecipientCreatedEvent
-  - RecipientDeletedEvent
+    - RecipientCreatedEvent
+    - RecipientDeletedEvent
 - Idempotent Event Publishing
-  - Redis-backed idempotency keys
+    - Redis-backed idempotency keys
 - Event-driven Integration
-  - Kafka-based messaging
+    - Kafka-based messaging
 - Observability
-  - Metrics exposed via Prometheus
+    - Metrics exposed via Prometheus
 - Local Cloud Simulation
-  - Full AWS stack via LocalStack
+    - Full AWS stack via LocalStack
 - CI-ready
-  - Designed for GitHub Actions pipelines
+    - Designed for GitHub Actions pipelines
 
 ---

@@ -3,9 +3,10 @@ package com.jcondotta.account_recipients.get_recipients.controller.model.respons
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.get_recipients.model.GetRecipientsLastEvaluatedKey;
+import lombok.experimental.UtilityClass;
+
 import java.util.Base64;
 import java.util.Optional;
-import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public final class PaginationCursorCodec {
@@ -31,7 +32,8 @@ public final class PaginationCursorCodec {
     }
     try {
       byte[] bytes = Base64.getUrlDecoder().decode(encoded);
-      var decoded = MAPPER.readValue(bytes, new TypeReference<GetRecipientsLastEvaluatedKey>() {});
+      var decoded = MAPPER.readValue(bytes, new TypeReference<GetRecipientsLastEvaluatedKey>() {
+      });
       if (decoded == null) {
         throw new RuntimeException("Decoded cursor is null");
       }

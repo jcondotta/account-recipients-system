@@ -1,45 +1,46 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.repository.get_recipients.model;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import com.jcondotta.account_recipients.common.fixtures.AccountRecipientFixtures;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class GetRecipientsLastEvaluatedKeyTest {
 
   private UUID bankAccountId;
-  private UUID accountRecipientId;
+  private UUID recipientId;
   private String recipientName;
 
   @BeforeEach
   void setUp() {
     bankAccountId = UUID.randomUUID();
-    accountRecipientId = UUID.randomUUID();
+    recipientId = UUID.randomUUID();
     recipientName = AccountRecipientFixtures.JEFFERSON.getRecipientName();
   }
 
   @Test
   void shouldCreateInstance_whenAllValuesAreValid() {
-    var key = new GetRecipientsLastEvaluatedKey(bankAccountId, accountRecipientId, recipientName);
+    var key = new GetRecipientsLastEvaluatedKey(bankAccountId, recipientId, recipientName);
 
     assertThat(key.bankAccountId()).isEqualTo(bankAccountId);
-    assertThat(key.accountRecipientId()).isEqualTo(accountRecipientId);
+    assertThat(key.recipientId()).isEqualTo(recipientId);
     assertThat(key.recipientName()).isEqualTo(recipientName);
   }
 
   @Test
   void shouldThrowNullPointerException_whenBankAccountIdIsNull() {
     assertThatThrownBy(
-            () -> new GetRecipientsLastEvaluatedKey(null, accountRecipientId, recipientName))
+        () -> new GetRecipientsLastEvaluatedKey(null, recipientId, recipientName))
         .isInstanceOf(NullPointerException.class)
         .hasMessage("bank account id must not be null");
   }
 
   @Test
-  void shouldThrowNullPointerException_whenAccountRecipientIdIsNull() {
+  void shouldThrowNullPointerException_whenRecipientIdIsNull() {
     assertThatThrownBy(() -> new GetRecipientsLastEvaluatedKey(bankAccountId, null, recipientName))
         .isInstanceOf(NullPointerException.class)
         .hasMessage("account recipient id must not be null");
@@ -48,7 +49,7 @@ class GetRecipientsLastEvaluatedKeyTest {
   @Test
   void shouldThrowNullPointerException_whenRecipientNameIsNull() {
     assertThatThrownBy(
-            () -> new GetRecipientsLastEvaluatedKey(bankAccountId, accountRecipientId, null))
+        () -> new GetRecipientsLastEvaluatedKey(bankAccountId, recipientId, null))
         .isInstanceOf(NullPointerException.class)
         .hasMessage("recipient name must not be null");
   }
@@ -56,15 +57,15 @@ class GetRecipientsLastEvaluatedKeyTest {
   @Test
   void shouldThrowIllegalArgumentException_whenRecipientNameIsBlank() {
     assertThatThrownBy(
-            () -> new GetRecipientsLastEvaluatedKey(bankAccountId, accountRecipientId, "   "))
+        () -> new GetRecipientsLastEvaluatedKey(bankAccountId, recipientId, "   "))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("recipient name must not be blank");
   }
 
   @Test
   void shouldBeEqual_whenValuesAreTheSame() {
-    var k1 = new GetRecipientsLastEvaluatedKey(bankAccountId, accountRecipientId, recipientName);
-    var k2 = new GetRecipientsLastEvaluatedKey(bankAccountId, accountRecipientId, recipientName);
+    var k1 = new GetRecipientsLastEvaluatedKey(bankAccountId, recipientId, recipientName);
+    var k2 = new GetRecipientsLastEvaluatedKey(bankAccountId, recipientId, recipientName);
 
     assertThat(k1).isEqualTo(k2);
     assertThat(k1.hashCode()).isEqualTo(k2.hashCode());
@@ -72,29 +73,29 @@ class GetRecipientsLastEvaluatedKeyTest {
 
   @Test
   void shouldNotBeEqual_whenValuesDiffer() {
-    var k1 = new GetRecipientsLastEvaluatedKey(bankAccountId, accountRecipientId, recipientName);
+    var k1 = new GetRecipientsLastEvaluatedKey(bankAccountId, recipientId, recipientName);
     var k2 =
-        new GetRecipientsLastEvaluatedKey(bankAccountId, accountRecipientId, "Other Recipient");
+        new GetRecipientsLastEvaluatedKey(bankAccountId, recipientId, "Other Recipient");
 
     assertThat(k1).isNotEqualTo(k2);
   }
 
   @Test
   void shouldContainValuesInToString() {
-    var key = new GetRecipientsLastEvaluatedKey(bankAccountId, accountRecipientId, recipientName);
+    var key = new GetRecipientsLastEvaluatedKey(bankAccountId, recipientId, recipientName);
 
     assertThat(key.toString())
         .contains(bankAccountId.toString())
-        .contains(accountRecipientId.toString())
+        .contains(recipientId.toString())
         .contains(recipientName);
   }
 
   @Test
   void shouldCreateInstanceUsingFactoryMethod() {
-    var key = GetRecipientsLastEvaluatedKey.of(bankAccountId, accountRecipientId, recipientName);
+    var key = GetRecipientsLastEvaluatedKey.of(bankAccountId, recipientId, recipientName);
 
     assertThat(key.bankAccountId()).isEqualTo(bankAccountId);
-    assertThat(key.accountRecipientId()).isEqualTo(accountRecipientId);
+    assertThat(key.recipientId()).isEqualTo(recipientId);
     assertThat(key.recipientName()).isEqualTo(recipientName);
   }
 }

@@ -1,9 +1,5 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.repository.create_recipient;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import com.jcondotta.account_recipients.domain.recipient.entity.AccountRecipient;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity.AccountRecipientEntity;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.mapper.AccountRecipientEntityMapper;
@@ -16,20 +12,29 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 class CreateAccountRecipientRepositoryImplTest {
 
-  @Mock private DynamoDbTable<AccountRecipientEntity> dynamoDbTable;
+  @Mock
+  private DynamoDbTable<AccountRecipientEntity> dynamoDbTable;
 
-  @Mock private AccountRecipientEntityMapper entityMapper;
+  @Mock
+  private AccountRecipientEntityMapper entityMapper;
 
-  @Mock private AccountRecipient accountRecipientMock;
+  @Mock
+  private AccountRecipient accountRecipientMock;
 
-  @Mock private AccountRecipientEntity accountRecipientEntityMock;
+  @Mock
+  private AccountRecipientEntity accountRecipientEntityMock;
 
-  @InjectMocks private CreateAccountRecipientRepositoryImpl repository;
+  @InjectMocks
+  private CreateAccountRecipientRepositoryImpl repository;
 
-  @Captor private ArgumentCaptor<AccountRecipientEntity> entityCaptor;
+  @Captor
+  private ArgumentCaptor<AccountRecipientEntity> entityCaptor;
 
   @Test
   void shouldPutEntityIntoDynamoDb_whenAccountRecipientIsValid() {

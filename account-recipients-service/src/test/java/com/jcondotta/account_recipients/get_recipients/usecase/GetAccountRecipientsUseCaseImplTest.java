@@ -3,7 +3,9 @@ package com.jcondotta.account_recipients.get_recipients.usecase;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-/** Unit tests for {@link GetAccountRecipientsUseCaseImpl}. */
+/**
+ * Unit tests for {@link GetAccountRecipientsUseCaseImpl}.
+ */
 @ExtendWith(MockitoExtension.class)
 class GetAccountRecipientsUseCaseImplTest {
 

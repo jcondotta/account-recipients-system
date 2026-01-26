@@ -1,18 +1,21 @@
 package com.jcondotta.account_recipients.get_recipients.controller.model.response;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.get_recipients.model.GetRecipientsLastEvaluatedKey;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
-/** Unit tests for {@link PaginationCursorCodec}. */
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+/**
+ * Unit tests for {@link PaginationCursorCodec}.
+ */
 class PaginationCursorCodecTest {
 
   private static final ObjectMapper MAPPER = new ObjectMapper();

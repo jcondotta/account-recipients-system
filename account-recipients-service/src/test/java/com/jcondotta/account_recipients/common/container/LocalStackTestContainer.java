@@ -1,9 +1,5 @@
 package com.jcondotta.account_recipients.common.container;
 
-import static org.testcontainers.containers.localstack.LocalStackContainer.Service;
-
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -13,6 +9,11 @@ import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.lifecycle.Startables;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
+
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.testcontainers.containers.localstack.LocalStackContainer.Service;
 
 @Slf4j
 public class LocalStackTestContainer
@@ -35,7 +36,8 @@ public class LocalStackTestContainer
   private static void startContainer() {
     try {
       Startables.deepStart(LOCALSTACK_CONTAINER).join();
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       log.error("Failed to start LocalStack container: {}", e.getMessage());
       throw new RuntimeException("Failed to start LocalStack container", e);
     }
@@ -46,8 +48,7 @@ public class LocalStackTestContainer
         "AWS_ACCESS_KEY_ID", LOCALSTACK_CONTAINER.getAccessKey(),
         "AWS_SECRET_ACCESS_KEY", LOCALSTACK_CONTAINER.getSecretKey(),
         "AWS_DEFAULT_REGION", LOCALSTACK_CONTAINER.getRegion(),
-        "AWS_DYNAMODB_ENDPOINT",
-            LOCALSTACK_CONTAINER.getEndpointOverride(Service.DYNAMODB).toString());
+        "cloud.aws.dynamodb.endpoint", LOCALSTACK_CONTAINER.getEndpointOverride(Service.DYNAMODB).toString());
   }
 
   @Override

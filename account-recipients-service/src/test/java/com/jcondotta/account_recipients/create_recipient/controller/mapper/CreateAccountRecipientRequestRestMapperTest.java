@@ -1,20 +1,23 @@
 package com.jcondotta.account_recipients.create_recipient.controller.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import com.jcondotta.account_recipients.ClockTestFactory;
 import com.jcondotta.account_recipients.application.usecase.create_recipient.model.CreateAccountRecipientCommand;
 import com.jcondotta.account_recipients.create_recipient.controller.model.CreateAccountRecipientRestRequest;
 import com.jcondotta.account_recipients.domain.recipient.value_objects.Iban;
 import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientName;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
+import org.junit.jupiter.api.Test;
+
 import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.util.UUID;
-import org.junit.jupiter.api.Test;
 
-/** Unit tests for {@link CreateAccountRecipientRequestRestMapper}. */
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+/**
+ * Unit tests for {@link CreateAccountRecipientRequestRestMapper}.
+ */
 class CreateAccountRecipientRequestRestMapperTest {
 
   private static final UUID BANK_ACCOUNT_UUID = UUID.randomUUID();

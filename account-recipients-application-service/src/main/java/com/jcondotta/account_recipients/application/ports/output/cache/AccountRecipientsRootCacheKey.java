@@ -1,6 +1,7 @@
 package com.jcondotta.account_recipients.application.ports.output.cache;
 
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
+
 import java.util.Objects;
 
 public record AccountRecipientsRootCacheKey(BankAccountId bankAccountId)

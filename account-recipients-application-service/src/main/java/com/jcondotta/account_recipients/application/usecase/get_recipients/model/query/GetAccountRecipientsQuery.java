@@ -1,9 +1,9 @@
 package com.jcondotta.account_recipients.application.usecase.get_recipients.model.query;
 
-import static java.util.Objects.requireNonNull;
-
 import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model.GetAccountRecipientsQueryParams;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
+
+import static java.util.Objects.requireNonNull;
 
 public record GetAccountRecipientsQuery(
     BankAccountId bankAccountId, GetAccountRecipientsQueryParams queryParams) {

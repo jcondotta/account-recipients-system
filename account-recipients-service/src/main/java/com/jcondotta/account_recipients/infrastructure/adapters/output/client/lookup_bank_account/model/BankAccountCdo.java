@@ -1,6 +1,7 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.client.lookup_bank_account.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)

@@ -1,15 +1,10 @@
 package com.jcondotta.account_recipients.application.ports.output.cache;
 
-import static org.assertj.core.api.Assertions.*;
-
 import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model.GetAccountRecipientsQueryParams;
 import com.jcondotta.account_recipients.application.ports.output.repository.shared.value_objects.PaginationCursor;
 import com.jcondotta.account_recipients.application.ports.output.repository.shared.value_objects.QueryLimit;
 import com.jcondotta.account_recipients.application.ports.output.repository.shared.value_objects.RecipientNamePrefix;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
-import java.security.MessageDigest;
-import java.util.UUID;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -17,6 +12,13 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.mockito.Mockito;
+
+import java.security.MessageDigest;
+import java.util.UUID;
+import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class AccountRecipientsQueryCacheKeyTest {
 
@@ -58,17 +60,6 @@ class AccountRecipientsQueryCacheKeyTest {
     assertThat(queryCacheKeyViaOf).isEqualTo(queryCacheKey);
   }
 
-  static class CacheKeyArgumentsProvider implements ArgumentsProvider {
-    @Override
-    public Stream<? extends Arguments> provideArguments(ExtensionContext context) {
-      return Stream.of(
-          Arguments.of(QUERY_LIMIT_20, RECIPIENT_NAME_PREFIX, PAGINATION_CURSOR),
-          Arguments.of(QUERY_LIMIT_20, RECIPIENT_NAME_PREFIX, null),
-          Arguments.of(QUERY_LIMIT_20, null, PAGINATION_CURSOR),
-          Arguments.of(QUERY_LIMIT_20, null, null));
-    }
-  }
-
   @Test
   void shouldThrowNullPointerException_whenBankAccountIdIsNull() {
     var queryParams =
@@ -102,6 +93,17 @@ class AccountRecipientsQueryCacheKeyTest {
           .hasMessage(AccountRecipientsQueryCacheKey.QUERY_HASH_ERROR_MESSAGE)
           .hasCauseInstanceOf(RuntimeException.class)
           .hasRootCauseMessage("something went wrong");
+    }
+  }
+
+  static class CacheKeyArgumentsProvider implements ArgumentsProvider {
+    @Override
+    public Stream<? extends Arguments> provideArguments(ExtensionContext context) {
+      return Stream.of(
+          Arguments.of(QUERY_LIMIT_20, RECIPIENT_NAME_PREFIX, PAGINATION_CURSOR),
+          Arguments.of(QUERY_LIMIT_20, RECIPIENT_NAME_PREFIX, null),
+          Arguments.of(QUERY_LIMIT_20, null, PAGINATION_CURSOR),
+          Arguments.of(QUERY_LIMIT_20, null, null));
     }
   }
 }

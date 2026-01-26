@@ -1,11 +1,12 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.facade.lookup_bank_account.mapper;
 
+import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
+import org.junit.jupiter.api.Test;
+
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
-import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
-import java.util.UUID;
-import org.junit.jupiter.api.Test;
 
 class BankAccountIdMapperTest {
 

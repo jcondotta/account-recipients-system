@@ -1,11 +1,12 @@
 package com.jcondotta.account_recipients.application.ports.output.repository.shared.model;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class PaginatedResultTest {
 

@@ -1,11 +1,12 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity;
 
+import lombok.NoArgsConstructor;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.*;
+
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.UUID;
-import lombok.NoArgsConstructor;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.*;
 
 @DynamoDbBean
 @NoArgsConstructor
@@ -13,7 +14,7 @@ public class AccountRecipientEntity {
 
   private String partitionKey;
   private String sortKey;
-  private UUID accountRecipientId;
+  private UUID recipientId;
   private UUID bankAccountId;
   private String recipientName;
   private String iban;
@@ -21,14 +22,14 @@ public class AccountRecipientEntity {
   private ZoneId createdAtZoneId;
 
   public AccountRecipientEntity(
-      UUID accountRecipientId,
+      UUID recipientId,
       UUID bankAccountId,
       String recipientName,
       String iban,
       ZonedDateTime createdAt) {
     this.partitionKey = AccountRecipientEntityKey.partitionKey(bankAccountId);
-    this.sortKey = AccountRecipientEntityKey.sortKey(accountRecipientId);
-    this.accountRecipientId = accountRecipientId;
+    this.sortKey = AccountRecipientEntityKey.sortKey(recipientId);
+    this.recipientId = recipientId;
     this.bankAccountId = bankAccountId;
     this.recipientName = recipientName;
     this.iban = iban;
@@ -56,13 +57,13 @@ public class AccountRecipientEntity {
     this.sortKey = sortKey;
   }
 
-  @DynamoDbAttribute("accountRecipientId")
-  public UUID getAccountRecipientId() {
-    return accountRecipientId;
+  @DynamoDbAttribute("recipientId")
+  public UUID getRecipientId() {
+    return recipientId;
   }
 
-  public void setAccountRecipientId(UUID accountRecipientId) {
-    this.accountRecipientId = accountRecipientId;
+  public void setRecipientId(UUID recipientId) {
+    this.recipientId = recipientId;
   }
 
   @DynamoDbAttribute("bankAccountId")

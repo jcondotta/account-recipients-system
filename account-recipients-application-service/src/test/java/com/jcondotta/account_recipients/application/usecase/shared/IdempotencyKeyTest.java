@@ -1,11 +1,12 @@
 package com.jcondotta.account_recipients.application.usecase.shared;
 
+import com.jcondotta.account_recipients.application.usecase.shared.value_objects.IdempotencyKey;
+import org.junit.jupiter.api.Test;
+
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
-import com.jcondotta.account_recipients.application.usecase.shared.value_objects.IdempotencyKey;
-import java.util.UUID;
-import org.junit.jupiter.api.Test;
 
 class IdempotencyKeyTest {
 
@@ -52,5 +53,27 @@ class IdempotencyKeyTest {
     var idempotencyKey = IdempotencyKey.of(IDEMPOTENCY_KEY_UUID_1);
 
     assertThat(idempotencyKey.toString()).contains(IDEMPOTENCY_KEY_UUID_1.toString());
+  }
+
+  @Test
+  void shouldCreateNewIdempotencyKey_whenCallingNewKey() {
+    var idempotencyKey = IdempotencyKey.newKey();
+
+    assertThat(idempotencyKey)
+        .isNotNull()
+        .extracting(IdempotencyKey::value)
+        .isNotNull();
+  }
+
+  @Test
+  void shouldGenerateDifferentValues_whenCallingNewKeyMultipleTimes() {
+    var idempotencyKey1 = IdempotencyKey.newKey();
+    var idempotencyKey2 = IdempotencyKey.newKey();
+
+    assertThat(idempotencyKey1)
+        .isNotEqualTo(idempotencyKey2);
+
+    assertThat(idempotencyKey1.value())
+        .isNotEqualTo(idempotencyKey2.value());
   }
 }

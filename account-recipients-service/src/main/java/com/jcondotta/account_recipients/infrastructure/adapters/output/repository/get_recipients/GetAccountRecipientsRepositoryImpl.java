@@ -13,8 +13,6 @@ import com.jcondotta.account_recipients.infrastructure.adapters.output.repositor
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.DistributionSummary;
 import io.micrometer.core.instrument.MeterRegistry;
-import java.util.List;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -22,6 +20,9 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbIndex;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
+
+import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Repository
@@ -88,9 +89,9 @@ public class GetAccountRecipientsRepositoryImpl implements GetAccountRecipientsR
 
         GetRecipientsLastEvaluatedKey lek =
             new GetRecipientsLastEvaluatedKey(
-                lastReturnedItem.bankAccountId().value(),
-                lastReturnedItem.accountRecipientId().value(),
-                lastReturnedItem.recipientName().value());
+                lastReturnedItem.getBankAccountId().value(),
+                lastReturnedItem.getRecipientId().value(),
+                lastReturnedItem.getRecipientName().value());
         nextCursor = PaginationCursorCodec.encode(lek);
       }
 
@@ -105,7 +106,9 @@ public class GetAccountRecipientsRepositoryImpl implements GetAccountRecipientsR
     }
   }
 
-  /** Verifica se o exclusiveStartKey pertence à mesma partition key do query atual. */
+  /**
+   * Verifica se o exclusiveStartKey pertence à mesma partition key do query atual.
+   */
   private boolean isValidStartKey(
       java.util.Map<String, software.amazon.awssdk.services.dynamodb.model.AttributeValue> map,
       GetAccountRecipientsQuery query) {

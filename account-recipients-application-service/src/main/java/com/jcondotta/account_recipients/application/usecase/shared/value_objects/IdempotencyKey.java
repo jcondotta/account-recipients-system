@@ -9,6 +9,10 @@ public record IdempotencyKey(UUID value) {
     Objects.requireNonNull(value, "IdempotencyKey value must not be null");
   }
 
+  public static IdempotencyKey newKey() {
+    return new IdempotencyKey(UUID.randomUUID());
+  }
+
   public static IdempotencyKey of(UUID uuid) {
     return new IdempotencyKey(uuid);
   }

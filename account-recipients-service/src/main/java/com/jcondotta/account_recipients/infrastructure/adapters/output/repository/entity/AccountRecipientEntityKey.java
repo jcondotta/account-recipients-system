@@ -1,7 +1,8 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity;
 
-import com.jcondotta.account_recipients.domain.recipient.value_objects.AccountRecipientId;
+import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientId;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
+
 import java.util.UUID;
 
 public final class AccountRecipientEntityKey {
@@ -9,7 +10,8 @@ public final class AccountRecipientEntityKey {
   private static final String PK_PREFIX = "ACCOUNT_OWNER#";
   private static final String SK_PREFIX = "ACCOUNT_RECIPIENT#";
 
-  private AccountRecipientEntityKey() {}
+  private AccountRecipientEntityKey() {
+  }
 
   public static String partitionKey(UUID bankAccountId) {
     return PK_PREFIX + bankAccountId.toString();
@@ -19,12 +21,12 @@ public final class AccountRecipientEntityKey {
     return partitionKey(bankAccountId.value());
   }
 
-  public static String sortKey(UUID accountRecipientId) {
-    return SK_PREFIX + accountRecipientId.toString();
+  public static String sortKey(UUID recipientId) {
+    return SK_PREFIX + recipientId.toString();
   }
 
-  public static String sortKey(AccountRecipientId accountRecipientId) {
-    return sortKey(accountRecipientId.value());
+  public static String sortKey(RecipientId recipientId) {
+    return sortKey(recipientId.value());
   }
 
   public static BankAccountId extractBankAccountId(String partitionKey) {
@@ -35,11 +37,11 @@ public final class AccountRecipientEntityKey {
     return BankAccountId.of(UUID.fromString(bankAccountId));
   }
 
-  public static AccountRecipientId extractAccountRecipientId(String sortKey) {
+  public static RecipientId extractRecipientId(String sortKey) {
     if (sortKey == null || !sortKey.startsWith(SK_PREFIX)) {
       throw new IllegalArgumentException("Invalid sortKey: " + sortKey);
     }
-    var accountRecipientId = sortKey.replace(SK_PREFIX, "");
-    return AccountRecipientId.of(UUID.fromString(accountRecipientId));
+    var recipientId = sortKey.replace(SK_PREFIX, "");
+    return RecipientId.of(UUID.fromString(recipientId));
   }
 }

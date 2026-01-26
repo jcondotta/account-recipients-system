@@ -1,10 +1,10 @@
 package com.jcondotta.account_recipients.application.ports.output.repository.shared.value_objects;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class RecipientNamePrefixTest {
 

@@ -1,11 +1,12 @@
 package com.jcondotta.account_recipients;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneOffset;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 
 @Configuration
 public class ClockTestFactory {

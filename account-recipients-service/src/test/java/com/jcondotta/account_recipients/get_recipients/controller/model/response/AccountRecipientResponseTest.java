@@ -1,11 +1,14 @@
 package com.jcondotta.account_recipients.get_recipients.controller.model.response;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
-/** Unit tests for {@link AccountRecipientResponse}. */
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * Unit tests for {@link AccountRecipientResponse}.
+ */
 class AccountRecipientResponseTest {
 
   private static final UUID ACCOUNT_RECIPIENT_ID = UUID.randomUUID();
@@ -21,7 +24,7 @@ class AccountRecipientResponseTest {
     assertThat(response)
         .satisfies(
             it -> {
-              assertThat(it.accountRecipientId()).isEqualTo(ACCOUNT_RECIPIENT_ID);
+              assertThat(it.recipientId()).isEqualTo(ACCOUNT_RECIPIENT_ID);
               assertThat(it.bankAccountId()).isEqualTo(BANK_ACCOUNT_ID);
               assertThat(it.recipientName()).isEqualTo(RECIPIENT_NAME);
               assertThat(it.iban()).isEqualTo(IBAN);

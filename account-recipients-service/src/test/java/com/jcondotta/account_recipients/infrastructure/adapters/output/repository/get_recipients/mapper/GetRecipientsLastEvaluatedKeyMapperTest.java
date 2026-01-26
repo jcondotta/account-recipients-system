@@ -1,26 +1,28 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.repository.get_recipients.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity.AccountRecipientEntityKey;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.get_recipients.model.GetRecipientsLastEvaluatedKey;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
-/** Full coverage unit tests for {@link GetRecipientsLastEvaluatedKeyMapper}. */
-class GetRecipientsLastEvaluatedKeyMapperTest {
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
-  private GetRecipientsLastEvaluatedKeyMapper mapper;
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * Full coverage unit tests for {@link GetRecipientsLastEvaluatedKeyMapper}.
+ */
+class GetRecipientsLastEvaluatedKeyMapperTest {
 
   private static final UUID BANK_ACCOUNT_ID = UUID.randomUUID();
   private static final UUID ACCOUNT_RECIPIENT_ID = UUID.randomUUID();
   private static final String RECIPIENT_NAME = "Jefferson Condotta";
+  private GetRecipientsLastEvaluatedKeyMapper mapper;
 
   @BeforeEach
   void setUp() {
@@ -88,26 +90,26 @@ class GetRecipientsLastEvaluatedKeyMapperTest {
     assertThat(result).isEqualTo(BANK_ACCOUNT_ID);
   }
 
-  // --- extractAccountRecipientId() ---
+  // --- extractRecipientId() ---
 
   @Test
-  void shouldReturnNull_whenMapIsNullInExtractAccountRecipientId() {
-    assertThat(GetRecipientsLastEvaluatedKeyMapper.extractAccountRecipientId(null)).isNull();
+  void shouldReturnNull_whenMapIsNullInExtractRecipientId() {
+    assertThat(GetRecipientsLastEvaluatedKeyMapper.extractRecipientId(null)).isNull();
   }
 
   @Test
   void shouldReturnNull_whenSortKeyIsMissing() {
     var map = Map.of("anotherKey", AttributeValue.fromS("value"));
-    assertThat(GetRecipientsLastEvaluatedKeyMapper.extractAccountRecipientId(map)).isNull();
+    assertThat(GetRecipientsLastEvaluatedKeyMapper.extractRecipientId(map)).isNull();
   }
 
   @Test
-  void shouldExtractAccountRecipientId_whenSortKeyExists() {
+  void shouldExtractRecipientId_whenSortKeyExists() {
     var sk = AccountRecipientEntityKey.sortKey(ACCOUNT_RECIPIENT_ID);
     var map =
         Map.of(GetRecipientsLastEvaluatedKeyMapper.SORT_KEY_PARAM_NAME, AttributeValue.fromS(sk));
 
-    UUID result = GetRecipientsLastEvaluatedKeyMapper.extractAccountRecipientId(map);
+    UUID result = GetRecipientsLastEvaluatedKeyMapper.extractRecipientId(map);
 
     assertThat(result).isEqualTo(ACCOUNT_RECIPIENT_ID);
   }
@@ -160,7 +162,7 @@ class GetRecipientsLastEvaluatedKeyMapperTest {
         .satisfies(
             it -> {
               assertThat(it.bankAccountId()).isEqualTo(BANK_ACCOUNT_ID);
-              assertThat(it.accountRecipientId()).isEqualTo(ACCOUNT_RECIPIENT_ID);
+              assertThat(it.recipientId()).isEqualTo(ACCOUNT_RECIPIENT_ID);
               assertThat(it.recipientName()).isEqualTo(RECIPIENT_NAME);
             });
   }

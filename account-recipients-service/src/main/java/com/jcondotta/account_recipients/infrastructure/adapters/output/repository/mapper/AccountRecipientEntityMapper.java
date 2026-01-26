@@ -1,27 +1,29 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.repository.mapper;
 
 import com.jcondotta.account_recipients.domain.recipient.entity.AccountRecipient;
-import com.jcondotta.account_recipients.domain.recipient.value_objects.AccountRecipientId;
 import com.jcondotta.account_recipients.domain.recipient.value_objects.Iban;
+import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientId;
 import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientName;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity.AccountRecipientEntity;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity.AccountRecipientEntityKey;
-import java.util.Objects;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+import java.time.ZonedDateTime;
+import java.util.Objects;
+
 @Mapper(
     componentModel = "spring",
     builder = @Builder(disableBuilder = true),
     imports = {
-      AccountRecipientEntityKey.class,
-      AccountRecipientId.class,
-      BankAccountId.class,
-      RecipientName.class,
-      Iban.class,
+        AccountRecipientEntityKey.class,
+        RecipientId.class,
+        BankAccountId.class,
+        RecipientName.class,
+        Iban.class,
     })
 public interface AccountRecipientEntityMapper {
 
@@ -33,26 +35,24 @@ public interface AccountRecipientEntityMapper {
     }
 
     return new AccountRecipientEntity(
-        accountRecipient.accountRecipientId().value(),
-        accountRecipient.bankAccountId().value(),
-        accountRecipient.recipientName().value(),
-        accountRecipient.iban().value(),
-        accountRecipient.createdAt());
+        accountRecipient.getRecipientId().value(),
+        accountRecipient.getBankAccountId().value(),
+        accountRecipient.getRecipientName().value(),
+        accountRecipient.getIban().value(),
+        accountRecipient.getCreatedAt());
   }
 
-  @Mapping(
-      target = "accountRecipientId",
-      expression = "java(AccountRecipientId.of(entity.getAccountRecipientId()))")
-  @Mapping(
-      target = "bankAccountId",
-      expression = "java(BankAccountId.of(entity.getBankAccountId()))")
-  @Mapping(
-      target = "recipientName",
-      expression = "java(RecipientName.of(entity.getRecipientName()))")
-  @Mapping(target = "iban", expression = "java(Iban.of(entity.getIban()))")
-  @Mapping(
-      target = "createdAt",
-      expression =
-          "java(ZonedDateTime.ofInstant(entity.getCreatedAt(), entity.getCreatedAtZoneId()))")
-  AccountRecipient toDomain(AccountRecipientEntity entity);
+  default AccountRecipient toDomain(AccountRecipientEntity entity) {
+    if (entity == null) {
+      return null;
+    }
+
+    return AccountRecipient.restore(
+            RecipientId.of(entity.getRecipientId()),
+            BankAccountId.of(entity.getBankAccountId()),
+            RecipientName.of(entity.getRecipientName()),
+            Iban.of(entity.getIban()),
+            ZonedDateTime.ofInstant(entity.getCreatedAt(), entity.getCreatedAtZoneId())
+    );
+  }
 }

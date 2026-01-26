@@ -1,9 +1,8 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.repository.delete_recipient;
 
 import com.jcondotta.account_recipients.application.ports.output.repository.delete_recipient.DeleteAccountRecipientRepository;
+import com.jcondotta.account_recipients.domain.recipient.entity.AccountRecipient;
 import com.jcondotta.account_recipients.domain.recipient.exceptions.AccountRecipientNotFoundException;
-import com.jcondotta.account_recipients.domain.recipient.value_objects.AccountRecipientId;
-import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity.AccountRecipientEntity;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity.AccountRecipientEntityKey;
 import lombok.RequiredArgsConstructor;
@@ -23,11 +22,11 @@ public class DeleteAccountRecipientRepositoryImpl implements DeleteAccountRecipi
   private final DynamoDbTable<AccountRecipientEntity> dynamoDbTable;
 
   @Override
-  public void delete(BankAccountId bankAccountId, AccountRecipientId accountRecipientId) {
+  public void delete(AccountRecipient accountRecipient) {
     var key =
         Key.builder()
-            .partitionValue(AccountRecipientEntityKey.partitionKey(bankAccountId))
-            .sortValue(AccountRecipientEntityKey.sortKey(accountRecipientId))
+            .partitionValue(AccountRecipientEntityKey.partitionKey(accountRecipient.getBankAccountId()))
+            .sortValue(AccountRecipientEntityKey.sortKey(accountRecipient.getRecipientId()))
             .build();
 
     var deleteItemRequest =
@@ -41,16 +40,11 @@ public class DeleteAccountRecipientRepositoryImpl implements DeleteAccountRecipi
 
     try {
       dynamoDbTable.deleteItem(deleteItemRequest);
-      log.info(
-          "Recipient deleted successfully [bankAccountId={}, accountRecipientId={}]",
-          bankAccountId,
-          accountRecipientId);
+      log.info("Recipient deleted successfully [bankAccountId={}, recipientId={}]", accountRecipient.getBankAccountId(), accountRecipient.getRecipientId());
     } catch (ConditionalCheckFailedException e) {
       log.warn(
-          "Attempted to delete a non-existent recipient [bankAccountId={}, accountRecipientId={}]",
-          bankAccountId,
-          accountRecipientId);
-      throw new AccountRecipientNotFoundException(bankAccountId, accountRecipientId, e);
+          "Attempted to delete a non-existent recipient [bankAccountId={}, recipientId={}]", accountRecipient.getBankAccountId(), accountRecipient.getRecipientId());
+      throw new AccountRecipientNotFoundException(accountRecipient.getBankAccountId(), accountRecipient.getRecipientId(), e);
     }
   }
 }

@@ -3,13 +3,14 @@ package com.jcondotta.account_recipients.infrastructure.adapters.output.cache;
 import com.jcondotta.account_recipients.application.ports.output.cache.CacheStore;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.metrics.CacheMetricsRecorder;
 import io.micrometer.observation.annotation.Observed;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+
 import java.time.Duration;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.redis.core.RedisTemplate;
 
 public class RedisCacheStore<V> implements CacheStore<V> {
 
@@ -35,8 +36,8 @@ public class RedisCacheStore<V> implements CacheStore<V> {
       name = "cache.put",
       contextualName = "redisPutCacheValue",
       lowCardinalityKeyValues = {
-        "operation", "put",
-        "cacheType", "redis"
+          "operation", "put",
+          "cacheType", "redis"
       })
   @Override
   public void put(String cacheKey, V cacheValue) {
@@ -52,8 +53,8 @@ public class RedisCacheStore<V> implements CacheStore<V> {
       name = "cache.put_if_absent",
       contextualName = "redisPutIfAbsentCacheValue",
       lowCardinalityKeyValues = {
-        "operation", "putIfAbsent",
-        "cacheType", "redis"
+          "operation", "putIfAbsent",
+          "cacheType", "redis"
       })
   @Override
   public void putIfAbsent(String cacheKey, V cacheValue) {
@@ -76,8 +77,8 @@ public class RedisCacheStore<V> implements CacheStore<V> {
       name = "cache.get",
       contextualName = "redisGetCacheValue",
       lowCardinalityKeyValues = {
-        "operation", "get",
-        "cacheType", "redis"
+          "operation", "get",
+          "cacheType", "redis"
       })
   @Override
   public Optional<V> getIfPresent(String cacheKey) {

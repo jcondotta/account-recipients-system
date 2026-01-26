@@ -33,15 +33,15 @@ class AccountRecipientTest {
     void shouldCreateAccountRecipientUsingFactoryMethod_whenAllValuesAreValid() {
         var accountRecipient = AccountRecipient.create(BANK_ACCOUNT_ID, RECIPIENT_NAME_JEFFERSON, IBAN, CLOCK);
 
-        assertThat(accountRecipient.recipientId()).isNotNull();
+        assertThat(accountRecipient.getRecipientId()).isNotNull();
 
         assertThat(accountRecipient)
                 .extracting(
-                        AccountRecipient::bankAccountId,
-                        AccountRecipient::recipientName,
-                        AccountRecipient::iban,
-                        AccountRecipient::createdAt,
-                        AccountRecipient::deletedAt)
+                        AccountRecipient::getBankAccountId,
+                        AccountRecipient::getRecipientName,
+                        AccountRecipient::getIban,
+                        AccountRecipient::getCreatedAt,
+                        AccountRecipient::getDeletedAt)
                 .containsExactly(
                         BANK_ACCOUNT_ID,
                         RECIPIENT_NAME_JEFFERSON,
@@ -59,7 +59,7 @@ class AccountRecipientTest {
         accountRecipient.delete(CLOCK);
 
         assertThat(accountRecipient.isDeleted()).isTrue();
-        assertThat(accountRecipient.deletedAt()).isEqualTo(ZonedDateTime.now(CLOCK));
+        assertThat(accountRecipient.getDeletedAt()).isEqualTo(ZonedDateTime.now(CLOCK));
     }
 
     @Test
@@ -67,7 +67,7 @@ class AccountRecipientTest {
         var accountRecipient = createValidAccountRecipient();
 
         accountRecipient.delete(CLOCK);
-        var firstDeletedAt = accountRecipient.deletedAt();
+        var firstDeletedAt = accountRecipient.getDeletedAt();
 
         Clock laterClock = Clock.fixed(
                 Instant.now(CLOCK).plusSeconds(5_000),
@@ -75,7 +75,7 @@ class AccountRecipientTest {
 
         accountRecipient.delete(laterClock);
 
-        assertThat(accountRecipient.deletedAt())
+        assertThat(accountRecipient.getDeletedAt())
                 .isEqualTo(firstDeletedAt);
     }
 
@@ -83,10 +83,10 @@ class AccountRecipientTest {
     void shouldHaveSameIdentity_whenRestoredWithSameRecipientId() {
         var recipientId = RecipientId.newId();
 
-        var accountRecipient1 = AccountRecipient.restore(recipientId, BANK_ACCOUNT_ID, RECIPIENT_NAME_JEFFERSON, IBAN, CREATED_AT, null);
-        var accountRecipient2 = AccountRecipient.restore(recipientId, BANK_ACCOUNT_ID, RECIPIENT_NAME_JEFFERSON, IBAN, CREATED_AT, null);
+        var accountRecipient1 = AccountRecipient.restore(recipientId, BANK_ACCOUNT_ID, RECIPIENT_NAME_JEFFERSON, IBAN, CREATED_AT);
+        var accountRecipient2 = AccountRecipient.restore(recipientId, BANK_ACCOUNT_ID, RECIPIENT_NAME_JEFFERSON, IBAN, CREATED_AT);
 
-        assertThat(accountRecipient1.recipientId()).isEqualTo(accountRecipient2.recipientId());
+        assertThat(accountRecipient1.getRecipientId()).isEqualTo(accountRecipient2.getRecipientId());
     }
 
     @Test
@@ -94,7 +94,7 @@ class AccountRecipientTest {
         var accountRecipient1 = AccountRecipient.create(BANK_ACCOUNT_ID, RECIPIENT_NAME_JEFFERSON, IBAN, CLOCK);
         var accountRecipient2 = AccountRecipient.create(BANK_ACCOUNT_ID, RECIPIENT_NAME_JEFFERSON, IBAN, CLOCK);
 
-        assertThat(accountRecipient1.recipientId()).isNotEqualTo(accountRecipient2.recipientId());
+        assertThat(accountRecipient1.getRecipientId()).isNotEqualTo(accountRecipient2.getRecipientId());
     }
 
     @Test
@@ -122,8 +122,7 @@ class AccountRecipientTest {
                                 bankAccountId,
                                 recipientName,
                                 iban,
-                                createdAt,
-                                deletedAt))
+                                createdAt))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining(fieldName + " must not be null");
     }

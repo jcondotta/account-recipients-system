@@ -18,7 +18,9 @@ public class CreateAccountRecipientRepositoryImpl implements CreateAccountRecipi
   private final AccountRecipientEntityMapper entityMapper;
 
   @Override
-  public void create(AccountRecipient accountRecipient) {
+  public AccountRecipient create(AccountRecipient accountRecipient) {
     dynamoDbTable.putItem(entityMapper.toEntity(accountRecipient));
+
+    return accountRecipient;
   }
 }

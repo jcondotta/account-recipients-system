@@ -1,21 +1,20 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.facade.lookup_bank_account.mapper;
 
-import static org.assertj.core.api.Assertions.*;
-
 import com.jcondotta.account_recipients.domain.bank_account.enums.AccountStatus;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.client.lookup_bank_account.model.BankAccountCdo;
-import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 class BankAccountFacadeMapperTest {
 
+  private static final UUID BANK_ACCOUNT_UUID = UUID.randomUUID();
   private final BankAccountIdMapper bankAccountIdMapper = BankAccountIdMapper.INSTANCE;
   private final AccountStatusMapper accountStatusMapper = AccountStatusMapper.INSTANCE;
-
-  private static final UUID BANK_ACCOUNT_UUID = UUID.randomUUID();
-
   private final BankAccountFacadeMapper mapper =
       new BankAccountFacadeMapperImpl(bankAccountIdMapper, accountStatusMapper);
 

@@ -1,11 +1,13 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity;
 
-import static org.assertj.core.api.Assertions.*;
-
-import com.jcondotta.account_recipients.domain.recipient.value_objects.AccountRecipientId;
+import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientId;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
-import java.util.UUID;
 import org.junit.jupiter.api.Test;
+
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class AccountRecipientEntityKeyTest {
 
@@ -13,8 +15,8 @@ class AccountRecipientEntityKeyTest {
   private static final UUID RECIPIENT_UUID = UUID.randomUUID();
 
   private static final BankAccountId BANK_ACCOUNT_ID = BankAccountId.of(BANK_ACCOUNT_UUID);
-  private static final AccountRecipientId ACCOUNT_RECIPIENT_ID =
-      AccountRecipientId.of(RECIPIENT_UUID);
+  private static final RecipientId ACCOUNT_RECIPIENT_ID =
+      RecipientId.of(RECIPIENT_UUID);
 
   @Test
   void shouldBuildPartitionKey_fromUuid() {
@@ -38,7 +40,7 @@ class AccountRecipientEntityKeyTest {
   }
 
   @Test
-  void shouldBuildSortKey_fromAccountRecipientId() {
+  void shouldBuildSortKey_fromRecipientId() {
     var sk = AccountRecipientEntityKey.sortKey(ACCOUNT_RECIPIENT_ID);
 
     assertThat(sk).isEqualTo("ACCOUNT_RECIPIENT#" + RECIPIENT_UUID);
@@ -54,10 +56,10 @@ class AccountRecipientEntityKeyTest {
   }
 
   @Test
-  void shouldExtractAccountRecipientId_fromValidSortKey() {
+  void shouldExtractRecipientId_fromValidSortKey() {
     var sk = "ACCOUNT_RECIPIENT#" + RECIPIENT_UUID;
 
-    var result = AccountRecipientEntityKey.extractAccountRecipientId(sk);
+    var result = AccountRecipientEntityKey.extractRecipientId(sk);
 
     assertThat(result).isEqualTo(ACCOUNT_RECIPIENT_ID);
   }
@@ -80,7 +82,7 @@ class AccountRecipientEntityKeyTest {
 
   @Test
   void shouldThrowException_whenSortKeyIsNull() {
-    assertThatThrownBy(() -> AccountRecipientEntityKey.extractAccountRecipientId(null))
+    assertThatThrownBy(() -> AccountRecipientEntityKey.extractRecipientId(null))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("Invalid sortKey: null");
   }
@@ -89,7 +91,7 @@ class AccountRecipientEntityKeyTest {
   void shouldThrowException_whenSortKeyHasInvalidPrefix() {
     var invalidSk = "WRONG#" + RECIPIENT_UUID;
 
-    assertThatThrownBy(() -> AccountRecipientEntityKey.extractAccountRecipientId(invalidSk))
+    assertThatThrownBy(() -> AccountRecipientEntityKey.extractRecipientId(invalidSk))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("Invalid sortKey");
   }
@@ -107,7 +109,7 @@ class AccountRecipientEntityKeyTest {
   void shouldThrowException_whenSortKeyHasInvalidUUID() {
     var invalidSk = "ACCOUNT_RECIPIENT#1234";
 
-    assertThatThrownBy(() -> AccountRecipientEntityKey.extractAccountRecipientId(invalidSk))
+    assertThatThrownBy(() -> AccountRecipientEntityKey.extractRecipientId(invalidSk))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("Invalid UUID string");
   }

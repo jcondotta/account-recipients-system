@@ -1,7 +1,5 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.repository.get_recipients;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 

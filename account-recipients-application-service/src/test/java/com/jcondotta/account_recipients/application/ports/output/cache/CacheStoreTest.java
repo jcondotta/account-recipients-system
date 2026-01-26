@@ -1,9 +1,10 @@
 package com.jcondotta.account_recipients.application.ports.output.cache;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
-import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class CacheStoreTest {
 
@@ -12,10 +13,12 @@ class CacheStoreTest {
     CacheStore<String> cacheStore =
         new CacheStore<>() {
           @Override
-          public void put(String cacheKey, String cacheValue) {}
+          public void put(String cacheKey, String cacheValue) {
+          }
 
           @Override
-          public void putIfAbsent(String cacheKey, String cacheValue) {}
+          public void putIfAbsent(String cacheKey, String cacheValue) {
+          }
 
           @Override
           public Optional<String> getIfPresent(String cacheKey) {
@@ -28,7 +31,8 @@ class CacheStoreTest {
           }
 
           @Override
-          public void evictKeysByPrefix(String prefixCacheKey) {}
+          public void evictKeysByPrefix(String prefixCacheKey) {
+          }
         };
 
     var result = cacheStore.get("any-key");
@@ -40,10 +44,12 @@ class CacheStoreTest {
     CacheStore<String> cacheStore =
         new CacheStore<>() {
           @Override
-          public void put(String cacheKey, String cacheValue) {}
+          public void put(String cacheKey, String cacheValue) {
+          }
 
           @Override
-          public void putIfAbsent(String cacheKey, String cacheValue) {}
+          public void putIfAbsent(String cacheKey, String cacheValue) {
+          }
 
           @Override
           public Optional<String> getIfPresent(String cacheKey) {
@@ -56,7 +62,8 @@ class CacheStoreTest {
           }
 
           @Override
-          public void evictKeysByPrefix(String prefixCacheKey) {}
+          public void evictKeysByPrefix(String prefixCacheKey) {
+          }
         };
 
     var result = cacheStore.get("any-key");

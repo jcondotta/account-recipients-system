@@ -1,24 +1,25 @@
 package com.jcondotta.account_recipients.application.usecase.get_recipients.model.result;
 
+import com.jcondotta.account_recipients.application.helper.ClockTestFactory;
+import com.jcondotta.account_recipients.application.usecase.get_recipients.model.AccountRecipientDetails;
+import com.jcondotta.account_recipients.domain.recipient.value_objects.Iban;
+import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientId;
+import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientName;
+import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.UUID;
+
 import static com.jcondotta.account_recipients.application.common.fixtures.AccountRecipientFixtures.JEFFERSON;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.jcondotta.account_recipients.application.helper.ClockTestFactory;
-import com.jcondotta.account_recipients.application.usecase.get_recipients.model.AccountRecipientDetails;
-import com.jcondotta.account_recipients.domain.recipient.value_objects.AccountRecipientId;
-import com.jcondotta.account_recipients.domain.recipient.value_objects.Iban;
-import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientName;
-import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.UUID;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 class GetAccountRecipientsResultTest {
 
-  private static final AccountRecipientId ACCOUNT_RECIPIENT_ID = AccountRecipientId.newId();
+  private static final RecipientId ACCOUNT_RECIPIENT_ID = RecipientId.newId();
   private static final BankAccountId BANK_ACCOUNT_ID = BankAccountId.of(UUID.randomUUID());
   private static final RecipientName RECIPIENT_NAME =
       RecipientName.of(JEFFERSON.getRecipientName());

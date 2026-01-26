@@ -1,8 +1,5 @@
 package com.jcondotta.account_recipients.create_recipient.controller;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-
 import com.jcondotta.account_recipients.ClockTestFactory;
 import com.jcondotta.account_recipients.application.usecase.create_recipient.CreateAccountRecipientUseCase;
 import com.jcondotta.account_recipients.application.usecase.create_recipient.model.CreateAccountRecipientCommand;
@@ -11,9 +8,6 @@ import com.jcondotta.account_recipients.common.fixtures.AccountRecipientFixtures
 import com.jcondotta.account_recipients.create_recipient.controller.mapper.CreateAccountRecipientRequestRestMapper;
 import com.jcondotta.account_recipients.create_recipient.controller.model.CreateAccountRecipientRestRequest;
 import com.jcondotta.account_recipients.infrastructure.properties.AccountRecipientURIProperties;
-import java.net.URI;
-import java.time.Clock;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,6 +16,13 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
+
+import java.net.URI;
+import java.time.Clock;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CreateAccountRecipientControllerImplTest {
@@ -39,15 +40,20 @@ class CreateAccountRecipientControllerImplTest {
               + BANK_ACCOUNT_UUID
               + "/account-recipients");
 
-  @Mock private CreateAccountRecipientCommand createAccountRecipientCommand;
+  @Mock
+  private CreateAccountRecipientCommand createAccountRecipientCommand;
 
-  @Mock private CreateAccountRecipientUseCase useCase;
+  @Mock
+  private CreateAccountRecipientUseCase useCase;
 
-  @Mock private CreateAccountRecipientRequestRestMapper requestMapper;
+  @Mock
+  private CreateAccountRecipientRequestRestMapper requestMapper;
 
-  @Mock private AccountRecipientURIProperties uriProperties;
+  @Mock
+  private AccountRecipientURIProperties uriProperties;
 
-  @Captor private ArgumentCaptor<CreateAccountRecipientCommand> commandCaptor;
+  @Captor
+  private ArgumentCaptor<CreateAccountRecipientCommand> commandCaptor;
 
   private Clock fixedClock = ClockTestFactory.TEST_CLOCK_FIXED;
   private CreateAccountRecipientControllerImpl controller;

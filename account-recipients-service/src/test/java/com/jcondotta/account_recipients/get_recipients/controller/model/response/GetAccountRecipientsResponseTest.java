@@ -1,11 +1,12 @@
 package com.jcondotta.account_recipients.get_recipients.controller.model.response;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.jcondotta.account_recipients.common.fixtures.AccountRecipientFixtures;
+import org.junit.jupiter.api.Test;
+
 import java.util.List;
 import java.util.UUID;
-import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class GetAccountRecipientsResponseTest {
 
@@ -32,7 +33,7 @@ class GetAccountRecipientsResponseTest {
                   .first()
                   .satisfies(
                       recipient -> {
-                        assertThat(recipient.accountRecipientId()).isEqualTo(ACCOUNT_RECIPIENT_ID);
+                        assertThat(recipient.recipientId()).isEqualTo(ACCOUNT_RECIPIENT_ID);
                         assertThat(recipient.bankAccountId()).isEqualTo(BANK_ACCOUNT_ID);
                         assertThat(recipient.recipientName()).isEqualTo(RECIPIENT_NAME);
                         assertThat(recipient.iban()).isEqualTo(IBAN);

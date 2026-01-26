@@ -5,7 +5,6 @@ import com.jcondotta.account_recipients.application.ports.output.cache.CacheStor
 import com.jcondotta.account_recipients.application.usecase.get_recipients.model.result.GetAccountRecipientsResult;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.cache.RedisCacheStore;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.metrics.CacheMetricsRecorder;
-import java.time.Duration;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +12,8 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+import java.time.Duration;
 
 @Slf4j
 @Configuration

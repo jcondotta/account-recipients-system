@@ -1,13 +1,13 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.facade.lookup_bank_account.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import com.jcondotta.account_recipients.domain.bank_account.enums.AccountStatus;
 import nl.altindag.log.LogCaptor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class AccountStatusMapperTest {
 

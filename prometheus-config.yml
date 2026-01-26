@@ -5,6 +5,6 @@ scrape_configs:
   - job_name: "account-recipients-system-job"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: ["host.docker.internal:8096"]
+      - targets: [ "host.docker.internal:8096" ]
         labels:
           application: "account-recipients-system"

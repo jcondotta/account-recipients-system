@@ -7,11 +7,12 @@ import com.jcondotta.account_recipients.get_recipients.controller.mapper.respons
 import com.jcondotta.account_recipients.get_recipients.controller.model.request.GetAccountRecipientsRestRequestParams;
 import com.jcondotta.account_recipients.get_recipients.controller.model.response.GetAccountRecipientsResponse;
 import io.micrometer.core.annotation.Timed;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
 
 @Validated
 @RestController

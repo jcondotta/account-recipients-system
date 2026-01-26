@@ -1,11 +1,12 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.facade.lookup_bank_account.mapper;
 
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
-import java.util.Objects;
-import java.util.UUID;
 import org.mapstruct.Mapper;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
+
+import java.util.Objects;
+import java.util.UUID;
 
 @Mapper(componentModel = "spring")
 public interface BankAccountIdMapper {

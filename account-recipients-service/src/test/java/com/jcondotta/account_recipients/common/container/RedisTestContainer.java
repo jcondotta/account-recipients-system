@@ -1,8 +1,6 @@
 package com.jcondotta.account_recipients.common.container;
 
 import com.redis.testcontainers.RedisContainer;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -10,6 +8,9 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.testcontainers.lifecycle.Startables;
 import org.testcontainers.utility.DockerImageName;
+
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 public class RedisTestContainer
@@ -38,8 +39,8 @@ public class RedisTestContainer
 
   private static Map<String, String> getContainerProperties() {
     return Map.of(
-        "REDIS_HOST", REDIS_CONTAINER.getHost(),
-        "REDIS_PORT", String.valueOf(REDIS_CONTAINER.getFirstMappedPort()));
+        "spring.data.redis.host", REDIS_CONTAINER.getHost(),
+        "spring.data.redis.port", String.valueOf(REDIS_CONTAINER.getFirstMappedPort()));
   }
 
   @Override

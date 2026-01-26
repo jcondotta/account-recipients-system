@@ -1,7 +1,5 @@
 package com.jcondotta.account_recipients.get_recipients.controller.mapper.request;
 
-import static java.util.Objects.requireNonNull;
-
 import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model.GetAccountRecipientsQueryParams;
 import com.jcondotta.account_recipients.application.ports.output.repository.shared.value_objects.PaginationCursor;
 import com.jcondotta.account_recipients.application.ports.output.repository.shared.value_objects.QueryLimit;
@@ -9,13 +7,18 @@ import com.jcondotta.account_recipients.application.ports.output.repository.shar
 import com.jcondotta.account_recipients.application.usecase.get_recipients.model.query.GetAccountRecipientsQuery;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
 import com.jcondotta.account_recipients.get_recipients.controller.model.request.GetAccountRecipientsRestRequestParams;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+
 import java.util.UUID;
-import org.mapstruct.*;
+
+import static java.util.Objects.requireNonNull;
 
 @Mapper(
     componentModel = "spring",
     imports = {
-      BankAccountId.class,
+        BankAccountId.class,
     })
 public interface GetAccountRecipientsRequestRestMapper {
 

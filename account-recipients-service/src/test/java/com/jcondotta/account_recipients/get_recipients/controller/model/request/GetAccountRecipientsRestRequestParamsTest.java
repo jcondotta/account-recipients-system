@@ -1,10 +1,12 @@
 package com.jcondotta.account_recipients.get_recipients.controller.model.request;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.jupiter.api.Test;
 
-/** Unit tests for {@link GetAccountRecipientsRestRequestParams}. */
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * Unit tests for {@link GetAccountRecipientsRestRequestParams}.
+ */
 class GetAccountRecipientsRestRequestParamsTest {
 
   private static final Integer LIMIT = 50;
