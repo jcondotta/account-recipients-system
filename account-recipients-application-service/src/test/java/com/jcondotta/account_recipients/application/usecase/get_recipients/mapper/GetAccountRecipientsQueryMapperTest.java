@@ -20,8 +20,8 @@ class GetAccountRecipientsQueryMapperTest {
   private static final BankAccountId BANK_ACCOUNT_ID = BankAccountId.of(UUID.randomUUID());
   private static final RecipientName RECIPIENT_NAME = RecipientName.of(JEFFERSON.getRecipientName());
   private static final Iban IBAN = Iban.of(JEFFERSON.getIban());
-  private static final ZonedDateTime CREATED_AT = ZonedDateTime.now(ClockTestFactory.TEST_CLOCK_FIXED);
   private static final RecipientId ACCOUNT_RECIPIENT_ID = RecipientId.newId();
+  private static final ZonedDateTime CREATED_AT = ZonedDateTime.now(ClockTestFactory.TEST_CLOCK_FIXED);
 
   private final GetAccountRecipientsQueryMapper mapper = new GetAccountRecipientsQueryMapperImpl();
 
