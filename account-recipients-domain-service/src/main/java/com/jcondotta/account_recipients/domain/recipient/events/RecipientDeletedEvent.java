@@ -13,30 +13,30 @@ import static java.util.Objects.requireNonNull;
 
 public record RecipientDeletedEvent(RecipientId recipientId, BankAccountId bankAccountId, Instant occurredAt,
                                     ZoneId occurredAtZone)
-    implements DomainEvent {
+        implements DomainEvent {
 
-  public RecipientDeletedEvent {
-    requireNonNull(recipientId, "recipientId must not be null");
-    requireNonNull(bankAccountId, "bankAccountId must not be null");
-    requireNonNull(occurredAt, "occurredAt must not be null");
-    requireNonNull(occurredAtZone, "occurredAtZone must not be null");
-  }
+    public RecipientDeletedEvent {
+        requireNonNull(recipientId, "recipientId must not be null");
+        requireNonNull(bankAccountId, "bankAccountId must not be null");
+        requireNonNull(occurredAt, "occurredAt must not be null");
+        requireNonNull(occurredAtZone, "occurredAtZone must not be null");
+    }
 
-  public static RecipientDeletedEvent of(RecipientId recipientId, BankAccountId bankAccountId, ZonedDateTime occurredAt) {
-    return new RecipientDeletedEvent(
-        recipientId,
-        bankAccountId,
-        occurredAt.toInstant(),
-        occurredAt.getZone()
-    );
-  }
+    public static RecipientDeletedEvent of(RecipientId recipientId, BankAccountId bankAccountId, ZonedDateTime occurredAt) {
+        return new RecipientDeletedEvent(
+                recipientId,
+                bankAccountId,
+                occurredAt.toInstant(),
+                occurredAt.getZone()
+        );
+    }
 
-  public static RecipientDeletedEvent of(RecipientId recipientId, BankAccountId bankAccountId, Clock clock) {
-    return new RecipientDeletedEvent(
-        recipientId,
-        bankAccountId,
-        Instant.now(clock),
-        clock.getZone()
-    );
-  }
+    public static RecipientDeletedEvent of(RecipientId recipientId, BankAccountId bankAccountId, Clock clock) {
+        return new RecipientDeletedEvent(
+                recipientId,
+                bankAccountId,
+                Instant.now(clock),
+                clock.getZone()
+        );
+    }
 }

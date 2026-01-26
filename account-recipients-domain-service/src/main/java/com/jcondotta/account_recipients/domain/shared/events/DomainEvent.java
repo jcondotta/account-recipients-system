@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 
 public interface DomainEvent {
-  Instant occurredAt();
+    Instant occurredAt();
 
-  ZoneId occurredAtZone();
+    ZoneId occurredAtZone();
 }

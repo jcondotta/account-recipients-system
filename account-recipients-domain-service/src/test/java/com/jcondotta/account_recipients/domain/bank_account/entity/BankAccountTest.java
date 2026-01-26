@@ -15,59 +15,59 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class BankAccountTest {
 
-  private static final BankAccountId BANK_ACCOUNT_ID = BankAccountId.of(UUID.randomUUID());
+    private static final BankAccountId BANK_ACCOUNT_ID = BankAccountId.of(UUID.randomUUID());
 
-  @Test
-  void shouldCreateBankAccount_whenValidArguments() {
-    var bankAccount = new BankAccount(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
+    @Test
+    void shouldCreateBankAccount_whenValidArguments() {
+        var bankAccount = new BankAccount(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
 
-    assertThat(bankAccount.bankAccountId()).isEqualTo(BANK_ACCOUNT_ID);
-    assertThat(bankAccount.accountStatus()).isEqualTo(AccountStatus.ACTIVE);
-  }
+        assertThat(bankAccount.bankAccountId()).isEqualTo(BANK_ACCOUNT_ID);
+        assertThat(bankAccount.accountStatus()).isEqualTo(AccountStatus.ACTIVE);
+    }
 
-  @Test
-  void shouldThrowNullPointerException_whenBankAccountIdIsNull() {
-    assertThatThrownBy(() -> new BankAccount(null, AccountStatus.ACTIVE))
-        .isInstanceOf(NullPointerException.class)
-        .hasMessage(BANK_ACCOUNT_ID_NOT_NULL);
-  }
+    @Test
+    void shouldThrowNullPointerException_whenBankAccountIdIsNull() {
+        assertThatThrownBy(() -> new BankAccount(null, AccountStatus.ACTIVE))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage(BANK_ACCOUNT_ID_NOT_NULL);
+    }
 
-  @Test
-  void shouldThrowNullPointerException_whenAccountStatusIsNull() {
-    assertThatThrownBy(() -> new BankAccount(BANK_ACCOUNT_ID, null))
-        .isInstanceOf(NullPointerException.class)
-        .hasMessage(ACCOUNT_STATUS_NOT_NULL);
-  }
+    @Test
+    void shouldThrowNullPointerException_whenAccountStatusIsNull() {
+        assertThatThrownBy(() -> new BankAccount(BANK_ACCOUNT_ID, null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage(ACCOUNT_STATUS_NOT_NULL);
+    }
 
-  @Test
-  void shouldCreateBankAccountUsingFactoryMethod_whenValidArguments() {
-    var bankAccount = BankAccount.of(BANK_ACCOUNT_ID, AccountStatus.PENDING);
+    @Test
+    void shouldCreateBankAccountUsingFactoryMethod_whenValidArguments() {
+        var bankAccount = BankAccount.of(BANK_ACCOUNT_ID, AccountStatus.PENDING);
 
-    assertThat(bankAccount.bankAccountId()).isEqualTo(BANK_ACCOUNT_ID);
-    assertThat(bankAccount.accountStatus()).isEqualTo(AccountStatus.PENDING);
-  }
+        assertThat(bankAccount.bankAccountId()).isEqualTo(BANK_ACCOUNT_ID);
+        assertThat(bankAccount.accountStatus()).isEqualTo(AccountStatus.PENDING);
+    }
 
-  @ParameterizedTest
-  @EnumSource(AccountStatus.class)
-  void shouldEvaluateIfBankAccountIsActive_whenStatusIsValid(AccountStatus status) {
-    var bankAccount = new BankAccount(BANK_ACCOUNT_ID, status);
+    @ParameterizedTest
+    @EnumSource(AccountStatus.class)
+    void shouldEvaluateIfBankAccountIsActive_whenStatusIsValid(AccountStatus status) {
+        var bankAccount = new BankAccount(BANK_ACCOUNT_ID, status);
 
-    assertThat(bankAccount.isActive()).isEqualTo(status == AccountStatus.ACTIVE);
-  }
+        assertThat(bankAccount.isActive()).isEqualTo(status == AccountStatus.ACTIVE);
+    }
 
-  @ParameterizedTest
-  @EnumSource(AccountStatus.class)
-  void shouldEvaluateIfBankAccountIsPending_whenStatusIsValid(AccountStatus status) {
-    var bankAccount = new BankAccount(BANK_ACCOUNT_ID, status);
+    @ParameterizedTest
+    @EnumSource(AccountStatus.class)
+    void shouldEvaluateIfBankAccountIsPending_whenStatusIsValid(AccountStatus status) {
+        var bankAccount = new BankAccount(BANK_ACCOUNT_ID, status);
 
-    assertThat(bankAccount.isPending()).isEqualTo(status == AccountStatus.PENDING);
-  }
+        assertThat(bankAccount.isPending()).isEqualTo(status == AccountStatus.PENDING);
+    }
 
-  @ParameterizedTest
-  @EnumSource(AccountStatus.class)
-  void shouldEvaluateIfBankAccountIsCancelled_whenStatusIsValid(AccountStatus status) {
-    var bankAccount = new BankAccount(BANK_ACCOUNT_ID, status);
+    @ParameterizedTest
+    @EnumSource(AccountStatus.class)
+    void shouldEvaluateIfBankAccountIsCancelled_whenStatusIsValid(AccountStatus status) {
+        var bankAccount = new BankAccount(BANK_ACCOUNT_ID, status);
 
-    assertThat(bankAccount.isCancelled()).isEqualTo(status == AccountStatus.CANCELLED);
-  }
+        assertThat(bankAccount.isCancelled()).isEqualTo(status == AccountStatus.CANCELLED);
+    }
 }
