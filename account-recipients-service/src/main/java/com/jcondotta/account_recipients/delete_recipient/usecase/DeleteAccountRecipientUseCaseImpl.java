@@ -9,6 +9,7 @@ import com.jcondotta.account_recipients.application.ports.output.repository.get_
 import com.jcondotta.account_recipients.application.usecase.delete_recipient.DeleteAccountRecipientUseCase;
 import com.jcondotta.account_recipients.application.usecase.delete_recipient.model.DeleteAccountRecipientCommand;
 import com.jcondotta.account_recipients.application.usecase.get_recipients.model.result.GetAccountRecipientsResult;
+import com.jcondotta.account_recipients.application.usecase.shared.value_objects.IdempotencyKey;
 import com.jcondotta.account_recipients.domain.recipient.exceptions.AccountRecipientNotFoundException;
 import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,7 @@ public class DeleteAccountRecipientUseCaseImpl implements DeleteAccountRecipient
       name = "account.recipients.delete",
       contextualName = "deleteAccountRecipient",
       lowCardinalityKeyValues = {"operation", "delete"})
-  public void execute(DeleteAccountRecipientCommand command) {
+  public void execute(DeleteAccountRecipientCommand command, IdempotencyKey idempotencyKey) {
     Objects.requireNonNull(command, "Command must not be null");
 
     log.info(
@@ -44,11 +45,11 @@ public class DeleteAccountRecipientUseCaseImpl implements DeleteAccountRecipient
         command.recipientId());
 
     var accountRecipient = getAccountRecipientRepository.getAccountRecipient(command.bankAccountId(), command.recipientId())
-        .orElseThrow(() -> new AccountRecipientNotFoundException(command.bankAccountId(), command.recipientId(), null));
+        .orElseThrow(() -> new AccountRecipientNotFoundException(command.bankAccountId(), command.recipientId()));
 
     accountRecipient.delete(clock);
 
-    deletedEventPublisher.send(eventMapper.fromAccountRecipient(accountRecipient));
+    deletedEventPublisher.send(eventMapper.fromAccountRecipient(accountRecipient), idempotencyKey);
     deleteAccountRecipientRepository.delete(accountRecipient);
 
     var accountRecipientsRootCacheKey = AccountRecipientsRootCacheKey.of(accountRecipient.getBankAccountId());

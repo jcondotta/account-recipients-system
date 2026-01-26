@@ -2,6 +2,5 @@ package com.jcondotta.account_recipients.infrastructure.adapters.output.messagin
 
 import java.time.Instant;
 
-public record RecipientDeletedMessage(String recipientId, String bankAccountId, Instant occurredAt,
-                                      String occurredAtZone) {
+public record RecipientDeletedMessage(String recipientId, String bankAccountId, Instant occurredAt, String occurredAtZone) {
 }
