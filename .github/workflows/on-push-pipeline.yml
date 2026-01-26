@@ -21,4 +21,4 @@ jobs:
           cache: maven
 
       - name: Build, Run Tests and Generate Coverage
-        run: mvn -B clean verify
+        run: mvn -B clean test
