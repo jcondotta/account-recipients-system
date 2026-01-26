@@ -37,11 +37,9 @@ public class GetAccountRecipientsUseCaseImpl implements GetAccountRecipientsUseC
     PaginatedResult<AccountRecipient> paginatedResult =
         getAccountRecipientsRepository.findByQuery(query);
 
-    var accountRecipientDetailsList =
-        paginatedResult.items().stream().map(queryMapper::toAccountRecipient).toList();
+    var accountRecipientDetailsList = paginatedResult.items().stream().map(queryMapper::toAccountRecipient).toList();
 
-    var getAccountRecipientsResult =
-        GetAccountRecipientsResult.of(accountRecipientDetailsList, paginatedResult.nextCursor());
+    var getAccountRecipientsResult = GetAccountRecipientsResult.of(accountRecipientDetailsList, paginatedResult.nextCursor());
     cacheStore.put(queryCacheKey.value(), getAccountRecipientsResult);
 
     return getAccountRecipientsResult;

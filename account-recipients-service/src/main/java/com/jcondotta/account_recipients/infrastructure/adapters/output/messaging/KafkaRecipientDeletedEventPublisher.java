@@ -5,6 +5,7 @@ import com.jcondotta.account_recipients.domain.recipient.events.RecipientDeleted
 import com.jcondotta.account_recipients.infrastructure.properties.KafkaTopicsProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -39,6 +40,19 @@ public class KafkaRecipientDeletedEventPublisher implements RecipientDeletedEven
 
   @Override
   public void send(RecipientDeletedEvent event) {
+    log.info(
+        "Publishing RecipientDeletedEvent to Kafka [topic={}, key={}, recipientId={}, bankAccountId={}]",
+        kafkaTopicsProperties.recipientDeleted(),
+        event.bankAccountId(),
+        event.recipientId(),
+        event.bankAccountId());
 
+    var message = messageMapper.from(event);
+    var record = new ProducerRecord<>(kafkaTopicsProperties.recipientDeleted(), message.bankAccountId(), message);
+
+//    record.headers()
+//        .add(IDEMPOTENCY_KEY_HEADER, idempotencyKey.value().toString().getBytes(StandardCharsets.UTF_8));
+
+    kafkaTemplate.send(record);
   }
 }

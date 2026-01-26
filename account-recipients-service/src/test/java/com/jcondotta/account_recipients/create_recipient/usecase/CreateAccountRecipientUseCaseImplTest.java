@@ -197,7 +197,6 @@ class CreateAccountRecipientUseCaseImplTest {
   }
 
   private CreateAccountRecipientCommand buildCreateAccountRecipientCommand() {
-    return CreateAccountRecipientCommand.of(
-        BANK_ACCOUNT_ID, RECIPIENT_NAME, IBAN, ZonedDateTime.now(TEST_FIXED_CLOCK));
+    return CreateAccountRecipientCommand.of(BANK_ACCOUNT_ID, RECIPIENT_NAME, IBAN);
   }
 }

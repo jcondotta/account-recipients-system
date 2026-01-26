@@ -4,6 +4,7 @@ import com.jcondotta.account_recipients.application.ports.output.cache.AccountRe
 import com.jcondotta.account_recipients.application.ports.output.cache.CacheStore;
 import com.jcondotta.account_recipients.application.ports.output.i18n.MessageResolverPort;
 import com.jcondotta.account_recipients.application.usecase.get_recipients.model.result.GetAccountRecipientsResult;
+import com.jcondotta.account_recipients.common.container.KafkaTestContainer;
 import com.jcondotta.account_recipients.common.container.LocalStackTestContainer;
 import com.jcondotta.account_recipients.common.container.RedisTestContainer;
 import com.jcondotta.account_recipients.common.fixtures.AccountRecipientFixtures;
@@ -43,7 +44,7 @@ import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("test")
-@ContextConfiguration(initializers = {LocalStackTestContainer.class, RedisTestContainer.class})
+@ContextConfiguration(initializers = {LocalStackTestContainer.class, RedisTestContainer.class, KafkaTestContainer.class})
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureWireMock(port = 0)
 class DeleteAccountRecipientControllerImplIT {

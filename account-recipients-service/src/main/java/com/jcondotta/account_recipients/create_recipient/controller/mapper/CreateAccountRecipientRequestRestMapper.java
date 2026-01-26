@@ -16,16 +16,11 @@ import java.util.UUID;
 
 @Mapper(
     componentModel = "spring",
-    imports = {BankAccountId.class, RecipientName.class, Iban.class, ZonedDateTime.class})
+    imports = {BankAccountId.class, RecipientName.class, Iban.class})
 public interface CreateAccountRecipientRequestRestMapper {
-
-  CreateAccountRecipientRequestRestMapper INSTANCE =
-      Mappers.getMapper(CreateAccountRecipientRequestRestMapper.class);
 
   @Mapping(target = "bankAccountId", expression = "java(BankAccountId.of(bankAccountId))")
   @Mapping(target = "recipientName", expression = "java(RecipientName.of(request.recipientName()))")
   @Mapping(target = "iban", expression = "java(Iban.of(request.iban()))")
-  @Mapping(target = "createdAt", expression = "java(ZonedDateTime.now(clock))")
-  CreateAccountRecipientCommand toCommand(
-      UUID bankAccountId, CreateAccountRecipientRestRequest request, @Context Clock clock);
+  CreateAccountRecipientCommand toCommand(UUID bankAccountId, CreateAccountRecipientRestRequest request);
 }

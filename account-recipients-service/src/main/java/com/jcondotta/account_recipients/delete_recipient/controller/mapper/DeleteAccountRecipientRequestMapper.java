@@ -21,8 +21,6 @@ public interface DeleteAccountRecipientRequestMapper {
       Mappers.getMapper(DeleteAccountRecipientRequestMapper.class);
 
   @Mapping(target = "bankAccountId", expression = "java(BankAccountId.of(bankAccountId))")
-  @Mapping(
-      target = "recipientId",
-      expression = "java(RecipientId.of(recipientId))")
+  @Mapping(target = "recipientId", expression = "java(RecipientId.of(recipientId))")
   DeleteAccountRecipientCommand toCommand(UUID bankAccountId, UUID recipientId);
 }

@@ -8,21 +8,18 @@ import java.time.ZonedDateTime;
 
 import static java.util.Objects.requireNonNull;
 
-public record CreateAccountRecipientCommand(
-    BankAccountId bankAccountId, RecipientName recipientName, Iban iban, ZonedDateTime createdAt) {
+public record CreateAccountRecipientCommand(BankAccountId bankAccountId, RecipientName recipientName, Iban iban) {
 
   public CreateAccountRecipientCommand {
     requireNonNull(bankAccountId, "bankAccountId must not be null");
     requireNonNull(recipientName, "recipientName must not be null");
     requireNonNull(iban, "iban must not be null");
-    requireNonNull(createdAt, "createdAt must not be null");
   }
 
   public static CreateAccountRecipientCommand of(
       BankAccountId bankAccountId,
       RecipientName recipientName,
-      Iban iban,
-      ZonedDateTime createdAt) {
-    return new CreateAccountRecipientCommand(bankAccountId, recipientName, iban, createdAt);
+      Iban iban) {
+    return new CreateAccountRecipientCommand(bankAccountId, recipientName, iban);
   }
 }

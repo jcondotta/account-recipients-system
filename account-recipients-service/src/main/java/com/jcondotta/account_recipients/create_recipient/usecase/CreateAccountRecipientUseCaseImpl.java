@@ -40,8 +40,7 @@ public class CreateAccountRecipientUseCaseImpl implements CreateAccountRecipient
     Objects.requireNonNull(command, "command must not be null");
     Objects.requireNonNull(idempotencyKey, "idempotencyKey must not be null");
 
-    log.info(
-        "Attempting to create a recipient [bankAccountId={}, recipientName={}]",
+    log.info("Attempting to create a recipient [bankAccountId={}, recipientName={}]",
         command.bankAccountId(),
         command.recipientName());
 
@@ -50,7 +49,6 @@ public class CreateAccountRecipientUseCaseImpl implements CreateAccountRecipient
     var accountRecipient = AccountRecipient.create(command.bankAccountId(), command.recipientName(), command.iban(), clock);
     createAccountRecipientRepository.create(accountRecipient);
 
-    //TODO outbox pattern in the future
     var recipientCreatedEvent = recipientCreatedEventMapper.fromAccountRecipient(accountRecipient);
     eventPublisher.send(recipientCreatedEvent, idempotencyKey);
 

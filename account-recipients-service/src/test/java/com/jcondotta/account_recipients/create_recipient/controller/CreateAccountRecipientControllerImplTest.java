@@ -30,15 +30,11 @@ class CreateAccountRecipientControllerImplTest {
   private static final UUID BANK_ACCOUNT_UUID = UUID.randomUUID();
   private static final UUID IDEMPOTENCY_KEY_UUID = UUID.randomUUID();
 
-  private static final String RECIPIENT_NAME =
-      AccountRecipientFixtures.JEFFERSON.getRecipientName();
+  private static final String RECIPIENT_NAME = AccountRecipientFixtures.JEFFERSON.getRecipientName();
   private static final String IBAN = AccountRecipientFixtures.JEFFERSON.getRecipientIban();
 
   private static final URI EXPECTED_LOCATION_URI =
-      URI.create(
-          "https://api.jcondotta.com/v1/bank-accounts/"
-              + BANK_ACCOUNT_UUID
-              + "/account-recipients");
+      URI.create("https://api.jcondotta.com/v1/bank-accounts/" + BANK_ACCOUNT_UUID + "/account-recipients");
 
   @Mock
   private CreateAccountRecipientCommand createAccountRecipientCommand;
@@ -55,20 +51,19 @@ class CreateAccountRecipientControllerImplTest {
   @Captor
   private ArgumentCaptor<CreateAccountRecipientCommand> commandCaptor;
 
-  private Clock fixedClock = ClockTestFactory.TEST_CLOCK_FIXED;
   private CreateAccountRecipientControllerImpl controller;
 
   @BeforeEach
   void setUp() {
     controller =
-        new CreateAccountRecipientControllerImpl(useCase, requestMapper, uriProperties, fixedClock);
+        new CreateAccountRecipientControllerImpl(useCase, requestMapper, uriProperties);
   }
 
   @Test
   void shouldCreateAccountRecipientAndReturnCreatedResponse_whenRequestIsValid() {
     var request = CreateAccountRecipientRestRequest.of(RECIPIENT_NAME, IBAN);
 
-    when(requestMapper.toCommand(BANK_ACCOUNT_UUID, request, fixedClock))
+    when(requestMapper.toCommand(BANK_ACCOUNT_UUID, request))
         .thenReturn(createAccountRecipientCommand);
 
     when(uriProperties.accountRecipientsURI(BANK_ACCOUNT_UUID)).thenReturn(EXPECTED_LOCATION_URI);
@@ -80,7 +75,7 @@ class CreateAccountRecipientControllerImplTest {
     assertThat(response.getHeaders().getLocation()).isEqualTo(EXPECTED_LOCATION_URI);
     assertThat(response.getBody()).isNull();
 
-    verify(requestMapper).toCommand(BANK_ACCOUNT_UUID, request, fixedClock);
+    verify(requestMapper).toCommand(BANK_ACCOUNT_UUID, request);
     verify(useCase).execute(createAccountRecipientCommand, IdempotencyKey.of(IDEMPOTENCY_KEY_UUID));
     verify(uriProperties).accountRecipientsURI(BANK_ACCOUNT_UUID);
 
