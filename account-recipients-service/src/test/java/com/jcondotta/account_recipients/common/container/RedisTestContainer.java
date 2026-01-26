@@ -22,16 +22,13 @@ public class RedisTestContainer
   private static final RedisContainer REDIS_CONTAINER =
       new RedisContainer(REDIS_IMAGE).withReuse(true);
 
-  private static final AtomicBoolean CONTAINER_STARTED = new AtomicBoolean(false);
-
   private static void startContainer() {
     try {
       Startables.deepStart(REDIS_CONTAINER).join();
       log.info(
-          "Redis container started on {}:{}",
-          REDIS_CONTAINER.getHost(),
-          REDIS_CONTAINER.getFirstMappedPort());
-    } catch (Exception e) {
+          "Redis container started on {}:{}", REDIS_CONTAINER.getHost(), REDIS_CONTAINER.getFirstMappedPort());
+    }
+    catch (Exception e) {
       log.error("Failed to start Redis container: {}", e.getMessage());
       throw new RuntimeException("Failed to start Redis container", e);
     }
@@ -39,17 +36,13 @@ public class RedisTestContainer
 
   private static Map<String, String> getContainerProperties() {
     return Map.of(
-        "spring.data.redis.host", REDIS_CONTAINER.getHost(),
-        "spring.data.redis.port", String.valueOf(REDIS_CONTAINER.getFirstMappedPort()));
+        "REDIS_HOST", REDIS_CONTAINER.getHost(),
+        "REDIS_PORT", String.valueOf(REDIS_CONTAINER.getFirstMappedPort()));
   }
 
   @Override
   public void initialize(@NotNull ConfigurableApplicationContext applicationContext) {
-    if (CONTAINER_STARTED.compareAndSet(false, true)) {
       startContainer();
       TestPropertyValues.of(getContainerProperties()).applyTo(applicationContext.getEnvironment());
-    } else {
-      log.warn("initialize() called multiple times; Redis container already started.");
-    }
   }
 }

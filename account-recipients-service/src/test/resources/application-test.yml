@@ -6,7 +6,7 @@ cloud:
       access-key-id: test
       secret-key: test
     dynamodb:
-#      endpoint: ${AWS_DYNAMODB_ENDPOINT:}
+      endpoint: ${AWS_DYNAMODB_ENDPOINT}
       tables:
         account-recipients:
           table-name: 'account-recipients'

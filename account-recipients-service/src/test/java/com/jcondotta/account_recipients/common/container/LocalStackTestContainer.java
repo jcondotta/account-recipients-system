@@ -31,8 +31,6 @@ public class LocalStackTestContainer
           .withLogConsumer(outputFrame -> log.info(outputFrame.getUtf8StringWithoutLineEnding()))
           .withReuse(true);
 
-  static final AtomicBoolean CONTAINER_STARTED = new AtomicBoolean(false);
-
   private static void startContainer() {
     try {
       Startables.deepStart(LOCALSTACK_CONTAINER).join();
@@ -48,16 +46,12 @@ public class LocalStackTestContainer
         "AWS_ACCESS_KEY_ID", LOCALSTACK_CONTAINER.getAccessKey(),
         "AWS_SECRET_ACCESS_KEY", LOCALSTACK_CONTAINER.getSecretKey(),
         "AWS_DEFAULT_REGION", LOCALSTACK_CONTAINER.getRegion(),
-        "cloud.aws.dynamodb.endpoint", LOCALSTACK_CONTAINER.getEndpointOverride(Service.DYNAMODB).toString());
+        "AWS_DYNAMODB_ENDPOINT", LOCALSTACK_CONTAINER.getEndpointOverride(Service.DYNAMODB).toString());
   }
 
   @Override
   public void initialize(@NotNull ConfigurableApplicationContext applicationContext) {
-    if (CONTAINER_STARTED.compareAndSet(false, true)) {
       startContainer();
       TestPropertyValues.of(getContainerProperties()).applyTo(applicationContext.getEnvironment());
-    } else {
-      log.warn("initialize() called multiple times; container already started.");
-    }
   }
 }
