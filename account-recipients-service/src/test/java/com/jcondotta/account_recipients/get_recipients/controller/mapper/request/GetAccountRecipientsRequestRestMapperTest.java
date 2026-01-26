@@ -24,8 +24,7 @@ class GetAccountRecipientsRequestRestMapperTest {
   private static final String CURSOR_VALUE = "encoded-cursor-123";
   private static final String NAME_PREFIX = "jeff";
 
-  private final GetAccountRecipientsRequestRestMapper mapper =
-      Mappers.getMapper(GetAccountRecipientsRequestRestMapper.class);
+  private final GetAccountRecipientsRequestRestMapper mapper = new GetAccountRecipientsRequestRestMapperImpl();
 
   @Test
   void shouldMapGetAccountRecipientsQuery_whenAllValuesAreProvided() {

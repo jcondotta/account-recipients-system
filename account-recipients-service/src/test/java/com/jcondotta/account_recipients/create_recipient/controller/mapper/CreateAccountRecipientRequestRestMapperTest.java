@@ -31,7 +31,7 @@ class CreateAccountRecipientRequestRestMapperTest {
   private static final String VALID_IBAN = AccountRecipientFixtures.JEFFERSON.getRecipientIban();
   private static final Iban IBAN = Iban.of(VALID_IBAN);
 
-  private final CreateAccountRecipientRequestRestMapper mapper = Mappers.getMapper(CreateAccountRecipientRequestRestMapper.class);
+  private final CreateAccountRecipientRequestRestMapper mapper = new CreateAccountRecipientRequestRestMapperImpl();
 
   @Test
   void shouldMapToCommand_whenRequestIsValid() {
