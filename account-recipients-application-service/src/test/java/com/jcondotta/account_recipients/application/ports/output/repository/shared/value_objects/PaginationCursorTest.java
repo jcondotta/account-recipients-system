@@ -46,8 +46,9 @@ class PaginationCursorTest {
     var paginationCursor1 = new PaginationCursor(ENCODED_CURSOR);
     var paginationCursor2 = new PaginationCursor(ENCODED_CURSOR);
 
-    assertThat(paginationCursor1).isEqualTo(paginationCursor2);
-    assertThat(paginationCursor1.hashCode()).isEqualTo(paginationCursor2.hashCode());
+    assertThat(paginationCursor1)
+        .isEqualTo(paginationCursor2)
+        .hasSameHashCodeAs(paginationCursor2);
   }
 
   @Test

@@ -103,8 +103,9 @@ class GetAccountRecipientsQueryParamsTest {
         GetAccountRecipientsQueryParams.of(
             QUERY_LIMIT_10, RECIPIENT_NAME_PREFIX, PAGINATION_CURSOR);
 
-    assertThat(queryParams1).isEqualTo(queryParams2);
-    assertThat(queryParams1.hashCode()).isEqualTo(queryParams2.hashCode());
+    assertThat(queryParams1)
+        .isEqualTo(queryParams2)
+        .hasSameHashCodeAs(queryParams2);
   }
 
   @Test

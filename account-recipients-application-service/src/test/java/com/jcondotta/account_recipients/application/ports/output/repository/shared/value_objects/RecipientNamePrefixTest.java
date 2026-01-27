@@ -46,8 +46,9 @@ class RecipientNamePrefixTest {
     var prefix1 = new RecipientNamePrefix(NAME_PREFIX);
     var prefix2 = new RecipientNamePrefix(NAME_PREFIX);
 
-    assertThat(prefix1).isEqualTo(prefix2);
-    assertThat(prefix1.hashCode()).isEqualTo(prefix2.hashCode());
+    assertThat(prefix1)
+        .isEqualTo(prefix2)
+        .hasSameHashCodeAs(prefix2);
   }
 
   @Test

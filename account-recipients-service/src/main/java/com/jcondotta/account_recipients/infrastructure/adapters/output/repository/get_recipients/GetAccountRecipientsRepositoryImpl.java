@@ -78,7 +78,6 @@ public class GetAccountRecipientsRepositoryImpl implements GetAccountRecipientsR
 
       recordItemsReturned(items.size());
 
-      // calcula o nextCursor, se houver
       String nextCursor = null;
       List<AccountRecipient> resultItems = items;
 
@@ -122,7 +121,6 @@ public class GetAccountRecipientsRepositoryImpl implements GetAccountRecipientsR
       var extractedBankAccountId =
           AccountRecipientEntityKey.extractBankAccountId(pkAttr.s()).value();
 
-      // se pertence à mesma conta, é válido
       return extractedBankAccountId.equals(query.bankAccountId().value());
     } catch (Exception e) {
       log.debug("Invalid start key provided: {}", e.getMessage());
@@ -145,8 +143,6 @@ public class GetAccountRecipientsRepositoryImpl implements GetAccountRecipientsR
   private void recordItemsReturned(int count) {
     DistributionSummary.builder("account_recipients_repository_items_returned")
         .description("Number of AccountRecipients returned per query")
-        //            .tag("module", MODULE)
-        //            .tag("operation", OPERATION)
         .register(meterRegistry)
         .record(count);
   }
@@ -154,13 +150,13 @@ public class GetAccountRecipientsRepositoryImpl implements GetAccountRecipientsR
   private void recordEmptyResult() {
     Counter.builder("account_recipients_repository_empty_results_total")
         .description("Number of repository queries returning no items")
-        //            .tag("module", MODULE)
-        //            .tag("operation", OPERATION)
         .register(meterRegistry)
         .increment();
   }
 
   static class QueryConditionalBuilder {
+
+    private QueryConditionalBuilder() {}
 
     public static QueryConditional build(GetAccountRecipientsQuery query) {
       var partitionKey = AccountRecipientEntityKey.partitionKey(query.bankAccountId());
