@@ -11,7 +11,6 @@ import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.testcontainers.containers.localstack.LocalStackContainer.Service;
 

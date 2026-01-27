@@ -9,7 +9,6 @@ import com.jcondotta.account_recipients.infrastructure.adapters.output.repositor
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity.AccountRecipientEntityKey;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import java.time.ZonedDateTime;

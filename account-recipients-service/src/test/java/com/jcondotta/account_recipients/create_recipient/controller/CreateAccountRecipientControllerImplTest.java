@@ -1,6 +1,5 @@
 package com.jcondotta.account_recipients.create_recipient.controller;
 
-import com.jcondotta.account_recipients.ClockTestFactory;
 import com.jcondotta.account_recipients.application.usecase.create_recipient.CreateAccountRecipientUseCase;
 import com.jcondotta.account_recipients.application.usecase.create_recipient.model.CreateAccountRecipientCommand;
 import com.jcondotta.account_recipients.application.usecase.shared.value_objects.IdempotencyKey;
@@ -18,7 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
 import java.net.URI;
-import java.time.Clock;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;

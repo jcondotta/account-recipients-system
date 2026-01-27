@@ -9,7 +9,6 @@ import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountI
 import org.junit.jupiter.api.Test;
 
 import java.time.Clock;
-import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import static com.jcondotta.account_recipients.application.common.fixtures.AccountRecipientFixtures.JEFFERSON;

@@ -4,8 +4,6 @@ import com.jcondotta.account_recipients.domain.recipient.value_objects.Iban;
 import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientName;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
 
-import java.time.ZonedDateTime;
-
 import static java.util.Objects.requireNonNull;
 
 public record CreateAccountRecipientCommand(BankAccountId bankAccountId, RecipientName recipientName, Iban iban) {

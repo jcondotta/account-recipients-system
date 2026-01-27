@@ -76,7 +76,7 @@ class PaginatedResultTest {
     var paginatedResult2 = new PaginatedResult<>(ITEMS_LIST, NEXT_CURSOR);
 
     assertThat(paginatedResult1).isEqualTo(paginatedResult2);
-    assertThat(paginatedResult1.hashCode()).isEqualTo(paginatedResult2.hashCode());
+    assertThat(paginatedResult1.hashCode()).hasSameHashCodeAs(paginatedResult2.hashCode());
   }
 
   @Test

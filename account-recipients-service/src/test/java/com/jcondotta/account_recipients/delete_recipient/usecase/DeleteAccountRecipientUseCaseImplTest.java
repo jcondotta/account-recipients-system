@@ -7,7 +7,6 @@ import com.jcondotta.account_recipients.application.usecase.get_recipients.model
 import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientId;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -15,9 +14,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class DeleteAccountRecipientUseCaseImplTest {

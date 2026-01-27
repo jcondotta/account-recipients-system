@@ -1,6 +1,5 @@
 package com.jcondotta.account_recipients.create_recipient.controller.mapper;
 
-import com.jcondotta.account_recipients.ClockTestFactory;
 import com.jcondotta.account_recipients.application.usecase.create_recipient.model.CreateAccountRecipientCommand;
 import com.jcondotta.account_recipients.common.fixtures.AccountRecipientFixtures;
 import com.jcondotta.account_recipients.create_recipient.controller.model.CreateAccountRecipientRestRequest;
@@ -8,10 +7,7 @@ import com.jcondotta.account_recipients.domain.recipient.value_objects.Iban;
 import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientName;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
 import org.junit.jupiter.api.Test;
-import org.mapstruct.factory.Mappers;
 
-import java.time.Clock;
-import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
