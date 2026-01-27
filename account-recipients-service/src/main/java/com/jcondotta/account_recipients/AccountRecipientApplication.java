@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication(scanBasePackages = "com.jcondotta.account_recipients")
-@EnableFeignClients(basePackages = "com.jcondotta.account_recipients")
+@EnableFeignClients(basePackages = "com.jcondotta.account_recipients.infrastructure")
 @ConfigurationPropertiesScan(basePackages = "com.jcondotta.account_recipients.infrastructure.properties")
 public class AccountRecipientApplication {
 
