@@ -78,7 +78,7 @@ class CreateAccountRecipientUseCaseImplTest {
   private CreateAccountRecipientUseCase useCase;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     useCase =
         new CreateAccountRecipientUseCaseImpl(
             lookupBankAccountFacadeMock,

@@ -41,7 +41,7 @@ class CreateAccountRecipientRestRequestTest {
         .first()
         .satisfies(
             v -> {
-              assertThat(v.getPropertyPath().toString()).isEqualTo("recipientName");
+              assertThat(v.getPropertyPath()).hasToString("recipientName");
               assertThat(v.getMessage()).isEqualTo("must not be blank");
             });
   }
@@ -57,7 +57,7 @@ class CreateAccountRecipientRestRequestTest {
         .first()
         .satisfies(
             v -> {
-              assertThat(v.getPropertyPath().toString()).isEqualTo("iban");
+              assertThat(v.getPropertyPath()).hasToString("iban");
               assertThat(v.getMessage()).isEqualTo("must not be blank");
             });
   }
