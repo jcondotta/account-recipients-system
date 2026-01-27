@@ -102,15 +102,15 @@ public class RedisCacheStore<V> implements CacheStore<V> {
   @Override
   public boolean evict(String cacheKey) {
     try {
-      var deleted = redisTemplate.delete(cacheKey);
+      boolean isDeleted = redisTemplate.delete(cacheKey);
 
-      if (deleted) {
+      if (isDeleted) {
         LOGGER.debug("Cache evicted successfully for key='{}'", cacheKey);
       } else {
         LOGGER.debug("Cache eviction skipped — key='{}' was not found", cacheKey);
       }
 
-      return deleted;
+      return isDeleted;
     } catch (Exception e) {
       LOGGER.warn("Failed to evict cache for key='{}'", cacheKey, e);
       return false;
