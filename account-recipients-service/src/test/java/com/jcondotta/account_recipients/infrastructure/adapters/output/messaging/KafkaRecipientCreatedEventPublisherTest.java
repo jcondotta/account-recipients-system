@@ -56,7 +56,7 @@ class KafkaRecipientCreatedEventPublisherTest {
   private KafkaTopicsProperties kafkaTopicsProperties;
 
   @Captor
-  private ArgumentCaptor<ProducerRecord<String, RecipientCreatedMessage>> recordCaptor;
+  private ArgumentCaptor<ProducerRecord<String, RecipientCreatedMessage>> producerRecordCaptor;
 
   @Test
   void shouldPublishRecipientCreatedEventWithIdempotencyKeyHeader_whenEventIsValid() {
@@ -91,17 +91,17 @@ class KafkaRecipientCreatedEventPublisherTest {
 
     publisher.send(event, IDEMPOTENCY_KEY);
 
-    verify(kafkaTemplate).send(recordCaptor.capture());
+    verify(kafkaTemplate).send(producerRecordCaptor.capture());
     verifyNoMoreInteractions(kafkaTemplate);
 
-    assertThat(recordCaptor.getValue())
-        .satisfies(record -> Assertions.assertAll(
-            () -> assertThat(record.topic()).isEqualTo(CREATED_RECIPIENT_TOPIC_NAME),
-            () -> assertThat(record.key()).isEqualTo(message.bankAccountId()),
-            () -> assertThat(record.value()).isEqualTo(message),
+    assertThat(producerRecordCaptor.getValue())
+        .satisfies(producerRecord -> Assertions.assertAll(
+            () -> assertThat(producerRecord.topic()).isEqualTo(CREATED_RECIPIENT_TOPIC_NAME),
+            () -> assertThat(producerRecord.key()).isEqualTo(message.bankAccountId()),
+            () -> assertThat(producerRecord.value()).isEqualTo(message),
 
             () -> {
-              var header = record.headers().lastHeader(IDEMPOTENCY_KEY_HEADER);
+              var header = producerRecord.headers().lastHeader(IDEMPOTENCY_KEY_HEADER);
               assertThat(header).isNotNull();
               assertThat(new String(header.value(), StandardCharsets.UTF_8))
                   .isEqualTo(IDEMPOTENCY_KEY.value().toString());
