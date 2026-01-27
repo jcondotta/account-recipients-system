@@ -52,7 +52,7 @@ class IdempotencyKeyTest {
   void shouldReturnStringRepresentation_whenCallingToString() {
     var idempotencyKey = IdempotencyKey.of(IDEMPOTENCY_KEY_UUID_1);
 
-    assertThat(idempotencyKey.toString()).contains(IDEMPOTENCY_KEY_UUID_1.toString());
+    assertThat(idempotencyKey).hasToString(IDEMPOTENCY_KEY_UUID_1.toString());
   }
 
   @Test

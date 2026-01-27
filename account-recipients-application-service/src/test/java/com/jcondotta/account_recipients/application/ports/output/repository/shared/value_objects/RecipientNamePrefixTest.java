@@ -17,7 +17,7 @@ class RecipientNamePrefixTest {
         .satisfies(
             prefix -> {
               assertThat(prefix.value()).isEqualTo(NAME_PREFIX);
-              assertThat(prefix.toString()).isEqualTo(NAME_PREFIX);
+              assertThat(prefix).hasToString(NAME_PREFIX);
             });
   }
 

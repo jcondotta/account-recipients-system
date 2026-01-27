@@ -24,7 +24,7 @@ class AccountRecipientsRootCacheKeyTest {
               assertThat(cacheKey.bankAccountId()).isEqualTo(BANK_ACCOUNT_ID);
               assertThat(cacheKey.value()).isEqualTo(expectedValue);
               assertThat(cacheKey.rootPrefix()).isEqualTo(expectedValue);
-              assertThat(cacheKey.toString()).isEqualTo(expectedValue);
+              assertThat(cacheKey).hasToString(expectedValue);
               assertThat(cacheKey).isInstanceOf(AccountRecipientsCacheKey.class);
             });
 

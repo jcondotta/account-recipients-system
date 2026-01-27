@@ -16,7 +16,7 @@ class QueryLimitTest {
         .satisfies(
             limit -> {
               assertThat(limit.value()).isEqualTo(validValue);
-              assertThat(limit.toString()).hasToString(String.valueOf(validValue));
+              assertThat(limit).hasToString(String.valueOf(validValue));
             });
   }
 

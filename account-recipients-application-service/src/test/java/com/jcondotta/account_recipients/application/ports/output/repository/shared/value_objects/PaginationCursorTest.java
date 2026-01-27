@@ -17,7 +17,7 @@ class PaginationCursorTest {
         .satisfies(
             cursor -> {
               assertThat(cursor.value()).isEqualTo(ENCODED_CURSOR);
-              assertThat(cursor.toString()).isEqualTo(ENCODED_CURSOR);
+              assertThat(cursor).hasToString(ENCODED_CURSOR);
             });
   }
 
