@@ -1,5 +1,6 @@
 # Account Recipients Service – v1.0
 
+[![SonarQube Cloud](https://sonarcloud.io/images/project_badges/sonarcloud-light.svg)](https://sonarcloud.io/summary/new_code?id=jcondotta_account-recipients-system)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=jcondotta_account-recipients-system&metric=coverage)](https://sonarcloud.io/summary/new_code?id=jcondotta_account-recipients-system)
 
 This project is part of a **microservice-based architecture** responsible for managing **bank account recipients**.  
