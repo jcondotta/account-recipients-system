@@ -48,31 +48,4 @@ class CreateAccountRecipientRepositoryImplTest {
     verify(entityMapper).toEntity(accountRecipientMock);
     verifyNoMoreInteractions(entityMapper, dynamoDbTable);
   }
-
-  //    @Test
-  //    void shouldPropagateException_whenDynamoDbPutItemFails() {
-  //        // given
-  //        AccountRecipient domain = mock(AccountRecipient.class);
-  //        AccountRecipientEntity entity = new AccountRecipientEntity();
-  //        when(entityMapper.toEntity(domain)).thenReturn(entity);
-  //        doThrow(new RuntimeException("DynamoDB error"))
-  //            .when(dynamoDbTable).putItem(entity);
-  //
-  //        // when / then
-  //        assertThatThrownBy(() -> repository.create(domain))
-  //            .isInstanceOf(RuntimeException.class)
-  //            .hasMessage("DynamoDB error");
-  //
-  //        verify(entityMapper).toEntity(domain);
-  //        verify(dynamoDbTable).putItem(entity);
-  //    }
-
-  //    @Test
-  //    void shouldThrowException_whenAccountRecipientIsNull() {
-  //        // when / then
-  //        assertThatThrownBy(() -> repository.create(null))
-  //            .isInstanceOf(NullPointerException.class);
-  //
-  //        verifyNoInteractions(entityMapper, dynamoDbTable);
-  //    }
 }

@@ -32,8 +32,6 @@ public class GetAccountRecipientsUseCaseImpl implements GetAccountRecipientsUseC
     var queryCacheKey =
         AccountRecipientsQueryCacheKey.of(query.bankAccountId(), query.queryParams());
 
-    //        return cacheStore.getIfPresent(queryCacheKey.value())
-    //            .orElseGet(() -> {
     PaginatedResult<AccountRecipient> paginatedResult =
         getAccountRecipientsRepository.findByQuery(query);
 
@@ -43,6 +41,5 @@ public class GetAccountRecipientsUseCaseImpl implements GetAccountRecipientsUseC
     cacheStore.put(queryCacheKey.value(), getAccountRecipientsResult);
 
     return getAccountRecipientsResult;
-    //            });
   }
 }
