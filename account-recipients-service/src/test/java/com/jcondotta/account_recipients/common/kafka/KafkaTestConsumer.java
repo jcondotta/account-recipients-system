@@ -25,7 +25,6 @@ public class KafkaTestConsumer<T> {
 
     this.consumer = new KafkaConsumer<>(props);
     this.consumer.subscribe(List.of(topic));
-//    consumer.poll(Duration.ofMillis(0));
     consumer.seekToEnd(consumer.assignment());
   }
 

@@ -75,6 +75,6 @@ class IbanTest {
     @Test
     void shouldReturnStringRepresentation_whenCallingToString() {
         var validIban = Iban.of(VALID_IBAN_NO_SPACES);
-        assertThat(validIban.toString()).isEqualTo(VALID_IBAN_NO_SPACES);
+        assertThat(validIban).hasToString(VALID_IBAN_NO_SPACES);
     }
 }

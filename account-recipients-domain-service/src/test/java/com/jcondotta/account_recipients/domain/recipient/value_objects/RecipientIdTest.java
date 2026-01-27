@@ -50,7 +50,7 @@ class RecipientIdTest {
     @Test
     void shouldReturnStringRepresentation_whenCallingToString() {
         var recipientId = RecipientId.of(ACCOUNT_RECIPIENT_UUID_1);
-        assertThat(recipientId.toString()).isEqualTo(ACCOUNT_RECIPIENT_UUID_1.toString());
+        assertThat(recipientId).hasToString(ACCOUNT_RECIPIENT_UUID_1.toString());
     }
 
     @Test

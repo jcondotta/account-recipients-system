@@ -12,22 +12,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class RestExceptionHandler {
 
-  //    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-  //    @ExceptionHandler(Exception.class)
-  //    public ResponseEntity<String> handleGeneric(Exception ex) {
-  //        log.error("An unexpected error occurred: {}", ex.getMessage(), ex);
-  //
-  //        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-  //            .body("Unexpected error: " + ex.getMessage());
-  //    }
-
-  //    @ResponseStatus(HttpStatus.CONFLICT)
-  //    @ExceptionHandler(IdempotencyKeyConflictException.class)
-  //    public ResponseEntity<String> handleIdempotencyConflict(IdempotencyKeyConflictException ex)
-  // {
-  //        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
-  //    }
-
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ExceptionHandler(MissingRequestHeaderException.class)
   public ResponseEntity<String> handleMissingHeader(MissingRequestHeaderException ex) {

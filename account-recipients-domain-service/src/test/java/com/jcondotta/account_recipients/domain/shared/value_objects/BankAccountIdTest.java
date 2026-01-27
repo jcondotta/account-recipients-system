@@ -50,6 +50,6 @@ class BankAccountIdTest {
     @Test
     void shouldReturnStringRepresentation_whenCallingToString() {
         var bankAccountId = BankAccountId.of(BANK_ACCOUNT_UUID_1);
-        assertThat(bankAccountId.toString()).isEqualTo(BANK_ACCOUNT_UUID_1.toString());
+        assertThat(bankAccountId).hasToString(BANK_ACCOUNT_UUID_1.toString());
     }
 }

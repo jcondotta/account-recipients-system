@@ -64,6 +64,6 @@ class RecipientNameTest {
     @Test
     void shouldReturnStringRepresentation_whenCallingToString() {
         var recipientName = RecipientName.of(RECIPIENT_NAME_JEFFERSON);
-        assertThat(recipientName.toString()).isEqualTo(RECIPIENT_NAME_JEFFERSON);
+        assertThat(recipientName).hasToString(RECIPIENT_NAME_JEFFERSON);
     }
 }
