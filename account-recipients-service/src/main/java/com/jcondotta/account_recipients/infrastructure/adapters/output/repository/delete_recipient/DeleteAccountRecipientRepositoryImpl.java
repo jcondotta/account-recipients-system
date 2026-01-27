@@ -33,14 +33,12 @@ public class DeleteAccountRecipientRepositoryImpl implements DeleteAccountRecipi
         .expression("attribute_exists(partitionKey) AND attribute_exists(sortKey)")
         .build();
 
-    var deleteItemRequest =
-        DeleteItemEnhancedRequest.builder()
-            .key(key)
-            .conditionExpression(condition)
-            .build();
-
     try {
-      dynamoDbTable.deleteItem(deleteItemRequest);
+      dynamoDbTable.deleteItem(builder -> builder
+          .key(key)
+          .conditionExpression(condition)
+      );
+
       log.info("Recipient deleted successfully [bankAccountId={}, recipientId={}]", accountRecipient.getBankAccountId(), accountRecipient.getRecipientId());
     } catch (ConditionalCheckFailedException e) {
       log.warn(
