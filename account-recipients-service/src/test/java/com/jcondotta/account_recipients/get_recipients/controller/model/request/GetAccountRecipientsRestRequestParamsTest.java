@@ -70,6 +70,17 @@ class GetAccountRecipientsRestRequestParamsTest {
       }
 
       @Test
+      void shouldGenerateSHA256Hex_whenOnlyLimitIsProvided() {
+        var params = GetAccountRecipientsRestRequestParams.of(null);
+
+        var expectedRaw = String.join("|", "", "");
+        var expectedHash = DigestUtils.sha256Hex(expectedRaw.getBytes(StandardCharsets.UTF_8));
+
+        assertThat(params.toSHA256Hex()).isEqualTo(expectedHash);
+      }
+
+
+      @Test
       void shouldHaveValueEquality_whenFieldsAreIdentical() {
           var params1 = GetAccountRecipientsRestRequestParams.of(LIMIT, CURSOR);
           var params2 = GetAccountRecipientsRestRequestParams.of(LIMIT, CURSOR);
