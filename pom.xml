@@ -55,7 +55,6 @@
         <sonar.coverage.exclusions>
             **/*Application.java,
             **/config/**
-<!--            **/infrastructure/**-->
         </sonar.coverage.exclusions>
     </properties>
 
