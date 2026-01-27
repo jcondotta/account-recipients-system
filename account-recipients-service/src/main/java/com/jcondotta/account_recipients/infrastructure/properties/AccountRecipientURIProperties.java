@@ -16,4 +16,11 @@ public record AccountRecipientURIProperties(
     var expanded = rootPath.replace("{bank-account-id}", bankAccountId.toString());
     return URI.create(expanded);
   }
+
+  public URI accountRecipientURI(UUID bankAccountId, UUID accountRecipientId) {
+    String expanded = recipientIdPath.
+        replace("{bank-account-id}", bankAccountId.toString())
+        .replace("{recipient-id}", accountRecipientId.toString());
+    return URI.create(expanded);
+  }
 }

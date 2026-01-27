@@ -15,6 +15,7 @@ import com.jcondotta.account_recipients.domain.recipient.value_objects.Recipient
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity.AccountRecipientEntity;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.mapper.AccountRecipientEntityMapper;
+import com.jcondotta.account_recipients.infrastructure.interfaces.rest.exception_handler.ProblemTypes;
 import com.jcondotta.account_recipients.infrastructure.interfaces.rest.headers.HttpHeadersCustom;
 import com.jcondotta.account_recipients.infrastructure.properties.AccountRecipientURIProperties;
 import io.restassured.RestAssured;
@@ -40,8 +41,11 @@ import java.time.ZonedDateTime;
 import java.util.Locale;
 import java.util.UUID;
 
+import static com.jcondotta.account_recipients.domain.recipient.exceptions.AccountRecipientNotFoundException.ACCOUNT_RECIPIENT_NOT_FOUND_TEMPLATE;
+import static com.jcondotta.account_recipients.domain.recipient.exceptions.AccountRecipientNotFoundException.ACCOUNT_RECIPIENT_NOT_FOUND_TITLE;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @ActiveProfiles("test")
 @ContextConfiguration(initializers = {LocalStackTestContainer.class, RedisTestContainer.class, KafkaTestContainer.class})
@@ -138,17 +142,13 @@ class DeleteAccountRecipientControllerImplIT {
             .body()
             .as(ProblemDetail.class);
 
-    //        var expectedMessageError = resolveMessage(ACCOUNT_RECIPIENT_NOT_FOUND_TEMPLATE,
-    // DEFAULT_LOCALE, nonExistentBankAccountId, recipientId.value());
-    //        assertAll(
-    //            () ->
-    // assertThat(problemDetail.getType()).isEqualTo(ProblemTypes.RESOURCE_NOT_FOUND),
-    //            () ->
-    // assertThat(problemDetail.getTitle()).hasToString(ACCOUNT_RECIPIENT_NOT_FOUND_TITLE),
-    //            () -> assertThat(problemDetail.getDetail()).isEqualTo(expectedMessageError),
-    //            () ->
-    // assertThat(problemDetail.getInstance()).isEqualTo(uriProperties.accountRecipientURI(nonExistentBankAccountId, recipientId.value()))
-    //        );
+            var expectedMessageError = resolveMessage(ACCOUNT_RECIPIENT_NOT_FOUND_TEMPLATE,
+     DEFAULT_LOCALE, nonExistentBankAccountId, recipientId.value());
+            assertAll(
+                () -> assertThat(problemDetail.getType()).isEqualTo(ProblemTypes.RESOURCE_NOT_FOUND),
+                () -> assertThat(problemDetail.getTitle()).hasToString(ACCOUNT_RECIPIENT_NOT_FOUND_TITLE),
+                () -> assertThat(problemDetail.getDetail()).isEqualTo(expectedMessageError),
+                () -> assertThat(problemDetail.getInstance()).isEqualTo(uriProperties.accountRecipientURI(nonExistentBankAccountId, recipientId.value())));
 
     var key = buildRecipientKey(accountRecipientEntity);
     assertThat(dynamoDbTable.getItem(r -> r.key(key).consistentRead(true)))
@@ -177,17 +177,13 @@ class DeleteAccountRecipientControllerImplIT {
             .body()
             .as(ProblemDetail.class);
 
-    //        var expectedMessageError = resolveMessage(ACCOUNT_RECIPIENT_NOT_FOUND_TEMPLATE,
-    // DEFAULT_LOCALE, bankAccountId.value(), nonExistentRecipientId);
-    //        assertAll(
-    //            () ->
-    // assertThat(problemDetail.getType()).isEqualTo(ProblemTypes.RESOURCE_NOT_FOUND),
-    //            () ->
-    // assertThat(problemDetail.getTitle()).hasToString(ACCOUNT_RECIPIENT_NOT_FOUND_TITLE),
-    //            () -> assertThat(problemDetail.getDetail()).isEqualTo(expectedMessageError),
-    //            () ->
-    // assertThat(problemDetail.getInstance()).isEqualTo(uriProperties.accountRecipientURI(bankAccountId.value(), nonExistentRecipientId))
-    //        );
+            var expectedMessageError = resolveMessage(ACCOUNT_RECIPIENT_NOT_FOUND_TEMPLATE, DEFAULT_LOCALE, bankAccountId.value(), nonExistentRecipientId);
+            assertAll(
+                () -> assertThat(problemDetail.getType()).isEqualTo(ProblemTypes.RESOURCE_NOT_FOUND),
+                () -> assertThat(problemDetail.getTitle()).hasToString(ACCOUNT_RECIPIENT_NOT_FOUND_TITLE),
+                () -> assertThat(problemDetail.getDetail()).isEqualTo(expectedMessageError),
+                () -> assertThat(problemDetail.getInstance())
+                    .isEqualTo(uriProperties.accountRecipientURI(bankAccountId.value(), nonExistentRecipientId)));
 
     var key = buildRecipientKey(accountRecipientEntity);
     assertThat(dynamoDbTable.getItem(r -> r.key(key).consistentRead(true)))
@@ -220,7 +216,7 @@ class DeleteAccountRecipientControllerImplIT {
         .accept(ContentType.JSON);
   }
 
-  //    private String resolveMessage(String code, Locale locale, Object... args) {
-  //        return messageResolverPort.resolveMessage(code, args, locale);
-  //    }
+  private String resolveMessage(String code, Locale locale, Object... args) {
+      return messageResolverPort.resolveMessage(code, args, locale);
+  }
 }
