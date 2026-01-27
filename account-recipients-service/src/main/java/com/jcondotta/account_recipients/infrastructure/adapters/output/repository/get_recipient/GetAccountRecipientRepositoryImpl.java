@@ -25,9 +25,7 @@ public class GetAccountRecipientRepositoryImpl implements GetAccountRecipientRep
 
   @Override
   public Optional<AccountRecipient> getAccountRecipient(BankAccountId bankAccountId, RecipientId recipientId) {
-    if (log.isDebugEnabled()) {
-      log.debug("Fetching AccountRecipient [bankAccountId={}, recipientId={}]", bankAccountId, recipientId);
-    }
+    log.debug("Fetching AccountRecipient [bankAccountId={}, recipientId={}]", bankAccountId, recipientId);
 
     var key = Key.builder()
         .partitionValue(AccountRecipientEntityKey.partitionKey(bankAccountId))
