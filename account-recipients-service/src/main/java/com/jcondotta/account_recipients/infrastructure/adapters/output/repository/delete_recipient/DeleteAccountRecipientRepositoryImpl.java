@@ -29,13 +29,14 @@ public class DeleteAccountRecipientRepositoryImpl implements DeleteAccountRecipi
             .sortValue(AccountRecipientEntityKey.sortKey(accountRecipient.getRecipientId()))
             .build();
 
+    var condition = Expression.builder()
+        .expression("attribute_exists(partitionKey) AND attribute_exists(sortKey)")
+        .build();
+
     var deleteItemRequest =
         DeleteItemEnhancedRequest.builder()
             .key(key)
-            .conditionExpression(
-                Expression.builder()
-                    .expression("attribute_exists(partitionKey) AND attribute_exists(sortKey)")
-                    .build())
+            .conditionExpression(condition)
             .build();
 
     try {
