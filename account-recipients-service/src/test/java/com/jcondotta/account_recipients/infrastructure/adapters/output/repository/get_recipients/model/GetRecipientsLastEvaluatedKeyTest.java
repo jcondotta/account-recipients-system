@@ -67,8 +67,9 @@ class GetRecipientsLastEvaluatedKeyTest {
     var k1 = new GetRecipientsLastEvaluatedKey(bankAccountId, recipientId, recipientName);
     var k2 = new GetRecipientsLastEvaluatedKey(bankAccountId, recipientId, recipientName);
 
-    assertThat(k1).isEqualTo(k2);
-    assertThat(k1).hasSameHashCodeAs(k2);
+    assertThat(k1)
+        .isEqualTo(k2)
+        .hasSameHashCodeAs(k2);
   }
 
   @Test
