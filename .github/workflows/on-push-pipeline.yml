@@ -37,7 +37,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          mvn -B test \
+          mvn -B verify \
             org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.token=$SONAR_TOKEN \
             -Dsonar.projectKey=jcondotta_account-recipients-system \
