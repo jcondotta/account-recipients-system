@@ -52,6 +52,11 @@
         <sonar.coverage.jacoco.xmlReportPaths>
             ${project.basedir}/target/site/jacoco/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.coverage.exclusions>
+            **/*Application.java,
+            **/config/**
+<!--            **/infrastructure/**-->
+        </sonar.coverage.exclusions>
     </properties>
 
     <dependencyManagement>
