@@ -49,30 +49,8 @@
         <sonar.organization>jcondotta</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
-        <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     </properties>
-
-    <profiles>
-        <profile>
-            <id>sonar</id>
-            <properties>
-                <sonar.projectName>account-recipients-system</sonar.projectName>
-                <sonar.sources>
-                    account-recipients-domain-service/src/main/java,
-                    account-recipients-application-service/src/main/java,
-                    account-recipients-service/src/main/java
-                </sonar.sources>
-                <sonar.tests>
-                    account-recipients-domain-service/src/test/java,
-                    account-recipients-application-service/src/test/java,
-                    account-recipients-service/src/test/java
-                </sonar.tests>
-                <sonar.coverage.jacoco.xmlReportPaths>
-                    account-recipients-coverage/target/site/jacoco-aggregate/jacoco.xml
-                </sonar.coverage.jacoco.xmlReportPaths>
-            </properties>
-        </profile>
-    </profiles>
 
     <dependencyManagement>
         <dependencies>
@@ -236,15 +214,11 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>${jacoco-maven-plugin.version}</version>
-                    <executions>
-                        <execution>
-                            <id>prepare-agent</id>
-                            <goals>
-                                <goal>prepare-agent</goal>
-                            </goals>
-                        </execution>
-                    </executions>
+                    <version>0.8.11</version>
+
+                    <configuration>
+                        <append>true</append>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -252,16 +226,21 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+
                 <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+
                     <execution>
                         <id>report-aggregate</id>
                         <phase>verify</phase>
                         <goals>
                             <goal>report-aggregate</goal>
                         </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/site/jacoco-aggregate</outputDirectory>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
