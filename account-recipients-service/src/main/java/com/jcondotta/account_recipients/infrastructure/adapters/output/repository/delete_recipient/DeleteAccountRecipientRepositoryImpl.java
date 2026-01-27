@@ -21,6 +21,7 @@ public class DeleteAccountRecipientRepositoryImpl implements DeleteAccountRecipi
   private final DynamoDbTable<AccountRecipientEntity> dynamoDbTable;
 
   @Override
+  @SuppressWarnings("java:Sxxxx") // AWS Enhanced Client already uses Consumer Builder idiomatically
   public void delete(AccountRecipient accountRecipient) {
     var key =
         Key.builder()
