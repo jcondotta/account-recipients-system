@@ -148,14 +148,14 @@ class CreateAccountRecipientControllerImplIT {
     var cacheKey = String.format(AccountRecipientsRootCacheKey.PREFIX_TEMPLATE, bankAccountId);
     assertThat(cacheStore.getIfPresent(cacheKey)).isEmpty();
 
-    var record =
+    var messageRecord =
         kafkaConsumer
             .pollSingle(Duration.ofSeconds(5))
             .orElseThrow(() -> new AssertionError("Kafka message not published"));
 
-    assertThat(record.key()).isEqualTo(bankAccountId.toString());
+    assertThat(messageRecord.key()).isEqualTo(bankAccountId.toString());
 
-    assertThat(record.value()).satisfies(message -> {
+    assertThat(messageRecord.value()).satisfies(message -> {
       assertThat(message.bankAccountId()).isEqualTo(bankAccountId.toString());
       assertThat(message.recipientId()).isNotNull();
       assertThat(message.recipientName()).isEqualTo(recipientName);
@@ -164,7 +164,7 @@ class CreateAccountRecipientControllerImplIT {
       assertThat(message.occurredAtZone()).isEqualTo(fixedClock.getZone().getId());
     });
 
-    var header = record.headers().lastHeader("idempotency-key");
+    var header = messageRecord.headers().lastHeader("idempotency-key");
     assertThat(header).isNotNull();
   }
 

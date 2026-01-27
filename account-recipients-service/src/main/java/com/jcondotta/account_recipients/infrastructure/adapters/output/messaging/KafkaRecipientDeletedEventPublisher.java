@@ -33,11 +33,11 @@ public class KafkaRecipientDeletedEventPublisher implements RecipientDeletedEven
         event.bankAccountId());
 
     var message = messageMapper.from(event);
-    var record = new ProducerRecord<>(kafkaTopicsProperties.recipientDeleted(), message.bankAccountId(), message);
+    var messageRecord = new ProducerRecord<>(kafkaTopicsProperties.recipientDeleted(), message.bankAccountId(), message);
 
-    record.headers()
+    messageRecord.headers()
         .add(IDEMPOTENCY_KEY_HEADER, idempotencyKey.value().toString().getBytes(StandardCharsets.UTF_8));
 
-    kafkaTemplate.send(record);
+    kafkaTemplate.send(messageRecord);
   }
 }

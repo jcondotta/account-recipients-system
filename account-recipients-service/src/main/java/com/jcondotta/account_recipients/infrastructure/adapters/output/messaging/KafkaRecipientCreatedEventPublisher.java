@@ -35,15 +35,15 @@ public class KafkaRecipientCreatedEventPublisher implements RecipientCreatedEven
 
     var message = messageMapper.from(event);
 
-    var record = new ProducerRecord<>(
+    var messageRecord = new ProducerRecord<>(
         kafkaTopicsProperties.recipientCreated(),
         message.bankAccountId(),
         message
     );
 
-    record.headers()
+    messageRecord.headers()
         .add(IDEMPOTENCY_KEY_HEADER, idempotencyKey.value().toString().getBytes(StandardCharsets.UTF_8));
 
-    kafkaTemplate.send(record);
+    kafkaTemplate.send(messageRecord);
   }
 }
