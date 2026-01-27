@@ -95,7 +95,6 @@ class CreateAccountRecipientUseCaseImplTest {
     when(lookupBankAccountFacadeMock.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccountMock);
     when(createAccountRecipientRepositoryMock.create(any(AccountRecipient.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
-    // TODO melhorar essa linha acima
 
     var createAccountRecipientCommand = buildCreateAccountRecipientCommand();
     useCase.execute(createAccountRecipientCommand, idempotencyKey);

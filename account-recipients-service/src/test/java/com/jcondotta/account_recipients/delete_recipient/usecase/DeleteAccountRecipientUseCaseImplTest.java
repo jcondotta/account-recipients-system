@@ -12,9 +12,7 @@ import com.jcondotta.account_recipients.application.usecase.get_recipients.model
 import com.jcondotta.account_recipients.application.usecase.shared.value_objects.IdempotencyKey;
 import com.jcondotta.account_recipients.domain.recipient.entity.AccountRecipient;
 import com.jcondotta.account_recipients.domain.recipient.events.RecipientDeletedEvent;
-import com.jcondotta.account_recipients.domain.recipient.value_objects.Iban;
 import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientId;
-import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientName;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,7 +23,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Clock;
-import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -41,13 +38,10 @@ class DeleteAccountRecipientUseCaseImplTest {
 
   private static final BankAccountId BANK_ACCOUNT_ID = BankAccountId.of(BANK_ACCOUNT_UUID);
   private static final RecipientId RECIPIENT_ID = RecipientId.of(ACCOUNT_RECIPIENT_UUID);
-  private static final RecipientName RECIPIENT_NAME_JEFFERSON = RecipientName.of("Jefferson Condotta");
-  private static final Iban IBAN = Iban.of("GB82WEST12345698765432");
 
   private static final IdempotencyKey IDEMPOTENCY_KEY = IdempotencyKey.newKey();
 
   private static final Clock FIXED_CLOCK = ClockTestFactory.TEST_CLOCK_FIXED;
-  private static final ZonedDateTime CREATED_AT = ZonedDateTime.now(FIXED_CLOCK);
 
   @Mock
   private AccountRecipient accountRecipientMock;
