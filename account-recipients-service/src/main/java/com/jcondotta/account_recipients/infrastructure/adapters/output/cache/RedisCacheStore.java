@@ -3,6 +3,7 @@ package com.jcondotta.account_recipients.infrastructure.adapters.output.cache;
 import com.jcondotta.account_recipients.application.ports.output.cache.CacheStore;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.metrics.CacheMetricsRecorder;
 import io.micrometer.observation.annotation.Observed;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -120,18 +121,16 @@ public class RedisCacheStore<V> implements CacheStore<V> {
   @Override
   public void evictKeysByPrefix(String prefixCacheKey) {
     try {
-      // Cria o pattern para o Redis (ex: "accountRecipients::3d5e3489:*")
       String pattern = prefixCacheKey + ":*";
 
       long startTime = System.currentTimeMillis();
       Set<String> keys = redisTemplate.keys(pattern);
 
-      if (keys == null || keys.isEmpty()) {
+      if (CollectionUtils.isEmpty(keys)) {
         LOGGER.debug("No cache keys found with prefix='{}'", prefixCacheKey);
         return;
       }
 
-      // Remove todas as chaves encontradas
       redisTemplate.delete(keys);
 
       long durationMs = System.currentTimeMillis() - startTime;
