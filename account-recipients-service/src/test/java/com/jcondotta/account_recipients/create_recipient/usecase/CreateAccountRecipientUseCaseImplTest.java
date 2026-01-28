@@ -120,8 +120,7 @@ class CreateAccountRecipientUseCaseImplTest {
               assertThat(recipientCreatedEvent.bankAccountId()).isEqualTo(BANK_ACCOUNT_ID);
               assertThat(recipientCreatedEvent.recipientName()).isEqualTo(RECIPIENT_NAME);
               assertThat(recipientCreatedEvent.iban()).isEqualTo(IBAN);
-              assertThat(recipientCreatedEvent.occurredAt())
-                  .isEqualTo(ZonedDateTime.now(TEST_FIXED_CLOCK).toInstant());
+              assertThat(recipientCreatedEvent.occurredAt()).isEqualTo(ZonedDateTime.now(TEST_FIXED_CLOCK));
             });
 
     var cacheKey = AccountRecipientsRootCacheKey.of(BANK_ACCOUNT_ID);

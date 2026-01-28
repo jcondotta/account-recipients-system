@@ -21,8 +21,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,8 +42,7 @@ class KafkaRecipientCreatedEventPublisherTest {
   private static final Iban IBAN = new Iban(AccountRecipientFixtures.JEFFERSON.getRecipientIban());
 
   private static final Clock FIXED_CLOCK = ClockTestFactory.TEST_CLOCK_FIXED;
-  private static final Instant OCCURRED_AT = Instant.now(FIXED_CLOCK);
-  private static final ZoneId OCCURRED_AT_ZONE = FIXED_CLOCK.getZone();
+  private static final ZonedDateTime OCCURRED_AT = ZonedDateTime.now(FIXED_CLOCK);
 
   @Mock
   private KafkaTemplate<String, RecipientCreatedMessage> kafkaTemplate;
@@ -65,8 +63,7 @@ class KafkaRecipientCreatedEventPublisherTest {
             RECIPIENT_NAME,
             BANK_ACCOUNT_ID,
             IBAN,
-            OCCURRED_AT,
-            OCCURRED_AT_ZONE
+            OCCURRED_AT
         );
 
     var message =
@@ -75,8 +72,7 @@ class KafkaRecipientCreatedEventPublisherTest {
             RECIPIENT_NAME.value(),
             BANK_ACCOUNT_ID.value().toString(),
             IBAN.value(),
-            OCCURRED_AT,
-            OCCURRED_AT_ZONE.getId()
+            OCCURRED_AT
         );
 
     when(kafkaTopicsProperties.recipientCreated()).thenReturn(CREATED_RECIPIENT_TOPIC_NAME);

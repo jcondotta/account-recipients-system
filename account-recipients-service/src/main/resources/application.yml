@@ -13,7 +13,8 @@ spring:
       port: ${REDIS_PORT}
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -47,7 +48,7 @@ api:
 client:
   api:
     bank-accounts:
-      base-url: 'http://localhost:8090'
+      base-url: ${BANK_ACCOUNTS_API_BASE_URL}
 
 management:
   endpoints:
@@ -57,7 +58,6 @@ management:
   metrics:
     tags:
       application: ${spring.application.name}
-    #      environment: ${ENVIRONMENT:local}
     distribution:
       percentiles-histogram:
         http.server.requests: true

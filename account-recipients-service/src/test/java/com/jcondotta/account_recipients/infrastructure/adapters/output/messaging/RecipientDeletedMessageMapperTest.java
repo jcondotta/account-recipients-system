@@ -9,8 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
 import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,11 +25,7 @@ class RecipientDeletedMessageMapperTest {
   private static final Clock FIXED_CLOCK =
       ClockTestFactory.TEST_CLOCK_FIXED;
 
-  private static final Instant OCCURRED_AT =
-      Instant.now(FIXED_CLOCK);
-
-  private static final ZoneId OCCURRED_AT_ZONE =
-      FIXED_CLOCK.getZone();
+  private static final ZonedDateTime OCCURRED_AT = ZonedDateTime.now(FIXED_CLOCK);
 
   private final RecipientDeletedMessageMapper mapper =
       Mappers.getMapper(RecipientDeletedMessageMapper.class);
@@ -41,8 +36,7 @@ class RecipientDeletedMessageMapperTest {
         new RecipientDeletedEvent(
             RECIPIENT_ID,
             BANK_ACCOUNT_ID,
-            OCCURRED_AT,
-            OCCURRED_AT_ZONE
+            OCCURRED_AT
         );
 
     assertThat(mapper.from(event))
@@ -51,8 +45,7 @@ class RecipientDeletedMessageMapperTest {
                 Assertions.assertAll(
                     () -> assertThat(message.recipientId()).isEqualTo(event.recipientId().value().toString()),
                     () -> assertThat(message.bankAccountId()).isEqualTo(event.bankAccountId().value().toString()),
-                    () -> assertThat(message.occurredAt()).isEqualTo(OCCURRED_AT),
-                    () -> assertThat(message.occurredAtZone()).isEqualTo(OCCURRED_AT_ZONE.getId())
+                    () -> assertThat(message.occurredAt()).isEqualTo(OCCURRED_AT)
                 ));
   }
 

@@ -9,7 +9,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.time.*;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -41,8 +44,7 @@ class RecipientCreatedEventTest {
                         RECIPIENT_NAME_JEFFERSON,
                         BANK_ACCOUNT_ID_1,
                         IBAN_1,
-                        OCCURRED_AT.toInstant(),
-                        OCCURRED_AT.getZone());
+                        OCCURRED_AT);
 
         assertThat(event)
                 .extracting(
@@ -50,15 +52,13 @@ class RecipientCreatedEventTest {
                         RecipientCreatedEvent::recipientName,
                         RecipientCreatedEvent::bankAccountId,
                         RecipientCreatedEvent::iban,
-                        RecipientCreatedEvent::occurredAt,
-                        RecipientCreatedEvent::occurredAtZone)
+                        RecipientCreatedEvent::occurredAt)
                 .containsExactly(
                         RECIPIENT_ID_1,
                         RECIPIENT_NAME_JEFFERSON,
                         BANK_ACCOUNT_ID_1,
                         IBAN_1,
-                        OCCURRED_AT.toInstant(),
-                        OCCURRED_AT.getZone());
+                        OCCURRED_AT);
     }
 
     @Test
@@ -71,8 +71,7 @@ class RecipientCreatedEventTest {
                         IBAN_1,
                         OCCURRED_AT);
 
-        assertThat(event.occurredAt()).isEqualTo(OCCURRED_AT.toInstant());
-        assertThat(event.occurredAtZone()).isEqualTo(OCCURRED_AT.getZone());
+        assertThat(event.occurredAt()).isEqualTo(OCCURRED_AT);
     }
 
     @Test
@@ -134,8 +133,7 @@ class RecipientCreatedEventTest {
                 .contains(RECIPIENT_NAME_JEFFERSON.toString())
                 .contains(BANK_ACCOUNT_ID_1.toString())
                 .contains(IBAN_1.toString())
-                .contains(OCCURRED_AT.toInstant().toString())
-                .contains(OCCURRED_AT.getZone().toString());
+                .contains(OCCURRED_AT.toString());
     }
 
     @ParameterizedTest(name = "{0} must not be null")
@@ -146,9 +144,7 @@ class RecipientCreatedEventTest {
             RecipientName recipientName,
             BankAccountId bankAccountId,
             Iban iban,
-            Instant occurredAt,
-            ZoneId occurredAtZone) {
-
+            ZonedDateTime occurredAt) {
         assertThatThrownBy(
                 () ->
                         new RecipientCreatedEvent(
@@ -156,20 +152,18 @@ class RecipientCreatedEventTest {
                                 recipientName,
                                 bankAccountId,
                                 iban,
-                                occurredAt,
-                                occurredAtZone))
+                                occurredAt))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining(fieldName + " must not be null");
     }
 
     static Stream<Arguments> nullFieldProvider() {
         return Stream.of(
-                Arguments.of("recipientId", null, RECIPIENT_NAME_JEFFERSON, BANK_ACCOUNT_ID_1, IBAN_1, OCCURRED_AT.toInstant(), OCCURRED_AT.getZone()),
-                Arguments.of("recipientName", RECIPIENT_ID_1, null, BANK_ACCOUNT_ID_1, IBAN_1, OCCURRED_AT.toInstant(), OCCURRED_AT.getZone()),
-                Arguments.of("bankAccountId", RECIPIENT_ID_1, RECIPIENT_NAME_JEFFERSON, null, IBAN_1, OCCURRED_AT.toInstant(), OCCURRED_AT.getZone()),
-                Arguments.of("iban", RECIPIENT_ID_1, RECIPIENT_NAME_JEFFERSON, BANK_ACCOUNT_ID_1, null, OCCURRED_AT.toInstant(), OCCURRED_AT.getZone()),
-                Arguments.of("occurredAt", RECIPIENT_ID_1, RECIPIENT_NAME_JEFFERSON, BANK_ACCOUNT_ID_1, IBAN_1, null, OCCURRED_AT.getZone()),
-                Arguments.of("occurredAtZone", RECIPIENT_ID_1, RECIPIENT_NAME_JEFFERSON, BANK_ACCOUNT_ID_1, IBAN_1, OCCURRED_AT.toInstant(), null)
+                Arguments.of("recipientId", null, RECIPIENT_NAME_JEFFERSON, BANK_ACCOUNT_ID_1, IBAN_1, OCCURRED_AT),
+                Arguments.of("recipientName", RECIPIENT_ID_1, null, BANK_ACCOUNT_ID_1, IBAN_1, OCCURRED_AT),
+                Arguments.of("bankAccountId", RECIPIENT_ID_1, RECIPIENT_NAME_JEFFERSON, null, IBAN_1, OCCURRED_AT),
+                Arguments.of("iban", RECIPIENT_ID_1, RECIPIENT_NAME_JEFFERSON, BANK_ACCOUNT_ID_1, null, OCCURRED_AT),
+                Arguments.of("occurredAt", RECIPIENT_ID_1, RECIPIENT_NAME_JEFFERSON, BANK_ACCOUNT_ID_1, IBAN_1, null)
         );
     }
 }

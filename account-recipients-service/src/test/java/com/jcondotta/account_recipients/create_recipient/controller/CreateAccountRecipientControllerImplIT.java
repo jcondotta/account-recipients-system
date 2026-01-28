@@ -44,6 +44,7 @@ import org.springframework.web.servlet.LocaleResolver;
 
 import java.time.Clock;
 import java.time.Duration;
+import java.time.ZonedDateTime;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -160,8 +161,7 @@ class CreateAccountRecipientControllerImplIT {
       assertThat(message.recipientId()).isNotNull();
       assertThat(message.recipientName()).isEqualTo(recipientName);
       assertThat(message.iban()).isEqualTo(iban);
-      assertThat(message.occurredAt()).isEqualTo(fixedClock.instant());
-      assertThat(message.occurredAtZone()).isEqualTo(fixedClock.getZone().getId());
+      assertThat(message.occurredAt()).isEqualTo(ZonedDateTime.now(fixedClock));
     });
 
     var header = messageRecord.headers().lastHeader("idempotency-key");

@@ -7,7 +7,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.time.*;
+import java.time.Clock;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -30,55 +33,24 @@ class RecipientDeletedEventTest {
     private static final Clock FIXED_CLOCK =
             Clock.fixed(ZONED_DATE_TIME.toInstant(), ZoneId.of("UTC"));
 
-    static Stream<Arguments> nullFieldProvider() {
-        return Stream.of(
-                Arguments.of(
-                        "recipientId",
-                        null,
-                        BANK_ACCOUNT_ID_1,
-                        ZONED_DATE_TIME.toInstant(),
-                        ZONED_DATE_TIME.getZone()),
-                Arguments.of(
-                        "bankAccountId",
-                        RECIPIENT_ID_1,
-                        null,
-                        ZONED_DATE_TIME.toInstant(),
-                        ZONED_DATE_TIME.getZone()),
-                Arguments.of(
-                        "occurredAt",
-                        RECIPIENT_ID_1,
-                        BANK_ACCOUNT_ID_1,
-                        null,
-                        ZONED_DATE_TIME.getZone()),
-                Arguments.of(
-                        "occurredAtZone",
-                        RECIPIENT_ID_1,
-                        BANK_ACCOUNT_ID_1,
-                        ZONED_DATE_TIME.toInstant(),
-                        null));
-    }
-
     @Test
     void shouldCreateRecipientDeletedEvent_whenAllValuesAreValid() {
         var event =
                 new RecipientDeletedEvent(
                         RECIPIENT_ID_1,
                         BANK_ACCOUNT_ID_1,
-                        ZONED_DATE_TIME.toInstant(),
-                        ZONED_DATE_TIME.getZone());
+                        ZONED_DATE_TIME);
 
         assertThat(event)
                 .isNotNull()
                 .extracting(
                         RecipientDeletedEvent::recipientId,
                         RecipientDeletedEvent::bankAccountId,
-                        RecipientDeletedEvent::occurredAt,
-                        RecipientDeletedEvent::occurredAtZone)
+                        RecipientDeletedEvent::occurredAt)
                 .containsExactly(
                         RECIPIENT_ID_1,
                         BANK_ACCOUNT_ID_1,
-                        ZONED_DATE_TIME.toInstant(),
-                        ZONED_DATE_TIME.getZone());
+                        ZONED_DATE_TIME);
     }
 
     @Test
@@ -89,8 +61,7 @@ class RecipientDeletedEventTest {
                         BANK_ACCOUNT_ID_1,
                         ZONED_DATE_TIME);
 
-        assertThat(event.occurredAt()).isEqualTo(ZONED_DATE_TIME.toInstant());
-        assertThat(event.occurredAtZone()).isEqualTo(ZONED_DATE_TIME.getZone());
+        assertThat(event.occurredAt()).isEqualTo(ZONED_DATE_TIME);
     }
 
     @Test
@@ -101,8 +72,7 @@ class RecipientDeletedEventTest {
                         BANK_ACCOUNT_ID_1,
                         FIXED_CLOCK);
 
-        assertThat(event.occurredAt()).isEqualTo(ZONED_DATE_TIME.toInstant());
-        assertThat(event.occurredAtZone()).isEqualTo(FIXED_CLOCK.getZone());
+        assertThat(event.occurredAt()).isEqualTo(ZONED_DATE_TIME);
     }
 
     @Test
@@ -150,8 +120,7 @@ class RecipientDeletedEventTest {
         assertThat(event.toString())
                 .contains(RECIPIENT_ID_1.toString())
                 .contains(BANK_ACCOUNT_ID_1.toString())
-                .contains(ZONED_DATE_TIME.toInstant().toString())
-                .contains(ZONED_DATE_TIME.getZone().toString());
+                .contains(ZONED_DATE_TIME.toString());
     }
 
     @ParameterizedTest(name = "shouldThrowNullPointerException_when{0}IsNull")
@@ -160,17 +129,25 @@ class RecipientDeletedEventTest {
             String fieldName,
             RecipientId recipientId,
             BankAccountId bankAccountId,
-            Instant occurredAt,
-            ZoneId occurredAtZone) {
+            ZonedDateTime occurredAt) {
 
         assertThatThrownBy(
                 () ->
                         new RecipientDeletedEvent(
                                 recipientId,
                                 bankAccountId,
-                                occurredAt,
-                                occurredAtZone))
+                                occurredAt))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining(fieldName + " must not be null");
+    }
+
+    static Stream<Arguments> nullFieldProvider() {
+        return Stream.of(
+            Arguments.of("recipientId", null, BANK_ACCOUNT_ID_1, ZONED_DATE_TIME,
+                Arguments.of("bankAccountId", RECIPIENT_ID_1, null, ZONED_DATE_TIME,
+                    Arguments.of("occurredAt", RECIPIENT_ID_1, BANK_ACCOUNT_ID_1, null)
+                )
+            )
+        );
     }
 }

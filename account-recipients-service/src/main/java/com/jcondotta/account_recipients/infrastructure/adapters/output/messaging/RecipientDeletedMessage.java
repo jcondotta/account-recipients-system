@@ -1,6 +1,13 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.messaging;
 
-import java.time.Instant;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
-public record RecipientDeletedMessage(String recipientId, String bankAccountId, Instant occurredAt, String occurredAtZone) {
+import java.time.ZonedDateTime;
+
+public record RecipientDeletedMessage(
+    String recipientId,
+    String bankAccountId,
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
+    ZonedDateTime occurredAt) {
 }

@@ -37,8 +37,7 @@ class RecipientDeletedEventMapperTest {
             recipientDeletedEvent -> {
               assertThat(recipientDeletedEvent.recipientId()).isEqualTo(accountRecipient.getRecipientId());
               assertThat(recipientDeletedEvent.bankAccountId()).isEqualTo(accountRecipient.getBankAccountId());
-              assertThat(recipientDeletedEvent.occurredAt()).isEqualTo(accountRecipient.getDeletedAt().toInstant());
-              assertThat(recipientDeletedEvent.occurredAtZone()).isEqualTo(accountRecipient.getDeletedAt().getZone());
+              assertThat(recipientDeletedEvent.occurredAt()).isEqualTo(accountRecipient.getDeletedAt());
             });
   }
 

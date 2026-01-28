@@ -6,8 +6,6 @@ import com.jcondotta.account_recipients.domain.recipient.value_objects.Recipient
 import com.jcondotta.account_recipients.domain.shared.events.DomainEvent;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
 
-import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import static java.util.Objects.requireNonNull;
@@ -17,8 +15,7 @@ public record RecipientCreatedEvent(
         RecipientName recipientName,
         BankAccountId bankAccountId,
         Iban iban,
-        Instant occurredAt,
-        ZoneId occurredAtZone
+        ZonedDateTime occurredAt
 ) implements DomainEvent {
 
     public RecipientCreatedEvent {
@@ -27,7 +24,6 @@ public record RecipientCreatedEvent(
         requireNonNull(bankAccountId, "bankAccountId must not be null");
         requireNonNull(iban, "iban must not be null");
         requireNonNull(occurredAt, "occurredAt must not be null");
-        requireNonNull(occurredAtZone, "occurredAtZone must not be null");
     }
 
     public static RecipientCreatedEvent of(RecipientId recipientId, RecipientName recipientName, BankAccountId bankAccountId, Iban iban, ZonedDateTime occurredAt) {
@@ -38,8 +34,7 @@ public record RecipientCreatedEvent(
                 recipientName,
                 bankAccountId,
                 iban,
-                occurredAt.toInstant(),
-                occurredAt.getZone()
+                occurredAt
         );
     }
 }

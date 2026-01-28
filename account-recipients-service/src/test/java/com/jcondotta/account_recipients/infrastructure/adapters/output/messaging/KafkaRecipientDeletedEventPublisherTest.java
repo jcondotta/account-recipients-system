@@ -18,8 +18,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,8 +37,7 @@ class KafkaRecipientDeletedEventPublisherTest {
   private static final RecipientId RECIPIENT_ID = RecipientId.newId();
 
   private static final Clock FIXED_CLOCK = ClockTestFactory.TEST_CLOCK_FIXED;
-  private static final Instant OCCURRED_AT = Instant.now(FIXED_CLOCK);
-  private static final ZoneId OCCURRED_AT_ZONE = FIXED_CLOCK.getZone();
+  private static final ZonedDateTime OCCURRED_AT = ZonedDateTime.now(FIXED_CLOCK);
 
   @Mock
   private KafkaTemplate<String, RecipientDeletedMessage> kafkaTemplate;
@@ -59,16 +57,14 @@ class KafkaRecipientDeletedEventPublisherTest {
         new RecipientDeletedEvent(
             RECIPIENT_ID,
             BANK_ACCOUNT_ID,
-            OCCURRED_AT,
-            OCCURRED_AT_ZONE
+            OCCURRED_AT
         );
 
     var message =
         new RecipientDeletedMessage(
             RECIPIENT_ID.value().toString(),
             BANK_ACCOUNT_ID.value().toString(),
-            OCCURRED_AT,
-            OCCURRED_AT_ZONE.getId()
+            OCCURRED_AT
         );
 
     when(kafkaTopicsProperties.recipientDeleted()).thenReturn(DELETED_RECIPIENT_TOPIC_NAME);

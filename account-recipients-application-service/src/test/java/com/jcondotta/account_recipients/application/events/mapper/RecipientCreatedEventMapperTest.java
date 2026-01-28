@@ -39,8 +39,7 @@ class RecipientCreatedEventMapperTest {
               assertThat(recipientCreatedEvent.recipientName()).isEqualTo(accountRecipient.getRecipientName());
               assertThat(recipientCreatedEvent.bankAccountId()).isEqualTo(accountRecipient.getBankAccountId());
               assertThat(recipientCreatedEvent.iban()).isEqualTo(accountRecipient.getIban());
-              assertThat(recipientCreatedEvent.occurredAt()).isEqualTo(accountRecipient.getCreatedAt().toInstant());
-              assertThat(recipientCreatedEvent.occurredAtZone()).isEqualTo(accountRecipient.getCreatedAt().getZone());
+              assertThat(recipientCreatedEvent.occurredAt()).isEqualTo(accountRecipient.getCreatedAt());
             });
   }
 

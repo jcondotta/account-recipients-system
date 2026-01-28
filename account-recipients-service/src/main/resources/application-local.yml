@@ -18,3 +18,8 @@ cloud:
       tables:
         account-recipients:
           table-name: 'account-recipients'
+
+client:
+  api:
+    bank-accounts:
+      base-url: 'http://localhost:8090'

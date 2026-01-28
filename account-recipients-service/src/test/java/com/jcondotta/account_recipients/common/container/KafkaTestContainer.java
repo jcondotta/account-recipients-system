@@ -32,7 +32,7 @@ public class KafkaTestContainer implements ApplicationContextInitializer<Configu
   }
 
   private static Map<String, String> getContainerProperties() {
-    return Map.of("spring.kafka.bootstrap-servers", KAFKA_CONTAINER.getBootstrapServers());
+    return Map.of("KAFKA_BOOTSTRAP_SERVERS", KAFKA_CONTAINER.getBootstrapServers());
   }
 
   @Override

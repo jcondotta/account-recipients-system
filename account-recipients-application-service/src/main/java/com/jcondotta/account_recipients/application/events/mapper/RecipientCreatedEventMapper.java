@@ -12,7 +12,6 @@ public interface RecipientCreatedEventMapper {
   @Mapping(target = "recipientName", source = "recipientName")
   @Mapping(target = "bankAccountId", source = "bankAccountId")
   @Mapping(target = "iban", source = "iban")
-  @Mapping(target = "occurredAt", expression = "java(accountRecipient.getCreatedAt().toInstant())")
-  @Mapping(target = "occurredAtZone", expression = "java(accountRecipient.getCreatedAt().getZone())")
+  @Mapping(target = "occurredAt", source = "createdAt")
   RecipientCreatedEvent fromAccountRecipient(AccountRecipient accountRecipient);
 }

@@ -10,7 +10,6 @@ public interface RecipientDeletedEventMapper {
 
   @Mapping(target = "recipientId", source = "recipientId")
   @Mapping(target = "bankAccountId", source = "bankAccountId")
-  @Mapping(target = "occurredAt", expression = "java(accountRecipient.getDeletedAt().toInstant())")
-  @Mapping(target = "occurredAtZone", expression = "java(accountRecipient.getDeletedAt().getZone())")
+  @Mapping(target = "occurredAt", source = "deletedAt")
   RecipientDeletedEvent fromAccountRecipient(AccountRecipient accountRecipient);
 }

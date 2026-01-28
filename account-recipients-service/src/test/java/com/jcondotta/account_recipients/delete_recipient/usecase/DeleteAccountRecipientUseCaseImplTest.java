@@ -23,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Clock;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -87,7 +88,7 @@ class DeleteAccountRecipientUseCaseImplTest {
 
     when(accountRecipientMock.getBankAccountId()).thenReturn(BANK_ACCOUNT_ID);
 
-    var event = new RecipientDeletedEvent(RECIPIENT_ID, BANK_ACCOUNT_ID, FIXED_CLOCK.instant(), FIXED_CLOCK.getZone());
+    var event = new RecipientDeletedEvent(RECIPIENT_ID, BANK_ACCOUNT_ID, ZonedDateTime.now(FIXED_CLOCK));
     when(eventMapper.fromAccountRecipient(accountRecipientMock)).thenReturn(event);
 
     useCase.execute(command, IDEMPOTENCY_KEY);
