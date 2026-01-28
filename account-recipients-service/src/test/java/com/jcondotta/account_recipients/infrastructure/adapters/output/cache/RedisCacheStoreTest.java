@@ -135,6 +135,7 @@ class RedisCacheStoreTest {
 
   @Test
   void shouldReturnNullUsingDefaultGetMethod_whenValueIsAbsent() {
+    when(redisTemplate.opsForValue()).thenReturn(valueOperations);
     when(valueOperations.get(CACHE_KEY)).thenReturn(null);
 
     String result = cacheStore.get(CACHE_KEY);
