@@ -1,5 +1,6 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.cache;
 
+import com.jcondotta.account_recipients.application.ports.output.cache.CacheStore;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.metrics.CacheMetricsRecorder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,7 @@ class RedisCacheStoreTest {
   @Mock
   private CacheMetricsRecorder metricsRecorder;
 
-  private RedisCacheStore<String> cacheStore;
+  private CacheStore<String> cacheStore;
 
   @BeforeEach
   void setUp() {
