@@ -1,5 +1,12 @@
 server:
-  port: 8096
+  port: ${SERVER_PORT:8096}
+
+app:
+  environment: ${APPLICATION_ENV}
+  kafka:
+    topics:
+      recipient-created: ${app.environment}.recipients.created
+      recipient-deleted: ${app.environment}.recipients.deleted
 
 spring:
   application:
@@ -18,11 +25,9 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-    consumer:
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+
       properties:
-        spring.json.trusted.packages: "*"
+        spring.json.trusted.packages: com.jcondotta.account_recipients
 
 cloud:
   aws:
@@ -32,12 +37,6 @@ cloud:
       tables:
         account-recipients:
           table-name: ${AWS_DYNAMODB_ACCOUNT_RECIPIENTS_TABLE_NAME}
-
-app:
-  kafka:
-    topics:
-      recipient-created: recipients.created
-      recipient-deleted: recipients.deleted
 
 api:
   v1:

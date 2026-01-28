@@ -6,6 +6,9 @@ spring:
       host: localhost
       port: 6382
 
+app:
+  environment: local
+
 cloud:
   aws:
     region:

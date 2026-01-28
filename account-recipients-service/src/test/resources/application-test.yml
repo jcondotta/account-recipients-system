@@ -1,6 +1,5 @@
-spring:
-  kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+app:
+  environment: test
 
 cloud:
   aws:
