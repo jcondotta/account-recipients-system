@@ -1,4 +1,4 @@
-package com.jcondotta.account_recipients;
+package com.jcondotta.account_recipients.common.factory;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

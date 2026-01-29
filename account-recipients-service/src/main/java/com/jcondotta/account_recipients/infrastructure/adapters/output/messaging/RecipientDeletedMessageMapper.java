@@ -10,5 +10,5 @@ public interface RecipientDeletedMessageMapper {
   @Mapping(target = "recipientId", source = "recipientId.value")
   @Mapping(target = "bankAccountId", source = "bankAccountId.value")
   @Mapping(target = "occurredAt", source = "occurredAt")
-  RecipientDeletedMessage from(RecipientDeletedEvent event);
+  RecipientDeletedMessage fromEvent(RecipientDeletedEvent event);
 }

@@ -40,7 +40,8 @@ public record AccountRecipientsQueryCacheKey(
       byte[] encoded = digest.digest(raw.getBytes(StandardCharsets.UTF_8));
 
       return Base64.getUrlEncoder().withoutPadding().encodeToString(encoded).substring(0, 10);
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       throw new IllegalStateException(QUERY_HASH_ERROR_MESSAGE, e);
     }
   }

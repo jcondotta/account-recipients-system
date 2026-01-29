@@ -1,6 +1,6 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.messaging;
 
-import com.jcondotta.account_recipients.ClockTestFactory;
+import com.jcondotta.account_recipients.common.factory.ClockTestFactory;
 import com.jcondotta.account_recipients.common.fixtures.AccountRecipientFixtures;
 import com.jcondotta.account_recipients.domain.recipient.events.RecipientCreatedEvent;
 import com.jcondotta.account_recipients.domain.recipient.value_objects.Iban;
@@ -39,7 +39,7 @@ class RecipientCreatedMessageMapperTest {
         OCCURRED_AT
     );
 
-    assertThat(mapper.from(event))
+    assertThat(mapper.fromEvent(event))
         .satisfies(message -> Assertions.assertAll(
             () -> assertThat(message.recipientId()).isEqualTo(event.recipientId().value().toString()),
             () -> assertThat(message.recipientName()).isEqualTo(event.recipientName().value()),
@@ -51,6 +51,6 @@ class RecipientCreatedMessageMapperTest {
 
   @Test
   void shouldReturnNull_whenEventIsNull() {
-    assertThat(mapper.from(null)).isNull();
+    assertThat(mapper.fromEvent(null)).isNull();
   }
 }

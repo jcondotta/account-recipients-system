@@ -13,6 +13,13 @@ cloud:
       tables:
         account-recipients:
           table-name: 'account-recipients'
+    kinesis:
+      endpoint: ${AWS_KINESIS_ENDPOINT}
+      streams:
+        recipients-created:
+          stream-name: 'recipients.created'
+        recipients-deleted:
+          stream-name: 'recipients.deleted'
 
 client:
   api:

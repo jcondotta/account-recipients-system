@@ -1,6 +1,6 @@
 package com.jcondotta.account_recipients.create_recipient.usecase;
 
-import com.jcondotta.account_recipients.ClockTestFactory;
+import com.jcondotta.account_recipients.common.factory.ClockTestFactory;
 import com.jcondotta.account_recipients.application.events.mapper.RecipientCreatedEventMapper;
 import com.jcondotta.account_recipients.application.ports.output.cache.AccountRecipientsRootCacheKey;
 import com.jcondotta.account_recipients.application.ports.output.cache.CacheStore;

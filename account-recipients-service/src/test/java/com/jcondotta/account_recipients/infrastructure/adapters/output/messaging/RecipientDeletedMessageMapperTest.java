@@ -1,6 +1,6 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.messaging;
 
-import com.jcondotta.account_recipients.ClockTestFactory;
+import com.jcondotta.account_recipients.common.factory.ClockTestFactory;
 import com.jcondotta.account_recipients.domain.recipient.events.RecipientDeletedEvent;
 import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientId;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
@@ -39,7 +39,7 @@ class RecipientDeletedMessageMapperTest {
             OCCURRED_AT
         );
 
-    assertThat(mapper.from(event))
+    assertThat(mapper.fromEvent(event))
         .satisfies(
             message ->
                 Assertions.assertAll(
@@ -51,6 +51,6 @@ class RecipientDeletedMessageMapperTest {
 
   @Test
   void shouldReturnNull_whenEventIsNull() {
-    assertThat(mapper.from(null)).isNull();
+    assertThat(mapper.fromEvent(null)).isNull();
   }
 }

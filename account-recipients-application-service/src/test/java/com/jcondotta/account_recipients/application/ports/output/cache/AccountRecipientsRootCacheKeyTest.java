@@ -30,6 +30,7 @@ class AccountRecipientsRootCacheKeyTest {
 
     var rootCacheKeyViaOf = AccountRecipientsRootCacheKey.of(BANK_ACCOUNT_ID);
     assertThat(rootCacheKeyViaOf).isEqualTo(rootCacheKey);
+    assertThat(rootCacheKeyViaOf).hasToString(rootCacheKey.value());
   }
 
   @Test

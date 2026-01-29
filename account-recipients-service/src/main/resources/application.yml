@@ -37,6 +37,12 @@ cloud:
       tables:
         account-recipients:
           table-name: ${AWS_DYNAMODB_ACCOUNT_RECIPIENTS_TABLE_NAME}
+    kinesis:
+      streams:
+        recipients-created:
+          stream-name: ${AWS_KINESIS_RECIPIENTS_CREATED_STREAM_NAME}
+        recipients-deleted:
+          stream-name: ${AWS_KINESIS_RECIPIENTS_DELETED_STREAM_NAME}
 
 api:
   v1:

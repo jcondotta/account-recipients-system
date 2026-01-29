@@ -12,5 +12,5 @@ public interface RecipientCreatedMessageMapper {
   @Mapping(target = "bankAccountId", source = "bankAccountId.value")
   @Mapping(target = "iban", source = "iban.value")
   @Mapping(target = "occurredAt", source = "occurredAt")
-  RecipientCreatedMessage from(RecipientCreatedEvent event);
+  RecipientCreatedMessage fromEvent(RecipientCreatedEvent event);
 }

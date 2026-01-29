@@ -1,6 +1,5 @@
 package com.jcondotta.account_recipients.common.factory;
 
-import com.jcondotta.account_recipients.ClockTestFactory;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity.AccountRecipientEntity;
 import org.iban4j.Iban;
 

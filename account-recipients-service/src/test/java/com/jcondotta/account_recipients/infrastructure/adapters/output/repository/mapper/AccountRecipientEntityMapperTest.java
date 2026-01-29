@@ -1,6 +1,6 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.repository.mapper;
 
-import com.jcondotta.account_recipients.ClockTestFactory;
+import com.jcondotta.account_recipients.common.factory.ClockTestFactory;
 import com.jcondotta.account_recipients.domain.recipient.entity.AccountRecipient;
 import com.jcondotta.account_recipients.domain.recipient.value_objects.Iban;
 import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientId;

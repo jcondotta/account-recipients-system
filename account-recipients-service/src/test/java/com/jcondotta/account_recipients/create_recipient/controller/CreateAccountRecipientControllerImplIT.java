@@ -5,22 +5,17 @@ import com.jcondotta.account_recipients.application.ports.output.cache.CacheStor
 import com.jcondotta.account_recipients.application.ports.output.i18n.MessageResolverPort;
 import com.jcondotta.account_recipients.application.usecase.get_recipients.model.result.GetAccountRecipientsResult;
 import com.jcondotta.account_recipients.common.argument_provider.BlankValuesArgumentProvider;
-import com.jcondotta.account_recipients.common.container.KafkaTestContainer;
 import com.jcondotta.account_recipients.common.container.LocalStackTestContainer;
 import com.jcondotta.account_recipients.common.container.RedisTestContainer;
 import com.jcondotta.account_recipients.common.fixtures.AccountRecipientFixtures;
-import com.jcondotta.account_recipients.common.kafka.KafkaTestConsumer;
 import com.jcondotta.account_recipients.create_recipient.controller.model.CreateAccountRecipientRestRequest;
-import com.jcondotta.account_recipients.infrastructure.adapters.output.messaging.RecipientCreatedMessage;
 import com.jcondotta.account_recipients.infrastructure.interfaces.rest.exception_handler.ProblemTypes;
 import com.jcondotta.account_recipients.infrastructure.interfaces.rest.headers.HttpHeadersCustom;
 import com.jcondotta.account_recipients.infrastructure.properties.AccountRecipientURIProperties;
-import com.jcondotta.account_recipients.infrastructure.properties.KafkaTopicsProperties;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +27,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -43,8 +37,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.servlet.LocaleResolver;
 
 import java.time.Clock;
-import java.time.Duration;
-import java.time.ZonedDateTime;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -59,7 +51,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 @ActiveProfiles("test")
 @AutoConfigureWireMock(port = 0)
-@ContextConfiguration(initializers = {LocalStackTestContainer.class, RedisTestContainer.class, KafkaTestContainer.class})
+@ContextConfiguration(initializers = {LocalStackTestContainer.class, RedisTestContainer.class})
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class CreateAccountRecipientControllerImplIT {
 
@@ -71,9 +63,6 @@ class CreateAccountRecipientControllerImplIT {
 
   @Autowired
   private Clock fixedClock;
-
-  @Autowired
-  private KafkaTopicsProperties kafkaTopicsProperties;
 
   @Autowired
   private CacheStore<GetAccountRecipientsResult> cacheStore;
@@ -88,13 +77,6 @@ class CreateAccountRecipientControllerImplIT {
   private String iban;
 
   private RequestSpecification requestSpecification;
-  private KafkaTestConsumer<RecipientCreatedMessage> kafkaConsumer;
-
-  @Autowired
-  private Environment environment;
-  @Autowired
-  private io.micrometer.core.instrument.Clock clock;
-
 
   @BeforeAll
   static void beforeAll() {
@@ -112,14 +94,6 @@ class CreateAccountRecipientControllerImplIT {
 
     requestSpecification = buildRequestSpecificationWithIdempotencyKey();
     defaultLocale = localeResolver.resolveLocale(new MockHttpServletRequest());
-
-    var bootstrapServers = environment.getProperty("spring.kafka.bootstrap-servers");
-    kafkaConsumer = new KafkaTestConsumer<>(bootstrapServers, kafkaTopicsProperties.recipientCreated(), RecipientCreatedMessage.class);
-  }
-
-  @AfterEach
-  void afterEach() {
-    kafkaConsumer.close();
   }
 
   @Test
@@ -148,24 +122,6 @@ class CreateAccountRecipientControllerImplIT {
 
     var cacheKey = String.format(AccountRecipientsRootCacheKey.PREFIX_TEMPLATE, bankAccountId);
     assertThat(cacheStore.getIfPresent(cacheKey)).isEmpty();
-
-    var messageRecord =
-        kafkaConsumer
-            .pollSingle(Duration.ofSeconds(5))
-            .orElseThrow(() -> new AssertionError("Kafka message not published"));
-
-    assertThat(messageRecord.key()).isEqualTo(bankAccountId.toString());
-
-    assertThat(messageRecord.value()).satisfies(message -> {
-      assertThat(message.bankAccountId()).isEqualTo(bankAccountId.toString());
-      assertThat(message.recipientId()).isNotNull();
-      assertThat(message.recipientName()).isEqualTo(recipientName);
-      assertThat(message.iban()).isEqualTo(iban);
-      assertThat(message.occurredAt()).isEqualTo(ZonedDateTime.now(fixedClock));
-    });
-
-    var header = messageRecord.headers().lastHeader("idempotency-key");
-    assertThat(header).isNotNull();
   }
 
   @Test
