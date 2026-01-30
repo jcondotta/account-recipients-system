@@ -37,13 +37,10 @@ public class DeleteAccountRecipientRepositoryImpl implements DeleteAccountRecipi
         .build();
 
     try {
-      Consumer<DeleteItemEnhancedRequest.Builder> requestBuilder =
-          builder -> {
-            builder.key(key);
-            builder.conditionExpression(condition);
-          };
-
-      dynamoDbTable.deleteItem(requestBuilder);
+      dynamoDbTable.deleteItem(b -> {
+        b.key(key);
+        b.conditionExpression(condition);
+      });
 
       log.info("Recipient deleted successfully [bankAccountId={}, recipientId={}]", accountRecipient.getBankAccountId(), accountRecipient.getRecipientId());
     } catch (ConditionalCheckFailedException e) {
