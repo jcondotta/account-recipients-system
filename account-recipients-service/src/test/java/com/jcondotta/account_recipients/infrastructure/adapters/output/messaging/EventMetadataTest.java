@@ -36,7 +36,9 @@ class EventMetadataTest {
 
   @Test
   void shouldThrowNullPointerException_whenPublishedAtIsNull() {
-    assertThatThrownBy(() -> new EventMetadata(IDEMPOTENCY_KEY.value(), null))
+    var idempotencyKeyUUID = IDEMPOTENCY_KEY.value();
+
+    assertThatThrownBy(() -> new EventMetadata(idempotencyKeyUUID, null))
         .isInstanceOf(NullPointerException.class)
         .hasMessage(EventMetadata.PUBLISHED_AT_NOT_NULL_MESSAGE);
   }
