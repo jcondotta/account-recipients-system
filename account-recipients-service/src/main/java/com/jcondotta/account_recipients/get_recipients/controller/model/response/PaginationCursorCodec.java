@@ -34,16 +34,13 @@ public final class PaginationCursorCodec {
       byte[] bytes = Base64.getUrlDecoder().decode(encoded);
       var decoded = MAPPER.readValue(bytes, new TypeReference<GetRecipientsLastEvaluatedKey>() {
       });
-      if (decoded == null) {
-        throw new RuntimeException("Decoded cursor is null");
-      }
       return Optional.of(decoded);
     } catch (IllegalArgumentException e) {
       // Base64 error
       throw new IllegalStateException("Cursor is not valid Base64", e);
     } catch (Exception e) {
       // JSON parse error
-      throw new IllegalArgumentException("Cursor could not be deserialized", e);
+      throw new IllegalStateException("Cursor could not be deserialized", e);
     }
   }
 }

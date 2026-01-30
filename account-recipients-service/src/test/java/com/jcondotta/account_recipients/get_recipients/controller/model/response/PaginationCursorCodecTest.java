@@ -48,7 +48,7 @@ class PaginationCursorCodecTest {
   }
 
   @Test
-  void shouldThrowRuntimeException_whenEncodingFails() {
+  void shouldThrowIllegalStateException_whenEncodingFails() {
     var invalidKey = Mockito.mock(GetRecipientsLastEvaluatedKey.class);
     Mockito.when(invalidKey.bankAccountId()).thenThrow(new RuntimeException("boom"));
 
@@ -63,14 +63,14 @@ class PaginationCursorCodecTest {
   }
 
   @Test
-  void shouldThrowRuntimeException_whenEncodedIsBlank() {
+  void shouldThrowIllegalArgumentException_whenEncodedIsBlank() {
     assertThatThrownBy(() -> PaginationCursorCodec.decode(" "))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("Cursor is blank");
   }
 
   @Test
-  void shouldThrowRuntimeException_whenEncodedIsNotBase64() {
+  void shouldThrowIllegalStateException_whenEncodedIsNotBase64() {
     assertThatThrownBy(() -> PaginationCursorCodec.decode("###not-base64###"))
         .isInstanceOf(IllegalStateException.class)
         .hasMessage("Cursor is not valid Base64");
@@ -88,7 +88,7 @@ class PaginationCursorCodecTest {
   }
 
   @Test
-  void shouldThrowRuntimeException_whenJsonIsInvalid() {
+  void shouldThrowIllegalStateException_whenJsonIsInvalid() {
     var invalidJson = "{invalid-json}";
     var encoded =
         Base64.getUrlEncoder()
@@ -101,14 +101,14 @@ class PaginationCursorCodecTest {
   }
 
   @Test
-  void shouldThrowRuntimeException_whenDecodedCursorIsNull() {
+  void shouldThrowIllegalStateException_whenDecodedCursorIsNull() {
     var encoded =
         Base64.getUrlEncoder()
             .withoutPadding()
             .encodeToString("null".getBytes(StandardCharsets.UTF_8));
 
     assertThatThrownBy(() -> PaginationCursorCodec.decode(encoded))
-        .isInstanceOf(RuntimeException.class)
+        .isInstanceOf(IllegalStateException.class)
         .hasMessage("Cursor could not be deserialized");
   }
 }
