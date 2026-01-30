@@ -19,7 +19,7 @@ public final class PaginationCursorCodec {
       var json = MAPPER.writeValueAsBytes(key);
       return Base64.getUrlEncoder().withoutPadding().encodeToString(json);
     } catch (Exception e) {
-      throw new RuntimeException("Failed to encode cursor", e);
+      throw new IllegalStateException("Failed to encode cursor", e);
     }
   }
 
@@ -40,7 +40,7 @@ public final class PaginationCursorCodec {
       return Optional.of(decoded);
     } catch (IllegalArgumentException e) {
       // Base64 error
-      throw new IllegalArgumentException("Cursor is not valid Base64", e);
+      throw new IllegalStateException("Cursor is not valid Base64", e);
     } catch (Exception e) {
       // JSON parse error
       throw new IllegalArgumentException("Cursor could not be deserialized", e);

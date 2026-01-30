@@ -49,13 +49,11 @@ class PaginationCursorCodecTest {
 
   @Test
   void shouldThrowRuntimeException_whenEncodingFails() {
-    // given – mock que causa falha de serialização
     var invalidKey = Mockito.mock(GetRecipientsLastEvaluatedKey.class);
     Mockito.when(invalidKey.bankAccountId()).thenThrow(new RuntimeException("boom"));
 
-    // when / then
     assertThatThrownBy(() -> PaginationCursorCodec.encode(invalidKey))
-        .isInstanceOf(RuntimeException.class)
+        .isInstanceOf(IllegalStateException.class)
         .hasMessageContaining("Failed to encode cursor");
   }
 
@@ -67,14 +65,14 @@ class PaginationCursorCodecTest {
   @Test
   void shouldThrowRuntimeException_whenEncodedIsBlank() {
     assertThatThrownBy(() -> PaginationCursorCodec.decode(" "))
-        .isInstanceOf(RuntimeException.class)
+        .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("Cursor is blank");
   }
 
   @Test
   void shouldThrowRuntimeException_whenEncodedIsNotBase64() {
     assertThatThrownBy(() -> PaginationCursorCodec.decode("###not-base64###"))
-        .isInstanceOf(RuntimeException.class)
+        .isInstanceOf(IllegalStateException.class)
         .hasMessage("Cursor is not valid Base64");
   }
 
