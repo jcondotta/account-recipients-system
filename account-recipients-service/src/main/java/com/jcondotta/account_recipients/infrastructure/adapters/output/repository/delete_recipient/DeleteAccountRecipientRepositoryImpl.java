@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
-import software.amazon.awssdk.enhanced.dynamodb.model.DeleteItemEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
 
 @Slf4j
@@ -21,7 +20,6 @@ public class DeleteAccountRecipientRepositoryImpl implements DeleteAccountRecipi
   private final DynamoDbTable<AccountRecipientEntity> dynamoDbTable;
 
   @Override
-  @SuppressWarnings("java:Sxxxx") // AWS Enhanced Client already uses Consumer Builder idiomatically
   public void delete(AccountRecipient accountRecipient) {
     var condition =
         Expression.builder()
