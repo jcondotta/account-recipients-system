@@ -32,8 +32,8 @@ class GetRecipientsLastEvaluatedKeyMapperTest {
   // --- toMap() ---
 
   @Test
-  void shouldReturnNull_whenKeyIsNull() {
-    assertThat(mapper.toMap(null)).isNull();
+  void shouldReturnEmptyMap_whenKeyIsNull() {
+    assertThat(mapper.toMap(null)).isEmpty();
   }
 
   @Test
