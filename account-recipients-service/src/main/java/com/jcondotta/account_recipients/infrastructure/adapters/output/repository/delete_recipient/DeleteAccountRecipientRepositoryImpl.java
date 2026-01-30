@@ -10,11 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
-import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.model.DeleteItemEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
-
-import java.util.function.Consumer;
 
 @Slf4j
 @Repository
@@ -26,27 +23,39 @@ public class DeleteAccountRecipientRepositoryImpl implements DeleteAccountRecipi
   @Override
   @SuppressWarnings("java:Sxxxx") // AWS Enhanced Client already uses Consumer Builder idiomatically
   public void delete(AccountRecipient accountRecipient) {
-    var key =
-        Key.builder()
-            .partitionValue(AccountRecipientEntityKey.partitionKey(accountRecipient.getBankAccountId()))
-            .sortValue(AccountRecipientEntityKey.sortKey(accountRecipient.getRecipientId()))
+    var condition =
+        Expression.builder()
+            .expression("attribute_exists(partitionKey) AND attribute_exists(sortKey)")
             .build();
-
-    var condition = Expression.builder()
-        .expression("attribute_exists(partitionKey) AND attribute_exists(sortKey)")
-        .build();
 
     try {
       dynamoDbTable.deleteItem(b -> {
-        b.key(key);
+        b.key(k -> k
+            .partitionValue(
+                AccountRecipientEntityKey.partitionKey(accountRecipient.getBankAccountId())
+            )
+            .sortValue(
+                AccountRecipientEntityKey.sortKey(accountRecipient.getRecipientId())
+            )
+        );
         b.conditionExpression(condition);
       });
 
-      log.info("Recipient deleted successfully [bankAccountId={}, recipientId={}]", accountRecipient.getBankAccountId(), accountRecipient.getRecipientId());
+      log.info(
+          "Recipient deleted successfully [bankAccountId={}, recipientId={}]",
+          accountRecipient.getBankAccountId(),
+          accountRecipient.getRecipientId());
+
     } catch (ConditionalCheckFailedException e) {
       log.warn(
-          "Attempted to delete a non-existent recipient [bankAccountId={}, recipientId={}]", accountRecipient.getBankAccountId(), accountRecipient.getRecipientId());
-      throw new AccountRecipientNotFoundException(accountRecipient.getBankAccountId(), accountRecipient.getRecipientId(), e);
+          "Attempted to delete a non-existent recipient [bankAccountId={}, recipientId={}]",
+          accountRecipient.getBankAccountId(),
+          accountRecipient.getRecipientId());
+
+      throw new AccountRecipientNotFoundException(
+          accountRecipient.getBankAccountId(),
+          accountRecipient.getRecipientId(),
+          e);
     }
   }
 }
