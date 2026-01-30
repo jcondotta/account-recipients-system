@@ -1,6 +1,9 @@
 package com.jcondotta.account_recipients.infrastructure.config.aws.dynamodb;
 
+import com.jcondotta.account_recipients.infrastructure.config.aws.EndpointOverride;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -16,18 +19,30 @@ import java.net.URI;
 public class DynamoDbClientConfig {
 
   @Bean
-  @ConditionalOnProperty(name = "cloud.aws.dynamodb.endpoint")
-  public DynamoDbClient dynamoDbClientLocal(
-      AwsCredentialsProvider credentialsProvider,
+  public DynamoDbClient dynamoDbClient(
       Region region,
-      @Value("${cloud.aws.dynamodb.endpoint}") String endpoint) {
+      ObjectProvider<AwsCredentialsProvider> credentialsProvider,
+      @Qualifier("dynamoDbEndpointOverride") ObjectProvider<EndpointOverride> endpointOverride
+  ) {
+    var builder = DynamoDbClient.builder()
+        .region(region);
 
-    log.info("Initializing DynamoDbClient with custom endpoint: {}", endpoint);
+    credentialsProvider.ifAvailable(builder::credentialsProvider);
 
-    return DynamoDbClient.builder()
-        .region(region)
-        .endpointOverride(URI.create(endpoint))
-        .credentialsProvider(credentialsProvider)
-        .build();
+    endpointOverride.ifAvailable(e -> {
+      log.info("Initializing DynamoDbClient with custom endpoint: {}", e.uri());
+      builder.endpointOverride(e.uri());
+    });
+
+    return builder.build();
+  }
+
+  @Bean
+  @Qualifier("dynamoDbEndpointOverride")
+  @ConditionalOnProperty(name = "cloud.aws.dynamodb.endpoint")
+  EndpointOverride dynamoDbEndpoint(
+      @Value("${cloud.aws.dynamodb.endpoint}") String endpoint
+  ) {
+    return new EndpointOverride(URI.create(endpoint));
   }
 }

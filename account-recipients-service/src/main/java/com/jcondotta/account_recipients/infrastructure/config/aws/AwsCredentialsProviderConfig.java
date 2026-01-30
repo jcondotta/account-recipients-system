@@ -22,8 +22,7 @@ public class AwsCredentialsProviderConfig {
       @Value("${cloud.aws.credentials.access-key-id}") String accessKey,
       @Value("${cloud.aws.credentials.secret-key}") String secretKey) {
 
-    LOGGER
-        .atInfo()
+    LOGGER.atInfo()
         .setMessage("Initializing AWS StaticCredentialsProvider with access key: {}")
         .addArgument(accessKey)
         .log();

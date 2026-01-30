@@ -1,6 +1,9 @@
 package com.jcondotta.account_recipients.infrastructure.config.aws.kinesis;
 
+import com.jcondotta.account_recipients.infrastructure.config.aws.EndpointOverride;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -16,18 +19,28 @@ import java.net.URI;
 public class KinesisClientConfig {
 
   @Bean
-  @ConditionalOnProperty(name = "cloud.aws.kinesis.endpoint")
-  public KinesisAsyncClient kinesisAsyncClientLocal(
-      AwsCredentialsProvider credentialsProvider,
+  public KinesisAsyncClient kinesisAsyncClient(
       Region region,
-      @Value("${cloud.aws.kinesis.endpoint}") String endpoint) {
+      ObjectProvider<AwsCredentialsProvider> credentialsProvider,
+      @Qualifier("kinesisEndpointOverride") ObjectProvider<EndpointOverride> endpointOverride
+  ) {
+    var builder = KinesisAsyncClient.builder()
+        .region(region);
 
-    log.info("Initializing KinesisAsyncClient with custom endpoint: {}", endpoint);
+    credentialsProvider.ifAvailable(builder::credentialsProvider);
 
-    return KinesisAsyncClient.builder()
-        .region(region)
-        .endpointOverride(URI.create(endpoint))
-        .credentialsProvider(credentialsProvider)
-        .build();
+    endpointOverride.ifAvailable(e -> {
+      log.info("Initializing KinesisAsyncClient with custom endpoint: {}", e.uri());
+      builder.endpointOverride(e.uri());
+    });
+
+    return builder.build();
+  }
+
+  @Bean
+  @Qualifier("kinesisEndpointOverride")
+  @ConditionalOnProperty(name = "cloud.aws.kinesis.endpoint")
+  EndpointOverride kinesisEndpoint(@Value("${cloud.aws.kinesis.endpoint}") String endpoint) {
+    return new EndpointOverride(URI.create(endpoint));
   }
 }
