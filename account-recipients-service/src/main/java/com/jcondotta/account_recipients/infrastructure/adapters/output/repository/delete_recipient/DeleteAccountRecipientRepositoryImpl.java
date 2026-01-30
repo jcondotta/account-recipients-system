@@ -11,7 +11,10 @@ import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
+import software.amazon.awssdk.enhanced.dynamodb.model.DeleteItemEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
+
+import java.util.function.Consumer;
 
 @Slf4j
 @Repository
@@ -34,10 +37,13 @@ public class DeleteAccountRecipientRepositoryImpl implements DeleteAccountRecipi
         .build();
 
     try {
-      dynamoDbTable.deleteItem(builder -> builder
-          .key(key)
-          .conditionExpression(condition)
-      );
+      Consumer<DeleteItemEnhancedRequest.Builder> requestBuilder =
+          builder -> {
+            builder.key(key);
+            builder.conditionExpression(condition);
+          };
+
+      dynamoDbTable.deleteItem(requestBuilder);
 
       log.info("Recipient deleted successfully [bankAccountId={}, recipientId={}]", accountRecipient.getBankAccountId(), accountRecipient.getRecipientId());
     } catch (ConditionalCheckFailedException e) {

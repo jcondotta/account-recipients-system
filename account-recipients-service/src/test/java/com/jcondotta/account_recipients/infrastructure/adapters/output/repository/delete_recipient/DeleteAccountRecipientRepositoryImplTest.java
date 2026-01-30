@@ -56,10 +56,8 @@ class DeleteAccountRecipientRepositoryImplTest {
 
     deleteRepository.delete(accountRecipient);
 
-    // captura o Consumer passado para o DynamoDB
     verify(dynamoDbTable).deleteItem(deleteItemConsumerCaptor.capture());
 
-    // executa o consumer manualmente para obter o request
     var builder = DeleteItemEnhancedRequest.builder();
     deleteItemConsumerCaptor.getValue().accept(builder);
     var request = builder.build();

@@ -30,12 +30,4 @@ public class AwsCredentialsProviderConfig {
 
     return StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey));
   }
-
-  //    @Bean
-  //    @ConditionalOnMissingBean(AwsCredentialsProvider.class)
-  //    public AwsCredentialsProvider defaultCredentialsProvider() {
-  //        LOGGER.info("Initializing AWS DefaultCredentialsProvider");
-  //
-  //        return DefaultCredentialsProvider.builder().build();
-  //    }
 }
