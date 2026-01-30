@@ -1,7 +1,6 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.messaging;
 
 import com.jcondotta.account_recipients.application.usecase.shared.value_objects.IdempotencyKey;
-import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;

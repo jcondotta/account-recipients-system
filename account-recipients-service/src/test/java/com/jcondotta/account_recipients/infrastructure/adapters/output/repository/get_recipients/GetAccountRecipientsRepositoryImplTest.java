@@ -116,7 +116,7 @@ class GetAccountRecipientsRepositoryImplTest {
     var query = GetAccountRecipientsQuery.of(bankAccountId, params);
 
     when(dynamoDbIndex.query(any(QueryEnhancedRequest.class)))
-        .thenReturn(() -> Collections.<Page<AccountRecipientEntity>>emptyIterator());
+        .thenReturn(Collections::emptyIterator);
 
     PaginatedResult<AccountRecipient> result = repository.findByQuery(query);
 
