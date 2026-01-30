@@ -3,7 +3,6 @@ package com.jcondotta.account_recipients.infrastructure.adapters.output.facade.l
 import com.jcondotta.account_recipients.domain.bank_account.enums.AccountStatus;
 import org.mapstruct.Mapper;
 import org.mapstruct.Named;
-import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,8 +12,6 @@ import java.util.Objects;
 public interface AccountStatusMapper {
 
   Logger LOGGER = LoggerFactory.getLogger(AccountStatusMapper.class);
-
-  AccountStatusMapper INSTANCE = Mappers.getMapper(AccountStatusMapper.class);
 
   @Named("mapToAccountStatus")
   default AccountStatus mapToAccountStatus(String status) {

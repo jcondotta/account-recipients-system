@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class AccountStatusMapperTest {
 
-  private final AccountStatusMapper mapper = AccountStatusMapper.INSTANCE;
+  private final AccountStatusMapper mapper = new AccountStatusMapperImpl();
 
   @Test
   void shouldThrowNullPointerException_whenStatusIsNull() {

@@ -13,8 +13,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class BankAccountFacadeMapperTest {
 
   private static final UUID BANK_ACCOUNT_UUID = UUID.randomUUID();
-  private final BankAccountIdMapper bankAccountIdMapper = BankAccountIdMapper.INSTANCE;
-  private final AccountStatusMapper accountStatusMapper = AccountStatusMapper.INSTANCE;
+  private final BankAccountIdMapper bankAccountIdMapper = new BankAccountIdMapperImpl();
+  private final AccountStatusMapper accountStatusMapper = new AccountStatusMapperImpl();
   private final BankAccountFacadeMapper mapper =
       new BankAccountFacadeMapperImpl(bankAccountIdMapper, accountStatusMapper);
 

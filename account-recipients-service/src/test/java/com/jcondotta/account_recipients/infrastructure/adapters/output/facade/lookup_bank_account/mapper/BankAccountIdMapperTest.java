@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class BankAccountIdMapperTest {
 
-  private final BankAccountIdMapper mapper = BankAccountIdMapper.INSTANCE;
+  private final BankAccountIdMapper mapper = new BankAccountIdMapperImpl();
 
   private final UUID bankAccountUUID = UUID.randomUUID();
 

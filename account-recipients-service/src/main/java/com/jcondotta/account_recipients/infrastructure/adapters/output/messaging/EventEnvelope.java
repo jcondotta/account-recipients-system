@@ -15,13 +15,4 @@ public record EventEnvelope<T>(EventMetadata metadata, T payload) {
   public static <T> EventEnvelope<T> of(EventMetadata metadata, T payload) {
     return new EventEnvelope<>(metadata, payload);
   }
-
-//  @JsonCreator
-//  public EventEnvelope(
-//      @JsonProperty("metadata") EventMetadata metadata,
-//      @JsonProperty("payload") T payload
-//  ) {
-//    this.metadata = metadata;
-//    this.payload = payload;
-//  }
 }

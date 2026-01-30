@@ -27,8 +27,8 @@ public class LocalStackTestContainer
           .withCopyFileToContainer(
               MountableFile.forHostPath("../localstack/init-aws.sh"),
               "/etc/localstack/init/ready.d/init-aws.sh")
-          .withLogConsumer(outputFrame -> log.info(outputFrame.getUtf8StringWithoutLineEnding()));
-//          .withReuse(true);
+          .withLogConsumer(outputFrame -> log.info(outputFrame.getUtf8StringWithoutLineEnding()))
+          .withReuse(true);
 
   private static void startContainer() {
     try {
