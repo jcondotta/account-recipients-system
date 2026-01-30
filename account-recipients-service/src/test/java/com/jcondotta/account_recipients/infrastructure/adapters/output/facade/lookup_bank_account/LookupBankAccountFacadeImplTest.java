@@ -83,7 +83,7 @@ class LookupBankAccountFacadeImplTest {
 
     assertThatThrownBy(() -> bankAccountFacade.byId(BANK_ACCOUNT_ID))
         .hasCauseInstanceOf(FeignException.InternalServerError.class)
-        .isInstanceOf(RuntimeException.class)
+        .isInstanceOf(IllegalStateException.class)
         .hasMessage("Internal error on bank account lookup");
 
     verify(clientMock).findById(BANK_ACCOUNT_UUID);
@@ -92,11 +92,11 @@ class LookupBankAccountFacadeImplTest {
   @Test
   void shouldThrowRuntimeException_whenUnexpectedFeignErrorOccurs() {
     when(clientMock.findById(BANK_ACCOUNT_UUID)).thenThrow(FeignException.class);
-
     assertThatThrownBy(() -> bankAccountFacade.byId(BANK_ACCOUNT_ID))
-        .isInstanceOf(RuntimeException.class)
-        .hasMessage("Unexpected error on bank account lookup")
-        .hasCauseInstanceOf(FeignException.class);
+        .hasCauseInstanceOf(FeignException.class)
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessage("Unexpected error on bank account lookup");
+
 
     verify(clientMock).findById(BANK_ACCOUNT_UUID);
   }

@@ -34,7 +34,7 @@ public class LookupBankAccountFacadeImpl implements LookupBankAccountFacade {
           bankAccountId.value(),
           e.getMessage(),
           e);
-      throw new RuntimeException("Internal error on bank account lookup", e);
+      throw new IllegalStateException("Internal error on bank account lookup", e);
     }
     catch (FeignException e) {
       log.error(
@@ -43,7 +43,7 @@ public class LookupBankAccountFacadeImpl implements LookupBankAccountFacade {
           e.status(),
           e.getMessage(),
           e);
-      throw new RuntimeException("Unexpected error on bank account lookup", e);
+      throw new IllegalStateException("Unexpected error on bank account lookup", e);
     }
   }
 }
