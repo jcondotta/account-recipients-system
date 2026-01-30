@@ -1,8 +1,8 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.messaging;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jcondotta.account_recipients.common.factory.ClockTestFactory;
 import com.jcondotta.account_recipients.application.usecase.shared.value_objects.IdempotencyKey;
+import com.jcondotta.account_recipients.common.factory.ClockTestFactory;
 import com.jcondotta.account_recipients.common.factory.ObjectMapperTestFactory;
 import com.jcondotta.account_recipients.common.fixtures.AccountRecipientFixtures;
 import com.jcondotta.account_recipients.domain.recipient.events.RecipientCreatedEvent;

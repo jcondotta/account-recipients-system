@@ -48,9 +48,8 @@ public interface GetRecipientsLastEvaluatedKeyMapper {
 
   @Named("toMap")
   default Map<String, AttributeValue> toMap(GetRecipientsLastEvaluatedKey key) {
-    if (key == null) return null;
-
     Map<String, AttributeValue> map = new HashMap<>();
+    if (key == null) return map;
 
     // PK e SK com o mesmo formato usado na tabela
     map.put(
