@@ -13,8 +13,4 @@ public interface CacheStore<V> {
   boolean evict(String cacheKey);
 
   void evictKeysByPrefix(String prefixCacheKey);
-
-  default V get(String cacheKey) {
-    return getIfPresent(cacheKey).orElse(null);
-  }
 }
