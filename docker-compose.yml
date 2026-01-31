@@ -15,30 +15,13 @@ services:
       test: [ "CMD", "curl", "-f", "http://localhost:4566/_localstack/health" ]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 5\
     networks:
       - recipients-network
     volumes:
       - '/var/run/docker.sock:/var/run/docker.sock'
       - ./localstack:/etc/localstack/init/ready.d
       - recipients-localstack-volume:/var/lib/localstack
-
-  redis:
-    image: redis:7.4.3
-    container_name: recipients-redis-7.4.3
-    restart: on-failure
-    ports:
-      - "6382:6379"
-    volumes:
-      - recipients-redis-volume:/data
-    networks:
-      - recipients-network
-    healthcheck:
-      test: [ "CMD-SHELL", "redis-cli ping || exit 1" ]
-      interval: 10s
-      retries: 5
-      start_period: 10s
-      timeout: 5s
 
   prometheus:
     image: prom/prometheus:v2.51.2
@@ -51,11 +34,43 @@ services:
     networks:
       - recipients-network
 
+#  account-recipients-service:
+#    container_name: account-recipients-service
+#    image: account-recipients-service:latest
+#    depends_on:
+#      localstack:
+#        condition: service_healthy
+#    ports:
+#      - "8096:8080"
+#    networks:
+#      - recipients-network
+#    environment:
+#      SERVER_PORT: 8080
+#      SPRING_PROFILES_ACTIVE: local
+#
+#      AWS_DEFAULT_REGION: us-east-1
+#      AWS_ACCESS_KEY_ID: test
+#      AWS_SECRET_ACCESS_KEY: test
+#
+#      AWS_DYNAMODB_ACCOUNT_RECIPIENTS_TABLE_NAME: account-recipients
+#      AWS_KINESIS_RECIPIENTS_CREATED_STREAM_NAME: recipients.created
+#      AWS_KINESIS_RECIPIENTS_DELETED_STREAM_NAME: recipients.deleted
+#
+#      BANK_ACCOUNTS_API_BASE_URL: http://host.docker.internal:8090
+#
+#      AWS_DYNAMODB_ENDPOINT: http://localstack:4566
+#      AWS_KINESIS_ENDPOINT: http://localstack:4566
+#
+#    healthcheck:
+#      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 5
+#      start_period: 30s
+
 volumes:
   recipients-localstack-volume:
     name: recipients-localstack-data
-  recipients-redis-volume:
-    name: recipients-redis-data
   recipients-prometheus-volume:
     name: recipients-prometheus-data
 
