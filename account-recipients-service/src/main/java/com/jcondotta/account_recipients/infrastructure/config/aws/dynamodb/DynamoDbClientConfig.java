@@ -22,14 +22,14 @@ public class DynamoDbClientConfig {
   public DynamoDbClient dynamoDbClient(
       Region region,
       ObjectProvider<AwsCredentialsProvider> credentialsProvider,
-      @Qualifier("dynamoDbEndpointOverride") ObjectProvider<EndpointOverride> endpointOverride
+      ObjectProvider<EndpointOverride> dynamoDbEndpoint
   ) {
     var builder = DynamoDbClient.builder()
         .region(region);
 
     credentialsProvider.ifAvailable(builder::credentialsProvider);
 
-    endpointOverride.ifAvailable(e -> {
+    dynamoDbEndpoint.ifAvailable(e -> {
       log.info("Initializing DynamoDbClient with custom endpoint: {}", e.uri());
       builder.endpointOverride(e.uri());
     });
@@ -38,11 +38,9 @@ public class DynamoDbClientConfig {
   }
 
   @Bean
-  @Qualifier("dynamoDbEndpointOverride")
   @ConditionalOnProperty(name = "cloud.aws.dynamodb.endpoint")
-  EndpointOverride dynamoDbEndpoint(
-      @Value("${cloud.aws.dynamodb.endpoint}") String endpoint
-  ) {
+  EndpointOverride dynamoDbEndpoint(@Value("${cloud.aws.dynamodb.endpoint}") String endpoint) {
     return new EndpointOverride(URI.create(endpoint));
   }
 }
+
