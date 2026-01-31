@@ -3,6 +3,7 @@ package com.jcondotta.account_recipients.infrastructure.config.aws.kinesis;
 import com.jcondotta.account_recipients.infrastructure.config.aws.EndpointOverride;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +22,7 @@ public class KinesisClientConfig {
   public KinesisAsyncClient kinesisAsyncClient(
       Region region,
       ObjectProvider<AwsCredentialsProvider> credentialsProvider,
-      ObjectProvider<EndpointOverride> endpointOverride
+      @Qualifier("kinesisEndpointOverride") ObjectProvider<EndpointOverride> endpointOverride
   ) {
     var builder = KinesisAsyncClient.builder()
         .region(region);
@@ -37,6 +38,7 @@ public class KinesisClientConfig {
   }
 
   @Bean
+  @Qualifier("kinesisEndpointOverride")
   @ConditionalOnProperty(name = "cloud.aws.kinesis.endpoint")
   EndpointOverride kinesisEndpoint(@Value("${cloud.aws.kinesis.endpoint}") String endpoint) {
     return new EndpointOverride(URI.create(endpoint));
