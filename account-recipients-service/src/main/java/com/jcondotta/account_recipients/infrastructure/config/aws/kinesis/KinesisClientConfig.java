@@ -16,6 +16,7 @@ import java.net.URI;
 
 @Slf4j
 @Configuration
+@SuppressWarnings("all")
 public class KinesisClientConfig {
 
   @Bean
