@@ -1,7 +1,5 @@
 package com.jcondotta.account_recipients.get_recipients.usecase;
 
-import com.jcondotta.account_recipients.application.ports.output.cache.AccountRecipientsQueryCacheKey;
-import com.jcondotta.account_recipients.application.ports.output.cache.CacheStore;
 import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.GetAccountRecipientsRepository;
 import com.jcondotta.account_recipients.application.ports.output.repository.shared.model.PaginatedResult;
 import com.jcondotta.account_recipients.application.usecase.get_recipients.GetAccountRecipientsUseCase;
@@ -20,7 +18,6 @@ import org.springframework.stereotype.Component;
 public class GetAccountRecipientsUseCaseImpl implements GetAccountRecipientsUseCase {
 
   private final GetAccountRecipientsQueryMapper queryMapper;
-  private final CacheStore<GetAccountRecipientsResult> cacheStore;
   private final GetAccountRecipientsRepository getAccountRecipientsRepository;
 
   @Override
@@ -29,17 +26,14 @@ public class GetAccountRecipientsUseCaseImpl implements GetAccountRecipientsUseC
       contextualName = "queryAccountRecipients",
       lowCardinalityKeyValues = {"operation", "query"})
   public GetAccountRecipientsResult execute(GetAccountRecipientsQuery query) {
-    var queryCacheKey =
-        AccountRecipientsQueryCacheKey.of(query.bankAccountId(), query.queryParams());
-
     PaginatedResult<AccountRecipient> paginatedResult =
         getAccountRecipientsRepository.findByQuery(query);
 
-    var accountRecipientDetailsList = paginatedResult.items().stream().map(queryMapper::toAccountRecipient).toList();
+    var accountRecipientDetailsList = paginatedResult.items()
+        .stream()
+        .map(queryMapper::toAccountRecipient)
+        .toList();
 
-    var getAccountRecipientsResult = GetAccountRecipientsResult.of(accountRecipientDetailsList, paginatedResult.nextCursor());
-    cacheStore.put(queryCacheKey.value(), getAccountRecipientsResult);
-
-    return getAccountRecipientsResult;
+    return GetAccountRecipientsResult.of(accountRecipientDetailsList, paginatedResult.nextCursor());
   }
 }

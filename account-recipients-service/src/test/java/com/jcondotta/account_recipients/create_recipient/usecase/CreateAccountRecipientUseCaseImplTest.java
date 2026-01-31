@@ -1,13 +1,10 @@
 package com.jcondotta.account_recipients.create_recipient.usecase;
 
 import com.jcondotta.account_recipients.application.events.mapper.RecipientCreatedEventMapper;
-import com.jcondotta.account_recipients.application.ports.output.cache.AccountRecipientsRootCacheKey;
-import com.jcondotta.account_recipients.application.ports.output.cache.CacheStore;
 import com.jcondotta.account_recipients.application.ports.output.messaging.RecipientCreatedEventPublisher;
 import com.jcondotta.account_recipients.application.ports.output.repository.create_recipient.CreateAccountRecipientRepository;
 import com.jcondotta.account_recipients.application.usecase.create_recipient.CreateAccountRecipientUseCase;
 import com.jcondotta.account_recipients.application.usecase.create_recipient.model.CreateAccountRecipientCommand;
-import com.jcondotta.account_recipients.application.usecase.get_recipients.model.result.GetAccountRecipientsResult;
 import com.jcondotta.account_recipients.application.usecase.shared.value_objects.IdempotencyKey;
 import com.jcondotta.account_recipients.common.factory.ClockTestFactory;
 import com.jcondotta.account_recipients.common.fixtures.AccountRecipientFixtures;
@@ -64,9 +61,6 @@ class CreateAccountRecipientUseCaseImplTest {
   private CreateAccountRecipientRepository createAccountRecipientRepositoryMock;
 
   @Mock
-  private CacheStore<GetAccountRecipientsResult> cacheStoreMock;
-
-  @Mock
   private RecipientCreatedEventPublisher recipientCreatedEventPublisherMock;
 
   @Captor
@@ -85,7 +79,6 @@ class CreateAccountRecipientUseCaseImplTest {
             createAccountRecipientRepositoryMock,
             recipientCreatedEventPublisherMock,
             recipientCreatedEventMapper,
-            cacheStoreMock,
             TEST_FIXED_CLOCK
         );
   }
@@ -123,15 +116,13 @@ class CreateAccountRecipientUseCaseImplTest {
               assertThat(recipientCreatedEvent.occurredAt()).isEqualTo(ZonedDateTime.now(TEST_FIXED_CLOCK));
             });
 
-    var cacheKey = AccountRecipientsRootCacheKey.of(BANK_ACCOUNT_ID);
-    verify(cacheStoreMock).evictKeysByPrefix(cacheKey.value());
     verify(lookupBankAccountFacadeMock).byId(BANK_ACCOUNT_ID);
 
     verifyNoMoreInteractions(
         lookupBankAccountFacadeMock,
-        cacheStoreMock,
         createAccountRecipientRepositoryMock,
-        recipientCreatedEventPublisherMock);
+        recipientCreatedEventPublisherMock
+    );
   }
 
   @Test
@@ -149,7 +140,7 @@ class CreateAccountRecipientUseCaseImplTest {
 
     verify(lookupBankAccountFacadeMock).byId(BANK_ACCOUNT_ID);
     verifyNoInteractions(
-        createAccountRecipientRepositoryMock, cacheStoreMock, recipientCreatedEventPublisherMock);
+        createAccountRecipientRepositoryMock, recipientCreatedEventPublisherMock);
   }
 
   @Test
@@ -161,8 +152,8 @@ class CreateAccountRecipientUseCaseImplTest {
     verifyNoInteractions(
         lookupBankAccountFacadeMock,
         createAccountRecipientRepositoryMock,
-        cacheStoreMock,
-        recipientCreatedEventPublisherMock);
+        recipientCreatedEventPublisherMock
+    );
   }
 
   @Test
@@ -176,8 +167,8 @@ class CreateAccountRecipientUseCaseImplTest {
     verifyNoInteractions(
         lookupBankAccountFacadeMock,
         createAccountRecipientRepositoryMock,
-        cacheStoreMock,
-        recipientCreatedEventPublisherMock);
+        recipientCreatedEventPublisherMock
+    );
   }
 
   @Test

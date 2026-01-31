@@ -1,6 +1,5 @@
 package com.jcondotta.account_recipients.get_recipients.usecase;
 
-import com.jcondotta.account_recipients.application.ports.output.cache.CacheStore;
 import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.GetAccountRecipientsRepository;
 import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model.GetAccountRecipientsQueryParams;
 import com.jcondotta.account_recipients.application.ports.output.repository.shared.model.PaginatedResult;
@@ -25,8 +24,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 /**
@@ -43,9 +40,6 @@ class GetAccountRecipientsUseCaseImplTest {
 
   @Mock
   private GetAccountRecipientsRepository repositoryMock;
-
-  @Mock
-  private CacheStore<GetAccountRecipientsResult> cacheStoreMock;
 
   @Mock
   private AccountRecipient accountRecipientMock1;
@@ -71,7 +65,7 @@ class GetAccountRecipientsUseCaseImplTest {
 
   @BeforeEach
   void setUp() {
-    useCase = new GetAccountRecipientsUseCaseImpl(queryMapperMock, cacheStoreMock, repositoryMock);
+    useCase = new GetAccountRecipientsUseCaseImpl(queryMapperMock, repositoryMock);
     bankAccountId = BankAccountId.of(UUID.randomUUID());
     queryParams = GetAccountRecipientsQueryParams.of(QUERY_LIMIT_20, null, PAGINATION_CURSOR);
   }
@@ -93,9 +87,7 @@ class GetAccountRecipientsUseCaseImplTest {
     verify(queryMapperMock).toAccountRecipient(accountRecipientMock1);
     verify(queryMapperMock).toAccountRecipient(accountRecipientMock2);
 
-    verify(cacheStoreMock).put(anyString(), eq(result));
-
-    verifyNoMoreInteractions(repositoryMock, queryMapperMock, cacheStoreMock);
+    verifyNoMoreInteractions(repositoryMock, queryMapperMock);
 
     assertThat(result)
         .satisfies(it -> {
@@ -115,10 +107,9 @@ class GetAccountRecipientsUseCaseImplTest {
     GetAccountRecipientsResult result = useCase.execute(query);
 
     verify(repositoryMock).findByQuery(query);
-    verify(cacheStoreMock).put(anyString(), eq(result));
     verifyNoInteractions(queryMapperMock);
 
-    verifyNoMoreInteractions(repositoryMock, cacheStoreMock, queryMapperMock);
+    verifyNoMoreInteractions(repositoryMock, queryMapperMock);
 
     assertThat(result)
         .satisfies(it -> {
@@ -139,7 +130,7 @@ class GetAccountRecipientsUseCaseImplTest {
         .hasMessage("database error");
 
     verify(repositoryMock).findByQuery(query);
-    verifyNoInteractions(queryMapperMock, cacheStoreMock);
+    verifyNoInteractions(queryMapperMock);
 
     verifyNoMoreInteractions(repositoryMock);
   }

@@ -3,31 +3,10 @@ server:
 
 app:
   environment: ${APPLICATION_ENV}
-  kafka:
-    topics:
-      recipient-created: ${app.environment}.recipients.created
-      recipient-deleted: ${app.environment}.recipients.deleted
 
 spring:
   application:
     name: account-recipients
-
-  cache:
-    type: redis
-  data:
-    redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
-
-  kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
-
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-
-      properties:
-        spring.json.trusted.packages: com.jcondotta.account_recipients
 
 cloud:
   aws:

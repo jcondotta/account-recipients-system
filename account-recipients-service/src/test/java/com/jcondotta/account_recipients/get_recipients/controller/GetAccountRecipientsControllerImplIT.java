@@ -1,15 +1,8 @@
 package com.jcondotta.account_recipients.get_recipients.controller;
 
-import com.jcondotta.account_recipients.application.ports.output.cache.AccountRecipientsQueryCacheKey;
-import com.jcondotta.account_recipients.application.ports.output.cache.CacheStore;
 import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model.GetAccountRecipientsQueryParams;
-import com.jcondotta.account_recipients.application.usecase.get_recipients.model.AccountRecipientDetails;
-import com.jcondotta.account_recipients.application.usecase.get_recipients.model.result.GetAccountRecipientsResult;
 import com.jcondotta.account_recipients.common.container.LocalStackTestContainer;
-import com.jcondotta.account_recipients.common.container.RedisTestContainer;
 import com.jcondotta.account_recipients.common.factory.AccountRecipientEntityTestFactory;
-import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientName;
-import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
 import com.jcondotta.account_recipients.get_recipients.controller.model.response.AccountRecipientResponse;
 import com.jcondotta.account_recipients.get_recipients.controller.model.response.GetAccountRecipientsResponse;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity.AccountRecipientEntity;
@@ -39,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("test")
 @AutoConfigureWireMock(port = 0)
-@ContextConfiguration(initializers = {LocalStackTestContainer.class, RedisTestContainer.class})
+@ContextConfiguration(initializers = { LocalStackTestContainer.class })
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class GetAccountRecipientsControllerImplIT {
 
@@ -48,9 +41,6 @@ class GetAccountRecipientsControllerImplIT {
 
   @Autowired
   private AccountRecipientURIProperties uriProperties;
-
-  @Autowired
-  private CacheStore<GetAccountRecipientsResult> cacheStore;
 
   private RequestSpecification requestSpecification;
 
@@ -334,22 +324,6 @@ class GetAccountRecipientsControllerImplIT {
           .get()
           .then()
           .statusCode(HttpStatus.OK.value());
-
-      var queryParams = GetAccountRecipientsQueryParams.of(2);
-      var queryCacheKey =
-          AccountRecipientsQueryCacheKey.of(BankAccountId.of(bankAccountId), queryParams);
-
-      assertThat(cacheStore.getIfPresent(queryCacheKey.value()))
-          .as("Expected cache to be populated after first query")
-          .hasValueSatisfying(
-              accountRecipientsResult -> {
-                assertThat(accountRecipientsResult.nextCursor()).isBlank();
-                assertThat(accountRecipientsResult.accountRecipients())
-                    .hasSize(2)
-                    .extracting(AccountRecipientDetails::recipientName)
-                    .map(RecipientName::value)
-                    .containsExactly(JEFFERSON.getRecipientName(), PATRIZIO.getRecipientName());
-              });
     }
 
     @Test
@@ -392,12 +366,6 @@ class GetAccountRecipientsControllerImplIT {
               recipientsResponse1.accountRecipients().stream()
                   .map(AccountRecipientResponse::recipientName)
                   .toList());
-
-      var queryParams = GetAccountRecipientsQueryParams.of(2);
-      var queryCacheKey =
-          AccountRecipientsQueryCacheKey.of(BankAccountId.of(bankAccountId), queryParams);
-
-      assertThat(cacheStore.getIfPresent(queryCacheKey.value())).isPresent();
     }
   }
 

@@ -1,12 +1,8 @@
 package com.jcondotta.account_recipients.create_recipient.controller;
 
-import com.jcondotta.account_recipients.application.ports.output.cache.AccountRecipientsRootCacheKey;
-import com.jcondotta.account_recipients.application.ports.output.cache.CacheStore;
 import com.jcondotta.account_recipients.application.ports.output.i18n.MessageResolverPort;
-import com.jcondotta.account_recipients.application.usecase.get_recipients.model.result.GetAccountRecipientsResult;
 import com.jcondotta.account_recipients.common.argument_provider.BlankValuesArgumentProvider;
 import com.jcondotta.account_recipients.common.container.LocalStackTestContainer;
-import com.jcondotta.account_recipients.common.container.RedisTestContainer;
 import com.jcondotta.account_recipients.common.fixtures.AccountRecipientFixtures;
 import com.jcondotta.account_recipients.create_recipient.controller.model.CreateAccountRecipientRestRequest;
 import com.jcondotta.account_recipients.infrastructure.interfaces.rest.exception_handler.ProblemTypes;
@@ -51,7 +47,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 @ActiveProfiles("test")
 @AutoConfigureWireMock(port = 0)
-@ContextConfiguration(initializers = {LocalStackTestContainer.class, RedisTestContainer.class})
+@ContextConfiguration(initializers = { LocalStackTestContainer.class })
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class CreateAccountRecipientControllerImplIT {
 
@@ -63,9 +59,6 @@ class CreateAccountRecipientControllerImplIT {
 
   @Autowired
   private Clock fixedClock;
-
-  @Autowired
-  private CacheStore<GetAccountRecipientsResult> cacheStore;
 
   @Autowired
   private LocaleResolver localeResolver;
@@ -119,9 +112,6 @@ class CreateAccountRecipientControllerImplIT {
         .statusCode(HttpStatus.CREATED.value())
         .header("location", equalTo(expectedLocationURI))
         .header(HttpHeaders.CONTENT_TYPE, nullValue());
-
-    var cacheKey = String.format(AccountRecipientsRootCacheKey.PREFIX_TEMPLATE, bankAccountId);
-    assertThat(cacheStore.getIfPresent(cacheKey)).isEmpty();
   }
 
   @Test
@@ -196,7 +186,6 @@ class CreateAccountRecipientControllerImplIT {
   }
 
   @ParameterizedTest
-  @SuppressWarnings("unchecked")
   @NullSource
   @ArgumentsSource(BlankValuesArgumentProvider.class)
   void shouldReturn422UnprocessableEntity_whenIbanIsBlank(String invalidIban) {

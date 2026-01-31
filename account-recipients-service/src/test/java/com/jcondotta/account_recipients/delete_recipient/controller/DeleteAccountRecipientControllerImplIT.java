@@ -1,11 +1,7 @@
 package com.jcondotta.account_recipients.delete_recipient.controller;
 
-import com.jcondotta.account_recipients.application.ports.output.cache.AccountRecipientsRootCacheKey;
-import com.jcondotta.account_recipients.application.ports.output.cache.CacheStore;
 import com.jcondotta.account_recipients.application.ports.output.i18n.MessageResolverPort;
-import com.jcondotta.account_recipients.application.usecase.get_recipients.model.result.GetAccountRecipientsResult;
 import com.jcondotta.account_recipients.common.container.LocalStackTestContainer;
-import com.jcondotta.account_recipients.common.container.RedisTestContainer;
 import com.jcondotta.account_recipients.common.fixtures.AccountRecipientFixtures;
 import com.jcondotta.account_recipients.domain.recipient.entity.AccountRecipient;
 import com.jcondotta.account_recipients.domain.recipient.value_objects.Iban;
@@ -47,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 @ActiveProfiles("test")
-@ContextConfiguration(initializers = {LocalStackTestContainer.class, RedisTestContainer.class})
+@ContextConfiguration(initializers = { LocalStackTestContainer.class })
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureWireMock(port = 0)
 class DeleteAccountRecipientControllerImplIT {
@@ -68,9 +64,6 @@ class DeleteAccountRecipientControllerImplIT {
 
   @Autowired
   private MessageResolverPort messageResolverPort;
-
-  @Autowired
-  private CacheStore<GetAccountRecipientsResult> cacheStore;
 
   private RecipientId recipientId;
   private BankAccountId bankAccountId;
@@ -115,11 +108,6 @@ class DeleteAccountRecipientControllerImplIT {
     assertThat(dynamoDbTable.getItem(r -> r.key(key).consistentRead(true)))
         .as("The account recipient entity should be deleted from the database")
         .isNull();
-
-    var cacheKey =
-        String.format(
-            AccountRecipientsRootCacheKey.PREFIX_TEMPLATE, accountRecipient.getBankAccountId());
-    assertThat(cacheStore.getIfPresent(cacheKey)).isEmpty();
   }
 
   @Test
