@@ -1,35 +1,27 @@
-spring:
-  cache:
-    type: redis
-  data:
-    redis:
-      host: localhost
-      port: 6382
-
 app:
-  environment: local
+  environment: ${APPLICATION_ENV:local}
 
 cloud:
   aws:
     region:
-      static: us-east-1
+      static: ${AWS_DEFAULT_REGION:us-east-1}
     credentials:
-      access-key-id: test
-      secret-key: test
+      access-key-id: ${AWS_ACCESS_KEY_ID:test}
+      secret-key: ${AWS_SECRET_ACCESS_KEY:test}
     dynamodb:
-      endpoint: http://localhost:4572
+      endpoint: ${AWS_DYNAMODB_ENDPOINT:http://127.0.0.1:4572}
       tables:
         account-recipients:
-          table-name: 'account-recipients'
+          table-name: ${AWS_DYNAMODB_ACCOUNT_RECIPIENTS_TABLE_NAME:account-recipients}
     kinesis:
-      endpoint: http://localhost:4572
+      endpoint: ${AWS_KINESIS_ENDPOINT:http://127.0.0.1:4572}
       streams:
         recipients-created:
-          stream-name: 'recipients.created'
+          stream-name: ${AWS_KINESIS_RECIPIENTS_CREATED_STREAM_NAME:recipients.created}
         recipients-deleted:
-          stream-name: 'recipients.deleted'
+          stream-name: ${AWS_KINESIS_RECIPIENTS_DELETED_STREAM_NAME:recipients.deleted}
 
 client:
   api:
     bank-accounts:
-      base-url: 'http://localhost:8090'
+      base-url: ${BANK_ACCOUNTS_API_BASE_URL:http://localhost:8090}
