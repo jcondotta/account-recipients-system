@@ -22,7 +22,7 @@ Architecture, and event-driven principles**.
 - Event-driven architecture
 - Idempotent command & event processing
 - Cloud-ready, locally reproducible
-
+![Account Recipients – AWS Architecture](architecture/recipients-architecture.png)
 ---
 
 ## 🛠️ Tech Stack
