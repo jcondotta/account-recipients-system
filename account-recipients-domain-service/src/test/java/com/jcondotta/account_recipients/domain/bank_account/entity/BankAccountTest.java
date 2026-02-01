@@ -104,8 +104,9 @@ class BankAccountTest {
         BankAccount account1 = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
         BankAccount account2 = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.CANCELLED);
 
-        assertThat(account1).isEqualTo(account2);
-        assertThat(account1.hashCode()).isEqualTo(account2.hashCode());
+        assertThat(account1)
+            .isEqualTo(account2)
+            .hasSameHashCodeAs(account2);
     }
 
     @Test
