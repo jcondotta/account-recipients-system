@@ -97,7 +97,8 @@ class CreateAccountRecipientControllerImplIT {
                 aResponse()
                     .withStatus(HttpStatus.OK.value())
                     .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                    .withBodyFile("bank-accounts/bank-account-active.json")));
+                    .withBodyFile("bank-accounts/bank-account-active.json")
+                    .withTransformers("response-template")));
 
     var restRequest = CreateAccountRecipientRestRequest.of(recipientName, iban);
     var expectedLocationURI = uriProperties.accountRecipientsURI(bankAccountId).toString();
