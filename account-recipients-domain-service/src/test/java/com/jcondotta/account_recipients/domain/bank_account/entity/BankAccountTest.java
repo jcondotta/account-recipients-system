@@ -100,6 +100,51 @@ class BankAccountTest {
     }
 
     @Test
+    void shouldDeleteRecipient_whenAccountIsActiveAndRecipientBelongsToAccount() {
+        BankAccount bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
+        AccountRecipient recipient = AccountRecipient.create(
+            BANK_ACCOUNT_ID,
+            RECIPIENT_NAME_JEFFERSON,
+            IBAN,
+            CLOCK
+        );
+
+        bankAccount.deleteRecipient(recipient, CLOCK);
+
+        assertThat(recipient.isDeleted()).isTrue();
+        assertThat(recipient.getDeletedAt()).isEqualTo(ZonedDateTime.now(CLOCK));
+    }
+
+    @Test
+    void shouldThrowIllegalStateException_whenRecipientDoesNotBelongToAccount() {
+        BankAccount bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
+        AccountRecipient recipient = AccountRecipient.create(
+            BankAccountId.of(UUID.randomUUID()),
+            RECIPIENT_NAME_JEFFERSON,
+            IBAN,
+            CLOCK
+        );
+
+        assertThatThrownBy(() -> bankAccount.deleteRecipient(recipient, CLOCK))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessage("Recipient does not belong to this account");
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = AccountStatus.class, mode = EnumSource.Mode.EXCLUDE, names = "ACTIVE")
+    void shouldThrowIllegalStateException_whenDeleteRecipientWhichAccountIsNotActive(AccountStatus status) {
+        BankAccount bankAccount =
+            BankAccount.restore(BANK_ACCOUNT_ID, status);
+
+        AccountRecipient recipient =
+            AccountRecipient.create(BANK_ACCOUNT_ID, RECIPIENT_NAME_JEFFERSON, IBAN, CLOCK);
+
+        assertThatThrownBy(() -> bankAccount.deleteRecipient(recipient, CLOCK))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessage("Cannot delete recipient for non-active account");
+    }
+
+    @Test
     void shouldBeEqual_whenBankAccountIdIsSame() {
         BankAccount account1 = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
         BankAccount account2 = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.CANCELLED);

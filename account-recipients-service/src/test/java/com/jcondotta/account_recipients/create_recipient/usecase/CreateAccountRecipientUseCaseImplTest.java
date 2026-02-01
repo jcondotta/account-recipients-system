@@ -52,8 +52,6 @@ class CreateAccountRecipientUseCaseImplTest {
 
   private final RecipientCreatedEventMapper recipientCreatedEventMapper = Mappers.getMapper(RecipientCreatedEventMapper.class);
 
-  private BankAccount bankAccount;
-
   @Mock
   private LookupBankAccountFacadeImpl lookupBankAccountFacadeMock;
 
@@ -173,7 +171,7 @@ class CreateAccountRecipientUseCaseImplTest {
 
   @Test
   void shouldPropagateException_whenEventPublishingFails() {
-    bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
+    BankAccount bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
     when(lookupBankAccountFacadeMock.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccount);
     doThrow(new RuntimeException("Kinesis down"))
         .when(recipientCreatedEventPublisherMock)

@@ -35,6 +35,18 @@ public final class BankAccount {
         return AccountRecipient.create(bankAccountId, name, iban, clock);
     }
 
+    public void deleteRecipient(AccountRecipient recipient, Clock clock) {
+        if (!this.bankAccountId.equals(recipient.getBankAccountId())) {
+            throw new IllegalStateException("Recipient does not belong to this account");
+        }
+
+        if (!this.isActive()) {
+            throw new IllegalStateException("Cannot delete recipient for non-active account");
+        }
+
+        recipient.delete(clock);
+    }
+
     public BankAccountId getBankAccountId() {
         return bankAccountId;
     }

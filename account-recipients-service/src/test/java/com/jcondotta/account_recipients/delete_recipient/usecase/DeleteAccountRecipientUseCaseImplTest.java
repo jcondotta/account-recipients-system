@@ -7,13 +7,19 @@ import com.jcondotta.account_recipients.application.ports.output.repository.get_
 import com.jcondotta.account_recipients.application.usecase.delete_recipient.model.DeleteAccountRecipientCommand;
 import com.jcondotta.account_recipients.application.usecase.shared.value_objects.IdempotencyKey;
 import com.jcondotta.account_recipients.common.factory.ClockTestFactory;
+import com.jcondotta.account_recipients.domain.bank_account.entity.BankAccount;
+import com.jcondotta.account_recipients.domain.bank_account.enums.AccountStatus;
 import com.jcondotta.account_recipients.domain.recipient.entity.AccountRecipient;
 import com.jcondotta.account_recipients.domain.recipient.events.RecipientDeletedEvent;
+import com.jcondotta.account_recipients.domain.recipient.exceptions.AccountRecipientNotFoundException;
 import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientId;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
+import com.jcondotta.account_recipients.infrastructure.adapters.output.facade.lookup_bank_account.LookupBankAccountFacadeImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -42,6 +48,9 @@ class DeleteAccountRecipientUseCaseImplTest {
   private static final Clock FIXED_CLOCK = ClockTestFactory.TEST_CLOCK_FIXED;
 
   @Mock
+  private LookupBankAccountFacadeImpl lookupBankAccountFacadeMock;
+
+  @Mock
   private AccountRecipient accountRecipientMock;
 
   @Mock
@@ -64,6 +73,7 @@ class DeleteAccountRecipientUseCaseImplTest {
   @BeforeEach
   void setUp() {
     useCase = new DeleteAccountRecipientUseCaseImpl(
+        lookupBankAccountFacadeMock,
         getAccountRecipientRepository,
         deleteAccountRecipientRepository,
         deletedEventPublisher,
@@ -74,8 +84,12 @@ class DeleteAccountRecipientUseCaseImplTest {
 
   @Test
   void shouldDeleteRecipientAndPublishEvent_whenCommandIsValid() {
+    BankAccount bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
+    when(lookupBankAccountFacadeMock.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccount);
+
     var command = DeleteAccountRecipientCommand.of(BANK_ACCOUNT_ID, RECIPIENT_ID);
 
+    when(accountRecipientMock.getBankAccountId()).thenReturn(BANK_ACCOUNT_ID);
     when(getAccountRecipientRepository.getAccountRecipient(BANK_ACCOUNT_ID, RECIPIENT_ID))
         .thenReturn(Optional.of(accountRecipientMock));
 
@@ -95,6 +109,64 @@ class DeleteAccountRecipientUseCaseImplTest {
         deleteAccountRecipientRepository,
         deletedEventPublisher
     );
+  }
+
+  @Test
+  void shouldThrowAccountRecipientNotFoundException_whenRecipientDoesNotExist() {
+    BankAccount bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
+    when(lookupBankAccountFacadeMock.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccount);
+
+    var command = DeleteAccountRecipientCommand.of(BANK_ACCOUNT_ID, RECIPIENT_ID);
+
+    when(getAccountRecipientRepository.getAccountRecipient(BANK_ACCOUNT_ID, RECIPIENT_ID))
+        .thenReturn(Optional.empty());
+
+    assertThatThrownBy(() -> useCase.execute(command, IDEMPOTENCY_KEY))
+        .isInstanceOf(AccountRecipientNotFoundException.class);
+
+    verify(deleteAccountRecipientRepository, never()).delete(any());
+    verifyNoInteractions(deletedEventPublisher);
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = AccountStatus.class, mode = EnumSource.Mode.EXCLUDE, names = "ACTIVE")
+  void shouldThrowIllegalStateException_whenBankAccountIsNotActive(AccountStatus accountStatus) {
+    BankAccount bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, accountStatus);
+    when(lookupBankAccountFacadeMock.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccount);
+
+    var command = DeleteAccountRecipientCommand.of(BANK_ACCOUNT_ID, RECIPIENT_ID);
+
+    when(accountRecipientMock.getBankAccountId()).thenReturn(BANK_ACCOUNT_ID);
+    when(getAccountRecipientRepository.getAccountRecipient(BANK_ACCOUNT_ID, RECIPIENT_ID))
+        .thenReturn(Optional.of(accountRecipientMock));
+
+    assertThatThrownBy(() -> useCase.execute(command, IDEMPOTENCY_KEY))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessage("Cannot delete recipient for non-active account");
+
+    verify(deleteAccountRecipientRepository, never()).delete(any());
+    verifyNoInteractions(deletedEventPublisher);
+  }
+
+  @Test
+  void shouldThrowIllegalStateException_whenRecipientDoesNotBelongToBankAccount() {
+    BankAccount bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
+    when(lookupBankAccountFacadeMock.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccount);
+
+    var command = DeleteAccountRecipientCommand.of(BANK_ACCOUNT_ID, RECIPIENT_ID);
+
+    when(accountRecipientMock.getBankAccountId())
+        .thenReturn(BankAccountId.of(UUID.randomUUID()));
+
+    when(getAccountRecipientRepository.getAccountRecipient(BANK_ACCOUNT_ID, RECIPIENT_ID))
+        .thenReturn(Optional.of(accountRecipientMock));
+
+    assertThatThrownBy(() -> useCase.execute(command, IDEMPOTENCY_KEY))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessage("Recipient does not belong to this account");
+
+    verify(deleteAccountRecipientRepository, never()).delete(any());
+    verifyNoInteractions(deletedEventPublisher);
   }
 
   @Test
