@@ -24,7 +24,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -36,6 +38,9 @@ import java.time.ZonedDateTime;
 import java.util.Locale;
 import java.util.UUID;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.jcondotta.account_recipients.domain.bank_account.exceptions.BankAccountNotFoundException.BANK_ACCOUNT_NOT_FOUND_TEMPLATE;
+import static com.jcondotta.account_recipients.domain.bank_account.exceptions.BankAccountNotFoundException.BANK_ACCOUNT_NOT_FOUND_TITLE;
 import static com.jcondotta.account_recipients.domain.recipient.exceptions.AccountRecipientNotFoundException.ACCOUNT_RECIPIENT_NOT_FOUND_TEMPLATE;
 import static com.jcondotta.account_recipients.domain.recipient.exceptions.AccountRecipientNotFoundException.ACCOUNT_RECIPIENT_NOT_FOUND_TITLE;
 import static io.restassured.RestAssured.given;
@@ -92,6 +97,15 @@ class DeleteAccountRecipientControllerImplIT {
 
   @Test
   void shouldReturn204NoContent_whenAccountRecipientIsFound() {
+    stubFor(
+        get(urlPathEqualTo("/api/v1/bank-accounts/" + bankAccountId))
+            .willReturn(
+                aResponse()
+                    .withStatus(HttpStatus.OK.value())
+                    .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .withBodyFile("bank-accounts/bank-account-active.json")
+                    .withTransformers("response-template")));
+
     var accountRecipient = AccountRecipient.restore(recipientId, bankAccountId, recipientName, iban, fixedZonedDateTime);
     var accountRecipientEntity = seed(accountRecipient);
 
@@ -111,7 +125,7 @@ class DeleteAccountRecipientControllerImplIT {
   }
 
   @Test
-  void shouldReturn404NotFound_whenBankAccountIsNotFound() {
+  void shouldReturn404NotFound_whenBankAccountDoesNotExist() {
     var accountRecipient = AccountRecipient.restore(recipientId, bankAccountId, recipientName, iban, fixedZonedDateTime);
     var accountRecipientEntity = seed(accountRecipient);
 
@@ -129,11 +143,10 @@ class DeleteAccountRecipientControllerImplIT {
             .body()
             .as(ProblemDetail.class);
 
-            var expectedMessageError = resolveMessage(ACCOUNT_RECIPIENT_NOT_FOUND_TEMPLATE,
-     DEFAULT_LOCALE, nonExistentBankAccountId, recipientId.value());
+            var expectedMessageError = resolveMessage(BANK_ACCOUNT_NOT_FOUND_TEMPLATE, DEFAULT_LOCALE, nonExistentBankAccountId, recipientId.value());
             assertAll(
                 () -> assertThat(problemDetail.getType()).isEqualTo(ProblemTypes.RESOURCE_NOT_FOUND),
-                () -> assertThat(problemDetail.getTitle()).hasToString(ACCOUNT_RECIPIENT_NOT_FOUND_TITLE),
+                () -> assertThat(problemDetail.getTitle()).hasToString(BANK_ACCOUNT_NOT_FOUND_TITLE),
                 () -> assertThat(problemDetail.getDetail()).isEqualTo(expectedMessageError),
                 () -> assertThat(problemDetail.getInstance()).isEqualTo(uriProperties.accountRecipientURI(nonExistentBankAccountId, recipientId.value())));
 
@@ -146,7 +159,16 @@ class DeleteAccountRecipientControllerImplIT {
   }
 
   @Test
-  void shouldReturn404NotFound_whenBankAccountExistsButAccountRecipientDoesNot() {
+  void shouldReturn404NotFound_whenAccountRecipientDoesNotExist() {
+    stubFor(
+        get(urlPathEqualTo("/api/v1/bank-accounts/" + bankAccountId))
+            .willReturn(
+                aResponse()
+                    .withStatus(HttpStatus.OK.value())
+                    .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .withBodyFile("bank-accounts/bank-account-active.json")
+                    .withTransformers("response-template")));
+
     var accountRecipient = AccountRecipient.restore(recipientId, bankAccountId, recipientName, iban, fixedZonedDateTime);
     var accountRecipientEntity = seed(accountRecipient);
 
