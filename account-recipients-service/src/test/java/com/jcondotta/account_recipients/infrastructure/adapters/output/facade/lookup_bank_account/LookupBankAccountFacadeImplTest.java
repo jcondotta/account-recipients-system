@@ -7,10 +7,9 @@ import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountI
 import com.jcondotta.account_recipients.infrastructure.adapters.output.client.lookup_bank_account.LookupBankAccountClient;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.client.lookup_bank_account.model.BankAccountCdo;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.client.lookup_bank_account.model.BankAccountResponseCdo;
-import com.jcondotta.account_recipients.infrastructure.adapters.output.facade.lookup_bank_account.mapper.AccountStatusMapperImpl;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.facade.lookup_bank_account.mapper.BankAccountFacadeMapper;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.facade.lookup_bank_account.mapper.BankAccountFacadeMapperImpl;
-import com.jcondotta.account_recipients.infrastructure.adapters.output.facade.lookup_bank_account.mapper.BankAccountIdMapperImpl;
+import com.jcondotta.account_recipients.infrastructure.adapters.output.facade.lookup_bank_account.mapper.BankAccountFactory;
 import feign.FeignException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +34,7 @@ class LookupBankAccountFacadeImplTest {
   private static final BankAccountId BANK_ACCOUNT_ID = BankAccountId.of(BANK_ACCOUNT_UUID);
 
   private final BankAccountFacadeMapper mapper =
-      new BankAccountFacadeMapperImpl(new BankAccountIdMapperImpl(), new AccountStatusMapperImpl());
+      new BankAccountFacadeMapperImpl(new BankAccountFactory());
 
   private LookupBankAccountFacade bankAccountFacade;
 
@@ -57,9 +56,9 @@ class LookupBankAccountFacadeImplTest {
     assertThat(bankAccountFacade.byId(BANK_ACCOUNT_ID))
         .satisfies(
             bankAccount -> {
-              assertThat(bankAccount.bankAccountId())
+              assertThat(bankAccount.getBankAccountId())
                   .hasToString(bankAccountCdo.bankAccountId().toString());
-              assertThat(bankAccount.accountStatus()).hasToString(accountStatus.name());
+              assertThat(bankAccount.getAccountStatus()).hasToString(accountStatus.name());
             });
 
     verify(clientMock).findById(BANK_ACCOUNT_UUID);

@@ -13,10 +13,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class BankAccountFacadeMapperTest {
 
   private static final UUID BANK_ACCOUNT_UUID = UUID.randomUUID();
-  private final BankAccountIdMapper bankAccountIdMapper = new BankAccountIdMapperImpl();
-  private final AccountStatusMapper accountStatusMapper = new AccountStatusMapperImpl();
   private final BankAccountFacadeMapper mapper =
-      new BankAccountFacadeMapperImpl(bankAccountIdMapper, accountStatusMapper);
+      new BankAccountFacadeMapperImpl(new BankAccountFactory());
 
   @ParameterizedTest
   @EnumSource(
@@ -28,9 +26,9 @@ class BankAccountFacadeMapperTest {
     assertThat(mapper.map(bankAccountCdo))
         .satisfies(
             bankAccount -> {
-              assertThat(bankAccount.bankAccountId().value())
+              assertThat(bankAccount.getBankAccountId().value())
                   .isEqualTo(bankAccountCdo.bankAccountId());
-              assertThat(bankAccount.accountStatus()).hasToString(bankAccountCdo.status());
+              assertThat(bankAccount.getAccountStatus()).hasToString(bankAccountCdo.status());
             });
   }
 

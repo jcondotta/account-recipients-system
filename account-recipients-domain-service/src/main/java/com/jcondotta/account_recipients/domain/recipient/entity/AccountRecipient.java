@@ -10,7 +10,7 @@ import java.time.ZonedDateTime;
 
 import static java.util.Objects.requireNonNull;
 
-public class AccountRecipient {
+public final class AccountRecipient {
 
     public static final String CLOCK_NOT_NULL_MESSAGE = "clock must not be null";
 

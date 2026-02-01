@@ -1,22 +1,46 @@
 package com.jcondotta.account_recipients.domain.bank_account.entity;
 
 import com.jcondotta.account_recipients.domain.bank_account.enums.AccountStatus;
+import com.jcondotta.account_recipients.domain.recipient.entity.AccountRecipient;
+import com.jcondotta.account_recipients.domain.recipient.value_objects.Iban;
+import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientName;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
+
+import java.time.Clock;
 
 import static java.util.Objects.requireNonNull;
 
-public record BankAccount(BankAccountId bankAccountId, AccountStatus accountStatus) {
+public final class BankAccount {
 
     static final String BANK_ACCOUNT_ID_NOT_NULL = "bankAccountId must not be null.";
     static final String ACCOUNT_STATUS_NOT_NULL = "accountStatus must not be null.";
 
-    public BankAccount {
-        requireNonNull(bankAccountId, BANK_ACCOUNT_ID_NOT_NULL);
-        requireNonNull(accountStatus, ACCOUNT_STATUS_NOT_NULL);
+    private final BankAccountId bankAccountId;
+    private final AccountStatus accountStatus;
+
+    private BankAccount(BankAccountId id, AccountStatus status) {
+        this.bankAccountId = requireNonNull(id, BANK_ACCOUNT_ID_NOT_NULL);
+        this.accountStatus = requireNonNull(status, ACCOUNT_STATUS_NOT_NULL);
     }
 
-    public static BankAccount of(BankAccountId bankAccountId, AccountStatus accountStatus) {
-        return new BankAccount(bankAccountId, accountStatus);
+    public static BankAccount restore(BankAccountId id, AccountStatus status) {
+        return new BankAccount(id, status);
+    }
+
+    public AccountRecipient createRecipient(RecipientName name, Iban iban, Clock clock) {
+        if (!isActive()) {
+            throw new IllegalStateException("Cannot create recipient for non-active account");
+        }
+
+        return AccountRecipient.create(bankAccountId, name, iban, clock);
+    }
+
+    public BankAccountId getBankAccountId() {
+        return bankAccountId;
+    }
+
+    public AccountStatus getAccountStatus() {
+        return accountStatus;
     }
 
     public boolean isActive() {
@@ -29,5 +53,17 @@ public record BankAccount(BankAccountId bankAccountId, AccountStatus accountStat
 
     public boolean isCancelled() {
         return accountStatus == AccountStatus.CANCELLED;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof BankAccount other)) return false;
+        return bankAccountId.equals(other.bankAccountId);
+    }
+
+    @Override
+    public int hashCode() {
+        return bankAccountId.hashCode();
     }
 }
