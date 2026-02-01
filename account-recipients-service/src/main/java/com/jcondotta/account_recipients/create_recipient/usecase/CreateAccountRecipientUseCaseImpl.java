@@ -7,6 +7,7 @@ import com.jcondotta.account_recipients.application.ports.output.repository.crea
 import com.jcondotta.account_recipients.application.usecase.create_recipient.CreateAccountRecipientUseCase;
 import com.jcondotta.account_recipients.application.usecase.create_recipient.model.CreateAccountRecipientCommand;
 import com.jcondotta.account_recipients.application.usecase.shared.value_objects.IdempotencyKey;
+import com.jcondotta.account_recipients.domain.bank_account.entity.BankAccount;
 import com.jcondotta.account_recipients.domain.recipient.entity.AccountRecipient;
 import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
@@ -40,9 +41,9 @@ public class CreateAccountRecipientUseCaseImpl implements CreateAccountRecipient
         command.bankAccountId(),
         command.recipientName());
 
-    lookupBankAccountFacade.byId(command.bankAccountId());
+    BankAccount bankAccount = lookupBankAccountFacade.byId(command.bankAccountId());
+    AccountRecipient accountRecipient = bankAccount.createRecipient(command.recipientName(), command.iban(), clock);
 
-    var accountRecipient = AccountRecipient.create(command.bankAccountId(), command.recipientName(), command.iban(), clock);
     createAccountRecipientRepository.create(accountRecipient);
 
     var recipientCreatedEvent = recipientCreatedEventMapper.fromAccountRecipient(accountRecipient);

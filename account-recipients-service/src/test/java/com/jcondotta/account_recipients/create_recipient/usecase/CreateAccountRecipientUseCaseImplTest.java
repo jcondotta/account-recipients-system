@@ -9,6 +9,7 @@ import com.jcondotta.account_recipients.application.usecase.shared.value_objects
 import com.jcondotta.account_recipients.common.factory.ClockTestFactory;
 import com.jcondotta.account_recipients.common.fixtures.AccountRecipientFixtures;
 import com.jcondotta.account_recipients.domain.bank_account.entity.BankAccount;
+import com.jcondotta.account_recipients.domain.bank_account.enums.AccountStatus;
 import com.jcondotta.account_recipients.domain.bank_account.exceptions.BankAccountNotFoundException;
 import com.jcondotta.account_recipients.domain.recipient.entity.AccountRecipient;
 import com.jcondotta.account_recipients.domain.recipient.events.RecipientCreatedEvent;
@@ -85,7 +86,9 @@ class CreateAccountRecipientUseCaseImplTest {
 
   @Test
   void shouldCreateRecipient_whenCommandIsValidAndBankAccountExists() {
-    when(lookupBankAccountFacadeMock.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccountMock);
+    BankAccount bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
+
+    when(lookupBankAccountFacadeMock.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccount);
     when(createAccountRecipientRepositoryMock.create(any(AccountRecipient.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -174,7 +177,7 @@ class CreateAccountRecipientUseCaseImplTest {
   @Test
   void shouldPropagateException_whenEventPublishingFails() {
     when(lookupBankAccountFacadeMock.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccountMock);
-    doThrow(new RuntimeException("Kafka down"))
+    doThrow(new RuntimeException("Kinesis down"))
         .when(recipientCreatedEventPublisherMock)
         .send(any(), any());
 
@@ -182,7 +185,7 @@ class CreateAccountRecipientUseCaseImplTest {
 
     assertThatThrownBy(() -> useCase.execute(command, idempotencyKey))
         .isInstanceOf(RuntimeException.class)
-        .hasMessage("Kafka down");
+        .hasMessage("Kinesis down");
   }
 
   private CreateAccountRecipientCommand buildCreateAccountRecipientCommand() {
