@@ -240,19 +240,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <plugin>
-                <groupId>com.diffplug.spotless</groupId>
-                <artifactId>spotless-maven-plugin</artifactId>
-                <version>${spotless-maven-plugin.version}</version>
-                <configuration>
-                    <java>
-                        <googleJavaFormat>
-                            <version>1.19.2</version>
-                        </googleJavaFormat>
-                    </java>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 </project>
