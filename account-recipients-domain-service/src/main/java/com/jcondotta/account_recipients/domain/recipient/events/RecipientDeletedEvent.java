@@ -10,7 +10,7 @@ import java.time.ZonedDateTime;
 import static java.util.Objects.requireNonNull;
 
 public record RecipientDeletedEvent(RecipientId recipientId, BankAccountId bankAccountId, ZonedDateTime occurredAt)
-        implements DomainEvent {
+        implements RecipientEvent {
 
     public RecipientDeletedEvent {
         requireNonNull(recipientId, "recipientId must not be null");
@@ -23,14 +23,6 @@ public record RecipientDeletedEvent(RecipientId recipientId, BankAccountId bankA
                 recipientId,
                 bankAccountId,
                 occurredAt
-        );
-    }
-
-    public static RecipientDeletedEvent of(RecipientId recipientId, BankAccountId bankAccountId, Clock clock) {
-        return new RecipientDeletedEvent(
-                recipientId,
-                bankAccountId,
-                ZonedDateTime.now(clock)
         );
     }
 }

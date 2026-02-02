@@ -2,6 +2,9 @@ package com.jcondotta.account_recipients.domain.bank_account.entity;
 
 import com.jcondotta.account_recipients.domain.bank_account.enums.AccountStatus;
 import com.jcondotta.account_recipients.domain.recipient.entity.AccountRecipient;
+import com.jcondotta.account_recipients.domain.recipient.events.RecipientCreatedEvent;
+import com.jcondotta.account_recipients.domain.recipient.events.RecipientDeletedEvent;
+import com.jcondotta.account_recipients.domain.recipient.events.RecipientEvent;
 import com.jcondotta.account_recipients.domain.recipient.value_objects.Iban;
 import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientName;
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
@@ -13,6 +16,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import static com.jcondotta.account_recipients.domain.bank_account.entity.BankAccount.ACCOUNT_STATUS_NOT_NULL;
@@ -28,6 +32,7 @@ class BankAccountTest {
     private static final Iban IBAN = Iban.of("GB82WEST12345698765432");
 
     private static final Clock CLOCK = Clock.fixed(Instant.parse("2022-06-24T12:45:01Z"), ZoneOffset.UTC);
+    private static final Clock DELETED_CLOCK = Clock.fixed(Instant.parse("2023-12-15T12:50:58Z"), ZoneOffset.UTC);
 
     @Test
     void shouldCreateBankAccount_whenValidArguments() {
@@ -77,9 +82,8 @@ class BankAccountTest {
 
     @Test
     void shouldCreateRecipient_whenAccountIsActive() {
-        BankAccount bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
-
-        AccountRecipient recipient = bankAccount.createRecipient(RECIPIENT_NAME_JEFFERSON, IBAN, CLOCK);
+        var bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
+        var recipient = bankAccount.createRecipient(RECIPIENT_NAME_JEFFERSON, IBAN, CLOCK);
 
         assertThat(recipient.getBankAccountId()).isEqualTo(BANK_ACCOUNT_ID);
         assertThat(recipient.getRecipientId()).isNotNull();
@@ -87,12 +91,24 @@ class BankAccountTest {
         assertThat(recipient.getIban()).isEqualTo(IBAN);
         assertThat(recipient.getCreatedAt()).isEqualTo(ZonedDateTime.now(CLOCK));
         assertThat(recipient.getDeletedAt()).isNull();
+        assertThat(recipient.isDeleted()).isFalse();
+
+        assertThat(bankAccount.pullRecipientEvents())
+            .singleElement()
+            .isInstanceOfSatisfying(RecipientCreatedEvent.class, event -> {
+                assertThat(event.recipientId()).isEqualTo(recipient.getRecipientId());
+                assertThat(event.recipientName()).isEqualTo(recipient.getRecipientName());
+                assertThat(event.bankAccountId()).isEqualTo(recipient.getBankAccountId());
+                assertThat(event.iban()).isEqualTo(recipient.getIban());
+                assertThat(event.occurredAt()).isEqualTo(recipient.getCreatedAt());
+            });
+
     }
 
     @ParameterizedTest
     @EnumSource(value = AccountStatus.class, mode = EnumSource.Mode.EXCLUDE, names = {"ACTIVE"})
     void shouldThrowIllegalStateException_whenAccountIsNotActive(AccountStatus accountStatus) {
-        BankAccount bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, accountStatus);
+        var bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, accountStatus);
 
         assertThatThrownBy(() -> bankAccount.createRecipient(RECIPIENT_NAME_JEFFERSON, IBAN, CLOCK))
             .isInstanceOf(IllegalStateException.class)
@@ -101,24 +117,27 @@ class BankAccountTest {
 
     @Test
     void shouldDeleteRecipient_whenAccountIsActiveAndRecipientBelongsToAccount() {
-        BankAccount bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
-        AccountRecipient recipient = AccountRecipient.create(
-            BANK_ACCOUNT_ID,
-            RECIPIENT_NAME_JEFFERSON,
-            IBAN,
-            CLOCK
-        );
+        var bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
+        var recipient = AccountRecipient.create(BANK_ACCOUNT_ID, RECIPIENT_NAME_JEFFERSON, IBAN, CLOCK);
 
-        bankAccount.deleteRecipient(recipient, CLOCK);
+        bankAccount.deleteRecipient(recipient, DELETED_CLOCK);
 
         assertThat(recipient.isDeleted()).isTrue();
-        assertThat(recipient.getDeletedAt()).isEqualTo(ZonedDateTime.now(CLOCK));
+        assertThat(recipient.getDeletedAt()).isEqualTo(ZonedDateTime.now(DELETED_CLOCK));
+
+        assertThat(bankAccount.pullRecipientEvents())
+            .singleElement()
+            .isInstanceOfSatisfying(RecipientDeletedEvent.class, event -> {
+                assertThat(event.recipientId()).isEqualTo(recipient.getRecipientId());
+                assertThat(event.bankAccountId()).isEqualTo(recipient.getBankAccountId());
+                assertThat(event.occurredAt()).isEqualTo(recipient.getDeletedAt());
+            });
     }
 
     @Test
     void shouldThrowIllegalStateException_whenRecipientDoesNotBelongToAccount() {
-        BankAccount bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
-        AccountRecipient recipient = AccountRecipient.create(
+        var bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
+        var recipient = AccountRecipient.create(
             BankAccountId.of(UUID.randomUUID()),
             RECIPIENT_NAME_JEFFERSON,
             IBAN,
@@ -133,11 +152,8 @@ class BankAccountTest {
     @ParameterizedTest
     @EnumSource(value = AccountStatus.class, mode = EnumSource.Mode.EXCLUDE, names = "ACTIVE")
     void shouldThrowIllegalStateException_whenDeleteRecipientWhichAccountIsNotActive(AccountStatus status) {
-        BankAccount bankAccount =
-            BankAccount.restore(BANK_ACCOUNT_ID, status);
-
-        AccountRecipient recipient =
-            AccountRecipient.create(BANK_ACCOUNT_ID, RECIPIENT_NAME_JEFFERSON, IBAN, CLOCK);
+        var bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, status);
+        var recipient = AccountRecipient.create(BANK_ACCOUNT_ID, RECIPIENT_NAME_JEFFERSON, IBAN, CLOCK);
 
         assertThatThrownBy(() -> bankAccount.deleteRecipient(recipient, CLOCK))
             .isInstanceOf(IllegalStateException.class)
@@ -145,34 +161,58 @@ class BankAccountTest {
     }
 
     @Test
-    void shouldBeEqual_whenBankAccountIdIsSame() {
-        BankAccount account1 = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
-        BankAccount account2 = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.CANCELLED);
+    void shouldPullRecipientEvents_andClearInternalList() {
+        var bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
 
-        assertThat(account1)
-            .isEqualTo(account2)
-            .hasSameHashCodeAs(account2);
+        bankAccount.createRecipient(RECIPIENT_NAME_JEFFERSON, IBAN, CLOCK);
+        bankAccount.createRecipient(RecipientName.of("Another Recipient"), IBAN, CLOCK);
+
+        var events = bankAccount.pullRecipientEvents();
+        assertThat(events).hasSize(2);
+
+        assertThat(bankAccount.pullRecipientEvents()).isEmpty();
+    }
+
+    @Test
+    void shouldReturnImmutableList_whenPullingRecipientEvents() {
+        var bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
+        bankAccount.createRecipient(RECIPIENT_NAME_JEFFERSON, IBAN, CLOCK);
+
+        List<RecipientEvent> events = bankAccount.pullRecipientEvents();
+
+        assertThatThrownBy(() -> events.add(null))
+            .isInstanceOf(UnsupportedOperationException.class);
+    }
+
+    @Test
+    void shouldBeEqual_whenBankAccountIdIsSame() {
+        var bankAccount1 = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
+        var bankAccount2 = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.CANCELLED);
+
+        assertThat(bankAccount1)
+            .isEqualTo(bankAccount2)
+            .hasSameHashCodeAs(bankAccount2);
     }
 
     @Test
     void shouldNotBeEqual_whenBankAccountIdIsDifferent() {
-        BankAccount account1 = BankAccount.restore(BankAccountId.of(UUID.randomUUID()), AccountStatus.ACTIVE);
-        BankAccount account2 = BankAccount.restore(BankAccountId.of(UUID.randomUUID()), AccountStatus.ACTIVE);
+        var bankAccount1 = BankAccount.restore(BankAccountId.of(UUID.randomUUID()), AccountStatus.ACTIVE);
+        var bankAccount2 = BankAccount.restore(BankAccountId.of(UUID.randomUUID()), AccountStatus.ACTIVE);
 
-        assertThat(account1).isNotEqualTo(account2);
+        assertThat(bankAccount1).isNotEqualTo(bankAccount2);
     }
 
     @Test
     void shouldBeEqualToItself() {
-        BankAccount account = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
-        assertThat(account).isEqualTo(account);
+        var bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
+        assertThat(bankAccount).isEqualTo(bankAccount);
     }
 
     @Test
     void shouldNotBeEqualToNullOrOtherType() {
-        BankAccount account = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
+        var bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
 
-        assertThat(account)
+        assertThat(bankAccount)
             .isNotEqualTo(null)
             .isNotEqualTo(new Object());
     }

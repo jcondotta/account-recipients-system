@@ -65,17 +65,6 @@ class RecipientDeletedEventTest {
     }
 
     @Test
-    void shouldCreateRecipientDeletedEventUsingClockFactory_whenValuesAreValid() {
-        var event =
-                RecipientDeletedEvent.of(
-                        RECIPIENT_ID_1,
-                        BANK_ACCOUNT_ID_1,
-                        FIXED_CLOCK);
-
-        assertThat(event.occurredAt()).isEqualTo(ZONED_DATE_TIME);
-    }
-
-    @Test
     void shouldBeEqual_whenRecipientDeletedEventsHaveSameValues() {
         var event1 =
                 RecipientDeletedEvent.of(
