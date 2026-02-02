@@ -1,6 +1,5 @@
 package com.jcondotta.account_recipients.create_recipient.usecase;
 
-import com.jcondotta.account_recipients.application.events.mapper.RecipientCreatedEventMapper;
 import com.jcondotta.account_recipients.application.ports.output.facade.lookup_bank_account.LookupBankAccountFacade;
 import com.jcondotta.account_recipients.application.ports.output.messaging.RecipientCreatedEventPublisher;
 import com.jcondotta.account_recipients.application.ports.output.repository.create_recipient.CreateAccountRecipientRepository;
@@ -9,6 +8,7 @@ import com.jcondotta.account_recipients.application.usecase.create_recipient.mod
 import com.jcondotta.account_recipients.application.usecase.shared.value_objects.IdempotencyKey;
 import com.jcondotta.account_recipients.domain.bank_account.entity.BankAccount;
 import com.jcondotta.account_recipients.domain.recipient.entity.AccountRecipient;
+import com.jcondotta.account_recipients.domain.recipient.events.RecipientCreatedEvent;
 import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,6 @@ public class CreateAccountRecipientUseCaseImpl implements CreateAccountRecipient
   private final LookupBankAccountFacade lookupBankAccountFacade;
   private final CreateAccountRecipientRepository createAccountRecipientRepository;
   private final RecipientCreatedEventPublisher eventPublisher;
-  private final RecipientCreatedEventMapper recipientCreatedEventMapper;
   private final Clock clock;
 
   @Override
@@ -46,8 +45,8 @@ public class CreateAccountRecipientUseCaseImpl implements CreateAccountRecipient
 
     createAccountRecipientRepository.create(accountRecipient);
 
-    var recipientCreatedEvent = recipientCreatedEventMapper.fromAccountRecipient(accountRecipient);
-    eventPublisher.send(recipientCreatedEvent, idempotencyKey);
+    RecipientCreatedEvent event = (RecipientCreatedEvent) bankAccount.pullRecipientEvents().getFirst();
+    eventPublisher.send(event, idempotencyKey);
 
     log.info(
         "Recipient created successfully [bankAccountId={}, recipientName={}]",

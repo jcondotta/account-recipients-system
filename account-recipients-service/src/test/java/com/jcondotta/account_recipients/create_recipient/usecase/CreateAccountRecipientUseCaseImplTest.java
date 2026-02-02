@@ -1,6 +1,5 @@
 package com.jcondotta.account_recipients.create_recipient.usecase;
 
-import com.jcondotta.account_recipients.application.events.mapper.RecipientCreatedEventMapper;
 import com.jcondotta.account_recipients.application.ports.output.messaging.RecipientCreatedEventPublisher;
 import com.jcondotta.account_recipients.application.ports.output.repository.create_recipient.CreateAccountRecipientRepository;
 import com.jcondotta.account_recipients.application.usecase.create_recipient.CreateAccountRecipientUseCase;
@@ -20,7 +19,6 @@ import com.jcondotta.account_recipients.infrastructure.adapters.output.facade.lo
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mapstruct.factory.Mappers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -40,17 +38,14 @@ class CreateAccountRecipientUseCaseImplTest {
   private static final UUID BANK_ACCOUNT_UUID = UUID.randomUUID();
   private static final BankAccountId BANK_ACCOUNT_ID = BankAccountId.of(BANK_ACCOUNT_UUID);
 
-  private static final String RECIPIENT_NAME_JEFFERSON =
-      AccountRecipientFixtures.JEFFERSON.getRecipientName();
+  private static final String RECIPIENT_NAME_JEFFERSON = AccountRecipientFixtures.JEFFERSON.getRecipientName();
   private static final RecipientName RECIPIENT_NAME = RecipientName.of(RECIPIENT_NAME_JEFFERSON);
 
-  private static final String VALID_IBAN_NO_SPACES =
-      AccountRecipientFixtures.JEFFERSON.getRecipientIban();
-  private static final Iban IBAN = Iban.of(VALID_IBAN_NO_SPACES);
-  private static final Clock TEST_FIXED_CLOCK = ClockTestFactory.TEST_CLOCK_FIXED;
-  private final IdempotencyKey idempotencyKey = IdempotencyKey.newKey();
+  private static final String VALID_IBAN_NO_SPACES = AccountRecipientFixtures.JEFFERSON.getRecipientIban();
 
-  private final RecipientCreatedEventMapper recipientCreatedEventMapper = Mappers.getMapper(RecipientCreatedEventMapper.class);
+  private static final Iban IBAN = Iban.of(VALID_IBAN_NO_SPACES);
+  private static final Clock CLOCK_FIXED = ClockTestFactory.TEST_CLOCK_FIXED;
+  private final IdempotencyKey idempotencyKey = IdempotencyKey.newKey();
 
   @Mock
   private LookupBankAccountFacadeImpl lookupBankAccountFacadeMock;
@@ -76,8 +71,7 @@ class CreateAccountRecipientUseCaseImplTest {
             lookupBankAccountFacadeMock,
             createAccountRecipientRepositoryMock,
             recipientCreatedEventPublisherMock,
-            recipientCreatedEventMapper,
-            TEST_FIXED_CLOCK
+            CLOCK_FIXED
         );
   }
 
@@ -100,7 +94,7 @@ class CreateAccountRecipientUseCaseImplTest {
               assertThat(accountRecipient.getRecipientName()).isEqualTo(RECIPIENT_NAME);
               assertThat(accountRecipient.getIban()).isEqualTo(IBAN);
               assertThat(accountRecipient.getCreatedAt())
-                  .isEqualTo(ZonedDateTime.now(TEST_FIXED_CLOCK));
+                  .isEqualTo(ZonedDateTime.now(CLOCK_FIXED));
             });
 
     verify(recipientCreatedEventPublisherMock).send(recipientCreatedEventCaptor.capture(), eq(idempotencyKey));
@@ -111,7 +105,7 @@ class CreateAccountRecipientUseCaseImplTest {
               assertThat(recipientCreatedEvent.bankAccountId()).isEqualTo(BANK_ACCOUNT_ID);
               assertThat(recipientCreatedEvent.recipientName()).isEqualTo(RECIPIENT_NAME);
               assertThat(recipientCreatedEvent.iban()).isEqualTo(IBAN);
-              assertThat(recipientCreatedEvent.occurredAt()).isEqualTo(ZonedDateTime.now(TEST_FIXED_CLOCK));
+              assertThat(recipientCreatedEvent.occurredAt()).isEqualTo(ZonedDateTime.now(CLOCK_FIXED));
             });
 
     verify(lookupBankAccountFacadeMock).byId(BANK_ACCOUNT_ID);

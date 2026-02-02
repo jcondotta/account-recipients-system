@@ -1,6 +1,5 @@
 package com.jcondotta.account_recipients.delete_recipient.usecase;
 
-import com.jcondotta.account_recipients.application.events.mapper.RecipientDeletedEventMapper;
 import com.jcondotta.account_recipients.application.ports.output.facade.lookup_bank_account.LookupBankAccountFacade;
 import com.jcondotta.account_recipients.application.ports.output.messaging.RecipientDeletedEventPublisher;
 import com.jcondotta.account_recipients.application.ports.output.repository.delete_recipient.DeleteAccountRecipientRepository;
@@ -9,6 +8,7 @@ import com.jcondotta.account_recipients.application.usecase.delete_recipient.Del
 import com.jcondotta.account_recipients.application.usecase.delete_recipient.model.DeleteAccountRecipientCommand;
 import com.jcondotta.account_recipients.application.usecase.shared.value_objects.IdempotencyKey;
 import com.jcondotta.account_recipients.domain.bank_account.entity.BankAccount;
+import com.jcondotta.account_recipients.domain.recipient.events.RecipientDeletedEvent;
 import com.jcondotta.account_recipients.domain.recipient.exceptions.AccountRecipientNotFoundException;
 import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +26,7 @@ public class DeleteAccountRecipientUseCaseImpl implements DeleteAccountRecipient
   private final LookupBankAccountFacade lookupBankAccountFacade;
   private final GetAccountRecipientRepository getAccountRecipientRepository;
   private final DeleteAccountRecipientRepository deleteAccountRecipientRepository;
-  private final RecipientDeletedEventPublisher deletedEventPublisher;
-  private final RecipientDeletedEventMapper eventMapper;
+  private final RecipientDeletedEventPublisher eventPublisher;
   private final Clock clock;
 
   @Override
@@ -48,9 +47,10 @@ public class DeleteAccountRecipientUseCaseImpl implements DeleteAccountRecipient
         .orElseThrow(() -> new AccountRecipientNotFoundException(command.bankAccountId(), command.recipientId()));
 
     bankAccount.deleteRecipient(accountRecipient, clock);
-
     deleteAccountRecipientRepository.delete(accountRecipient);
-    deletedEventPublisher.send(eventMapper.fromAccountRecipient(accountRecipient), idempotencyKey);
+
+    RecipientDeletedEvent event = (RecipientDeletedEvent) bankAccount.pullRecipientEvents().getFirst();
+    eventPublisher.send(event, idempotencyKey);
 
     log.info(
         "Recipient deleted successfully [bankAccountId={}, recipientId={}]",
