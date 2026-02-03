@@ -57,7 +57,7 @@ public class KinesisRecipientCreatedEventPublisher implements RecipientCreatedEv
                 ex
             );
             return null;
-          });
+          }).join();
 
     } catch (Exception ex) {
       log.error(

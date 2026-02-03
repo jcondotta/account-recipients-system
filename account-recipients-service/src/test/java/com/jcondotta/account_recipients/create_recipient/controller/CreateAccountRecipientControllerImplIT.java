@@ -1,10 +1,16 @@
 package com.jcondotta.account_recipients.create_recipient.controller;
 
 import com.jcondotta.account_recipients.application.ports.output.i18n.MessageResolverPort;
+import com.jcondotta.account_recipients.application.usecase.shared.value_objects.IdempotencyKey;
 import com.jcondotta.account_recipients.common.argument_provider.BlankValuesArgumentProvider;
 import com.jcondotta.account_recipients.common.container.LocalStackTestContainer;
 import com.jcondotta.account_recipients.common.fixtures.AccountRecipientFixtures;
 import com.jcondotta.account_recipients.create_recipient.controller.model.CreateAccountRecipientRestRequest;
+import com.jcondotta.account_recipients.infrastructure.adapters.output.messaging.EventEnvelope;
+import com.jcondotta.account_recipients.infrastructure.adapters.output.messaging.EventMetadata;
+import com.jcondotta.account_recipients.infrastructure.adapters.output.messaging.EventMetadataFactory;
+import com.jcondotta.account_recipients.infrastructure.adapters.output.messaging.RecipientCreatedMessage;
+import com.jcondotta.account_recipients.infrastructure.config.RecipientsCreatedTestListener2;
 import com.jcondotta.account_recipients.infrastructure.interfaces.rest.exception_handler.ProblemTypes;
 import com.jcondotta.account_recipients.infrastructure.interfaces.rest.headers.HttpHeadersCustom;
 import com.jcondotta.account_recipients.infrastructure.properties.AccountRecipientURIProperties;
@@ -33,6 +39,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.servlet.LocaleResolver;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -63,6 +70,9 @@ class CreateAccountRecipientControllerImplIT {
   @Autowired
   private LocaleResolver localeResolver;
 
+  @Autowired
+  private RecipientsCreatedTestListener2 listener;
+
   private Locale defaultLocale;
 
   private UUID bankAccountId;
@@ -70,6 +80,10 @@ class CreateAccountRecipientControllerImplIT {
   private String iban;
 
   private RequestSpecification requestSpecification;
+  private IdempotencyKey idempotencyKey;
+
+  @Autowired
+  private EventMetadataFactory eventMetadataFactory;
 
   @BeforeAll
   static void beforeAll() {
@@ -85,8 +99,11 @@ class CreateAccountRecipientControllerImplIT {
     recipientName = AccountRecipientFixtures.JEFFERSON.getRecipientName();
     iban = AccountRecipientFixtures.JEFFERSON.getRecipientIban();
 
-    requestSpecification = buildRequestSpecificationWithIdempotencyKey();
+    idempotencyKey = IdempotencyKey.newKey();
+    requestSpecification = buildRequestSpecificationWithIdempotencyKey(idempotencyKey);
     defaultLocale = localeResolver.resolveLocale(new MockHttpServletRequest());
+
+    listener.clear();
   }
 
   @Test
@@ -113,6 +130,33 @@ class CreateAccountRecipientControllerImplIT {
         .statusCode(HttpStatus.CREATED.value())
         .header("location", equalTo(expectedLocationURI))
         .header(HttpHeaders.CONTENT_TYPE, nullValue());
+
+    try {
+      EventEnvelope<RecipientCreatedMessage> eventEnvelope = listener.awaitEvent(
+          Duration.ofSeconds(2), RecipientCreatedMessage.class,
+              envelope ->
+                  envelope.metadata().idempotencyKey().equals(idempotencyKey.value())
+          );
+      assertThat(eventEnvelope)
+          .satisfies(envelope -> {
+            EventMetadata eventMetadata = eventEnvelope.metadata();
+            assertAll(
+                () -> assertThat(eventMetadata.idempotencyKey()).isEqualTo(idempotencyKey.value()),
+                () -> assertThat(eventMetadata.publishedAt()).isNotNull()
+            );
+
+            RecipientCreatedMessage message = envelope.payload();
+            assertAll(
+                () -> assertThat(message.recipientId()).isNotBlank(),
+                () -> assertThat(message.recipientName()).isEqualTo(recipientName),
+                () -> assertThat(message.bankAccountId()).isEqualTo(bankAccountId.toString()),
+                () -> assertThat(message.iban()).isEqualTo(iban),
+                () -> assertThat(message.occurredAt()).isNotNull()
+            );
+          });
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Test
@@ -255,10 +299,10 @@ class CreateAccountRecipientControllerImplIT {
         .build();
   }
 
-  private RequestSpecification buildRequestSpecificationWithIdempotencyKey() {
+  private RequestSpecification buildRequestSpecificationWithIdempotencyKey(IdempotencyKey idempotencyKey) {
     return new RequestSpecBuilder()
         .addRequestSpecification(buildBaseRequestSpecification())
-        .addHeader(HttpHeadersCustom.IDEMPOTENCY_KEY, UUID.randomUUID().toString())
+        .addHeader(HttpHeadersCustom.IDEMPOTENCY_KEY, idempotencyKey.value().toString())
         .build();
   }
 }
