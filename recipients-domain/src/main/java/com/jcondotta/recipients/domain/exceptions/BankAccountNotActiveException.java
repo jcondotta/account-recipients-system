@@ -13,4 +13,8 @@ public class BankAccountNotActiveException extends DomainBusinessRuleViolationEx
         BANK_ACCOUNT_NOT_ACTIVE_TITLE,
         bankAccountId.value());
   }
+
+  public BankAccountNotActiveException(String messageCode, String title, Object... args) {
+    super(messageCode, title, args);
+  }
 }

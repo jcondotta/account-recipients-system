@@ -36,7 +36,11 @@ public final class BankAccount {
 
   public Recipient createRecipient(RecipientName name, Iban iban, Clock clock) {
     if (!isActive()) {
-      throw new BankAccountNotActiveException(bankAccountId);
+      throw new BankAccountNotActiveException(
+          "recipient.cannotBeCreated.bankAccountNotActive",
+          "Recipient cannot be created",
+          bankAccountId
+      );
     }
 
     var recipient = Recipient.create(bankAccountId, name, iban, clock);

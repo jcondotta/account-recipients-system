@@ -6,6 +6,7 @@ public final class ProblemTypes {
 
   public static final URI RESOURCE_NOT_FOUND = uri("/resource-not-found");
   public static final URI VALIDATION_ERRORS = uri("/validation-errors");
+  public static final URI BUSINESS_RULE_VIOLATION = uri("/business-rule-violation");
 
   @SuppressWarnings("all")
   private static final String BASE_PATH = "https://api.jcondotta.com/problems";
