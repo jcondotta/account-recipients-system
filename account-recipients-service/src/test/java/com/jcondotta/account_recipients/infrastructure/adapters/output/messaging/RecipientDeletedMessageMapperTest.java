@@ -1,9 +1,9 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.messaging;
 
 import com.jcondotta.account_recipients.common.factory.ClockTestFactory;
-import com.jcondotta.account_recipients.domain.recipient.events.RecipientDeletedEvent;
-import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientId;
-import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
+import com.jcondotta.account_recipients.domain.events.RecipientDeletedEvent;
+import com.jcondotta.account_recipients.domain.value_objects.RecipientId;
+import com.jcondotta.account_recipients.domain.value_objects.BankAccountId;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;

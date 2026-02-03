@@ -3,7 +3,7 @@ package com.jcondotta.account_recipients.infrastructure.adapters.output.messagin
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jcondotta.account_recipients.application.ports.output.messaging.RecipientCreatedEventPublisher;
 import com.jcondotta.account_recipients.application.usecase.shared.value_objects.IdempotencyKey;
-import com.jcondotta.account_recipients.domain.recipient.events.RecipientCreatedEvent;
+import com.jcondotta.account_recipients.domain.events.RecipientCreatedEvent;
 import com.jcondotta.account_recipients.infrastructure.properties.RecipientsCreatedStreamProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

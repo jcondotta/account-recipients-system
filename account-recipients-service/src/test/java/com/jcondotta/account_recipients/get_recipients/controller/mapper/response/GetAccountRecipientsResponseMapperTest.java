@@ -1,11 +1,11 @@
 package com.jcondotta.account_recipients.get_recipients.controller.mapper.response;
 
-import com.jcondotta.account_recipients.application.usecase.get_recipients.model.AccountRecipientDetails;
+import com.jcondotta.account_recipients.application.usecase.get_recipients.model.RecipientDetails;
 import com.jcondotta.account_recipients.common.factory.ClockTestFactory;
-import com.jcondotta.account_recipients.domain.recipient.value_objects.Iban;
-import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientId;
-import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientName;
-import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
+import com.jcondotta.account_recipients.domain.value_objects.Iban;
+import com.jcondotta.account_recipients.domain.value_objects.RecipientId;
+import com.jcondotta.account_recipients.domain.value_objects.RecipientName;
+import com.jcondotta.account_recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.account_recipients.get_recipients.controller.model.response.AccountRecipientResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +37,7 @@ class GetAccountRecipientsResponseMapperImplTest {
       ZonedDateTime.now(ClockTestFactory.TEST_CLOCK_FIXED);
   private GetAccountRecipientsResponseMapperImpl mapper;
   @Mock
-  private AccountRecipientDetails detailsMock;
+  private RecipientDetails detailsMock;
 
   @BeforeEach
   void setUp() {
@@ -59,7 +59,7 @@ class GetAccountRecipientsResponseMapperImplTest {
   void shouldMapAllFields_whenAllValueObjectsArePresent() {
     // given
     var details =
-        AccountRecipientDetails.of(
+        RecipientDetails.of(
             ACCOUNT_RECIPIENT_ID, BANK_ACCOUNT_ID, RECIPIENT_NAME, IBAN, CREATED_AT);
 
     // when
@@ -98,11 +98,11 @@ class GetAccountRecipientsResponseMapperImplTest {
   void shouldMapListContainingMultipleValidElements() {
     // given
     var details1 =
-        AccountRecipientDetails.of(
+        RecipientDetails.of(
             ACCOUNT_RECIPIENT_ID, BANK_ACCOUNT_ID, RECIPIENT_NAME, IBAN, CREATED_AT);
 
     var details2 =
-        AccountRecipientDetails.of(
+        RecipientDetails.of(
             RecipientId.of(UUID.randomUUID()),
             BankAccountId.of(UUID.randomUUID()),
             RecipientName.of("Erika Condotta"),
@@ -130,7 +130,7 @@ class GetAccountRecipientsResponseMapperImplTest {
   void shouldMapListWithMixedNullAndValidDetails() {
     // given
     var accountRecipientDetails =
-        AccountRecipientDetails.of(
+        RecipientDetails.of(
             ACCOUNT_RECIPIENT_ID, BANK_ACCOUNT_ID, RECIPIENT_NAME, IBAN, CREATED_AT);
     var list = List.of(accountRecipientDetails);
 

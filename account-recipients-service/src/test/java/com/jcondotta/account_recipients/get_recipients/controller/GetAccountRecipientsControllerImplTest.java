@@ -1,9 +1,9 @@
 package com.jcondotta.account_recipients.get_recipients.controller;
 
-import com.jcondotta.account_recipients.application.usecase.get_recipients.GetAccountRecipientsUseCase;
-import com.jcondotta.account_recipients.application.usecase.get_recipients.model.AccountRecipientDetails;
-import com.jcondotta.account_recipients.application.usecase.get_recipients.model.query.GetAccountRecipientsQuery;
-import com.jcondotta.account_recipients.application.usecase.get_recipients.model.result.GetAccountRecipientsResult;
+import com.jcondotta.account_recipients.application.usecase.get_recipients.GetRecipientsUseCase;
+import com.jcondotta.account_recipients.application.usecase.get_recipients.model.RecipientDetails;
+import com.jcondotta.account_recipients.application.usecase.get_recipients.model.query.GetRecipientsQuery;
+import com.jcondotta.account_recipients.application.usecase.get_recipients.model.result.GetRecipientsResult;
 import com.jcondotta.account_recipients.get_recipients.controller.mapper.request.GetAccountRecipientsRequestRestMapper;
 import com.jcondotta.account_recipients.get_recipients.controller.mapper.response.GetAccountRecipientsResponseMapper;
 import com.jcondotta.account_recipients.get_recipients.controller.model.request.GetAccountRecipientsRestRequestParams;
@@ -27,7 +27,7 @@ class GetAccountRecipientsControllerImplTest {
   private static final UUID BANK_ACCOUNT_ID = UUID.randomUUID();
 
   @Mock
-  private GetAccountRecipientsUseCase useCase;
+  private GetRecipientsUseCase useCase;
 
   @Mock
   private GetAccountRecipientsRequestRestMapper requestMapper;
@@ -39,7 +39,7 @@ class GetAccountRecipientsControllerImplTest {
   private GetAccountRecipientsRestRequestParams restRequestParams;
 
   @Mock
-  private GetAccountRecipientsQuery query;
+  private GetRecipientsQuery query;
 
   @Mock
   private GetAccountRecipientsResponse response;
@@ -54,7 +54,7 @@ class GetAccountRecipientsControllerImplTest {
 
   @Test
   void shouldReturnNoContent_whenNoAccountRecipientsAreFound() {
-    var result = GetAccountRecipientsResult.of(List.of(), null);
+    var result = GetRecipientsResult.of(List.of(), null);
 
     when(requestMapper.toQuery(BANK_ACCOUNT_ID, restRequestParams)).thenReturn(query);
     when(useCase.execute(query)).thenReturn(result);
@@ -74,9 +74,9 @@ class GetAccountRecipientsControllerImplTest {
 
   @Test
   void shouldReturnOkWithResponseBody_whenAccountRecipientsAreFound() {
-    var recipients = List.of(mock(AccountRecipientDetails.class));
+    var recipients = List.of(mock(RecipientDetails.class));
     var nextCursor = "next-cursor";
-    var result = GetAccountRecipientsResult.of(recipients, nextCursor);
+    var result = GetRecipientsResult.of(recipients, nextCursor);
 
     when(requestMapper.toQuery(BANK_ACCOUNT_ID, restRequestParams)).thenReturn(query);
     when(useCase.execute(query)).thenReturn(result);

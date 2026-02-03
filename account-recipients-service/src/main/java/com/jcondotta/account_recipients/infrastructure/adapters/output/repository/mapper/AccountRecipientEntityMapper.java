@@ -1,10 +1,10 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.repository.mapper;
 
-import com.jcondotta.account_recipients.domain.recipient.entity.AccountRecipient;
-import com.jcondotta.account_recipients.domain.recipient.value_objects.Iban;
-import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientId;
-import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientName;
-import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
+import com.jcondotta.account_recipients.domain.entities.Recipient;
+import com.jcondotta.account_recipients.domain.value_objects.Iban;
+import com.jcondotta.account_recipients.domain.value_objects.RecipientId;
+import com.jcondotta.account_recipients.domain.value_objects.RecipientName;
+import com.jcondotta.account_recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity.AccountRecipientEntity;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity.AccountRecipientEntityKey;
 import org.mapstruct.Builder;
@@ -28,25 +28,25 @@ public interface AccountRecipientEntityMapper {
 
   AccountRecipientEntityMapper INSTANCE = Mappers.getMapper(AccountRecipientEntityMapper.class);
 
-  default AccountRecipientEntity toEntity(AccountRecipient accountRecipient) {
-    if (Objects.isNull(accountRecipient)) {
+  default AccountRecipientEntity toEntity(Recipient recipient) {
+    if (Objects.isNull(recipient)) {
       return null;
     }
 
     return new AccountRecipientEntity(
-        accountRecipient.getRecipientId().value(),
-        accountRecipient.getBankAccountId().value(),
-        accountRecipient.getRecipientName().value(),
-        accountRecipient.getIban().value(),
-        accountRecipient.getCreatedAt());
+        recipient.getRecipientId().value(),
+        recipient.getBankAccountId().value(),
+        recipient.getRecipientName().value(),
+        recipient.getIban().value(),
+        recipient.getCreatedAt());
   }
 
-  default AccountRecipient toDomain(AccountRecipientEntity entity) {
+  default Recipient toDomain(AccountRecipientEntity entity) {
     if (entity == null) {
       return null;
     }
 
-    return AccountRecipient.restore(
+    return Recipient.restore(
             RecipientId.of(entity.getRecipientId()),
             BankAccountId.of(entity.getBankAccountId()),
             RecipientName.of(entity.getRecipientName()),

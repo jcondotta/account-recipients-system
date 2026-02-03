@@ -1,9 +1,7 @@
 package com.jcondotta.account_recipients.application.ports.output.messaging;
 
-import com.jcondotta.account_recipients.application.usecase.shared.value_objects.IdempotencyKey;
-import com.jcondotta.account_recipients.domain.recipient.events.RecipientCreatedEvent;
+import com.jcondotta.account_recipients.domain.events.RecipientCreatedEvent;
 
-public interface RecipientCreatedEventPublisher {
+public interface RecipientCreatedEventPublisher extends RecipientEventPublisher<RecipientCreatedEvent> {
 
-  void send(RecipientCreatedEvent event, IdempotencyKey idempotencyKey);
 }

@@ -5,11 +5,11 @@ import com.jcondotta.account_recipients.application.usecase.shared.value_objects
 import com.jcondotta.account_recipients.common.factory.ClockTestFactory;
 import com.jcondotta.account_recipients.common.factory.ObjectMapperTestFactory;
 import com.jcondotta.account_recipients.common.fixtures.AccountRecipientFixtures;
-import com.jcondotta.account_recipients.domain.recipient.events.RecipientCreatedEvent;
-import com.jcondotta.account_recipients.domain.recipient.value_objects.Iban;
-import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientId;
-import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientName;
-import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
+import com.jcondotta.account_recipients.domain.events.RecipientCreatedEvent;
+import com.jcondotta.account_recipients.domain.value_objects.Iban;
+import com.jcondotta.account_recipients.domain.value_objects.RecipientId;
+import com.jcondotta.account_recipients.domain.value_objects.RecipientName;
+import com.jcondotta.account_recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.account_recipients.infrastructure.properties.RecipientsCreatedStreamProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

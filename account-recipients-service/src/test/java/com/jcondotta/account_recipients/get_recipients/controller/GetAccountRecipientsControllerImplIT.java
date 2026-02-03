@@ -1,6 +1,6 @@
 package com.jcondotta.account_recipients.get_recipients.controller;
 
-import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model.GetAccountRecipientsQueryParams;
+import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model.GetRecipientsQueryParams;
 import com.jcondotta.account_recipients.common.container.LocalStackTestContainer;
 import com.jcondotta.account_recipients.common.factory.AccountRecipientEntityTestFactory;
 import com.jcondotta.account_recipients.get_recipients.controller.model.response.AccountRecipientResponse;
@@ -188,7 +188,7 @@ class GetAccountRecipientsControllerImplIT {
     @Test
     void shouldApplyDefaultLimitAndReturnNextCursor_whenLimitParamIsOmitted() {
       bankAccountId = UUID.randomUUID();
-      var numbersOfRecipients = GetAccountRecipientsQueryParams.DEFAULT_LIMIT + 2;
+      var numbersOfRecipients = GetRecipientsQueryParams.DEFAULT_LIMIT + 2;
 
       for (int i = 0; i < numbersOfRecipients; i++) {
         var recipient = AccountRecipientEntityTestFactory.create(bankAccountId, "Recipient #" + i);
@@ -208,7 +208,7 @@ class GetAccountRecipientsControllerImplIT {
               .as(GetAccountRecipientsResponse.class);
 
       assertThat(response.accountRecipients())
-          .hasSize(GetAccountRecipientsQueryParams.DEFAULT_LIMIT)
+          .hasSize(GetRecipientsQueryParams.DEFAULT_LIMIT)
           .extracting(AccountRecipientResponse::recipientName)
           .allSatisfy(name -> assertThat(name).startsWith("Recipient #"));
 

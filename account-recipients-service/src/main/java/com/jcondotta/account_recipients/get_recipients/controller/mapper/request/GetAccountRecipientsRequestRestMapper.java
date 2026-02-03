@@ -1,11 +1,11 @@
 package com.jcondotta.account_recipients.get_recipients.controller.mapper.request;
 
-import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model.GetAccountRecipientsQueryParams;
+import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model.GetRecipientsQueryParams;
 import com.jcondotta.account_recipients.application.ports.output.repository.shared.value_objects.PaginationCursor;
 import com.jcondotta.account_recipients.application.ports.output.repository.shared.value_objects.QueryLimit;
 import com.jcondotta.account_recipients.application.ports.output.repository.shared.value_objects.RecipientNamePrefix;
-import com.jcondotta.account_recipients.application.usecase.get_recipients.model.query.GetAccountRecipientsQuery;
-import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
+import com.jcondotta.account_recipients.application.usecase.get_recipients.model.query.GetRecipientsQuery;
+import com.jcondotta.account_recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.account_recipients.get_recipients.controller.model.request.GetAccountRecipientsRestRequestParams;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -24,7 +24,7 @@ public interface GetAccountRecipientsRequestRestMapper {
 
   @Mapping(target = "bankAccountId", source = "bankAccountId", qualifiedByName = "mapBankAccountId")
   @Mapping(target = "queryParams", source = "requestParams", qualifiedByName = "toQueryParams")
-  GetAccountRecipientsQuery toQuery(
+  GetRecipientsQuery toQuery(
       UUID bankAccountId, GetAccountRecipientsRestRequestParams requestParams);
 
   @Named("mapBankAccountId")
@@ -34,11 +34,11 @@ public interface GetAccountRecipientsRequestRestMapper {
   }
 
   @Named("toQueryParams")
-  default GetAccountRecipientsQueryParams toQueryParams(
+  default GetRecipientsQueryParams toQueryParams(
       GetAccountRecipientsRestRequestParams requestParams) {
     requireNonNull(requestParams, "requestParams must not be null");
 
-    return new GetAccountRecipientsQueryParams(
+    return new GetRecipientsQueryParams(
         mapQueryLimit(requestParams.limit()),
         mapNamePrefix(requestParams.namePrefix()),
         mapPaginationCursor(requestParams.cursor()));

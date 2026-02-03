@@ -1,7 +1,7 @@
 package com.jcondotta.account_recipients.infrastructure.interfaces.rest.exception_handler;
 
 import com.jcondotta.account_recipients.application.ports.output.i18n.MessageResolverPort;
-import com.jcondotta.account_recipients.domain.shared.exceptions.DomainObjectNotFoundException;
+import com.jcondotta.account_recipients.domain.exceptions.DomainObjectNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,11 +26,11 @@ public class ResourceNotFoundExceptionHandler {
   @ExceptionHandler(DomainObjectNotFoundException.class)
   public ResponseEntity<ProblemDetail> handleResourceNotFound(
       DomainObjectNotFoundException ex, HttpServletRequest request, Locale locale) {
-    var message = messageResolverPort.resolveMessage(ex.getMessage(), ex.getIdentifiers(), locale);
+    var message = messageResolverPort.resolveMessage(ex.messageCode(), ex.args(), locale);
 
     var problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
     problemDetail.setType(ProblemTypes.RESOURCE_NOT_FOUND);
-    problemDetail.setTitle(ex.getTitle());
+    problemDetail.setTitle(ex.title());
     problemDetail.setDetail(message);
     problemDetail.setInstance(URI.create(request.getRequestURI()));
 

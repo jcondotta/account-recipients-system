@@ -1,11 +1,11 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.repository.mapper;
 
 import com.jcondotta.account_recipients.common.factory.ClockTestFactory;
-import com.jcondotta.account_recipients.domain.recipient.entity.AccountRecipient;
-import com.jcondotta.account_recipients.domain.recipient.value_objects.Iban;
-import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientId;
-import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientName;
-import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
+import com.jcondotta.account_recipients.domain.entities.Recipient;
+import com.jcondotta.account_recipients.domain.value_objects.Iban;
+import com.jcondotta.account_recipients.domain.value_objects.RecipientId;
+import com.jcondotta.account_recipients.domain.value_objects.RecipientName;
+import com.jcondotta.account_recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity.AccountRecipientEntity;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity.AccountRecipientEntityKey;
 import org.junit.jupiter.api.Test;
@@ -27,9 +27,9 @@ class AccountRecipientEntityMapperTest {
 
   @Test
   void shouldMapDomainToEntity_whenValidAccountRecipient() {
-    var accountRecipient = AccountRecipient.restore(ACCOUNT_RECIPIENT_ID, BANK_ACCOUNT_ID, RECIPIENT_NAME, IBAN, CREATED_AT);
+    var recipient = Recipient.restore(ACCOUNT_RECIPIENT_ID, BANK_ACCOUNT_ID, RECIPIENT_NAME, IBAN, CREATED_AT);
 
-    assertThat(mapper.toEntity(accountRecipient))
+    assertThat(mapper.toEntity(recipient))
         .satisfies(
             entity -> {
               assertThat(entity.getPartitionKey())

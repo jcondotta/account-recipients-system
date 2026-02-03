@@ -1,6 +1,6 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.messaging;
 
-import com.jcondotta.account_recipients.domain.recipient.events.RecipientCreatedEvent;
+import com.jcondotta.account_recipients.domain.events.RecipientCreatedEvent;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

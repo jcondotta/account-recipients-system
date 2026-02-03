@@ -1,0 +1,56 @@
+package com.jcondotta.account_recipients.create_recipient.usecase;
+
+import com.jcondotta.account_recipients.application.ports.output.facade.bank_account.BankAccountLookupFacade;
+import com.jcondotta.account_recipients.application.ports.output.messaging.RecipientCreatedEventPublisher;
+import com.jcondotta.account_recipients.application.ports.output.repository.create_recipient.CreateRecipientRepository;
+import com.jcondotta.account_recipients.application.usecase.create_recipient.CreateRecipientUseCase;
+import com.jcondotta.account_recipients.application.usecase.create_recipient.model.CreateRecipientCommand;
+import com.jcondotta.account_recipients.application.usecase.shared.value_objects.IdempotencyKey;
+import com.jcondotta.account_recipients.domain.entities.BankAccount;
+import com.jcondotta.account_recipients.domain.entities.Recipient;
+import com.jcondotta.account_recipients.domain.events.RecipientCreatedEvent;
+import io.micrometer.observation.annotation.Observed;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+import java.time.Clock;
+import java.util.Objects;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class CreateRecipientUseCaseImpl implements CreateRecipientUseCase {
+
+  private final BankAccountLookupFacade bankAccountLookupFacade;
+  private final CreateRecipientRepository createRecipientRepository;
+  private final RecipientCreatedEventPublisher eventPublisher;
+  private final Clock clock;
+
+  @Override
+  @Observed(
+      name = "account.recipients.create",
+      contextualName = "createAccountRecipient",
+      lowCardinalityKeyValues = {"operation", "create"})
+  public void execute(CreateRecipientCommand command, IdempotencyKey idempotencyKey) {
+    Objects.requireNonNull(command, "command must not be null");
+    Objects.requireNonNull(idempotencyKey, "idempotencyKey must not be null");
+
+    log.info("Attempting to create a recipient [bankAccountId={}, recipientName={}]",
+        command.bankAccountId(),
+        command.recipientName());
+
+    var bankAccount = bankAccountLookupFacade.byId(command.bankAccountId());
+    var recipient = bankAccount.createRecipient(command.recipientName(), command.iban(), clock);
+
+    createRecipientRepository.create(recipient);
+
+    RecipientCreatedEvent event = (RecipientCreatedEvent) bankAccount.pullRecipientEvents().getFirst();
+    eventPublisher.send(event, idempotencyKey);
+
+    log.info(
+        "Recipient created successfully [bankAccountId={}, recipientName={}]",
+        command.bankAccountId(),
+        command.recipientName());
+  }
+}

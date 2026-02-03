@@ -1,7 +1,7 @@
 package com.jcondotta.account_recipients.get_recipients.controller;
 
-import com.jcondotta.account_recipients.application.usecase.get_recipients.GetAccountRecipientsUseCase;
-import com.jcondotta.account_recipients.application.usecase.get_recipients.model.result.GetAccountRecipientsResult;
+import com.jcondotta.account_recipients.application.usecase.get_recipients.GetRecipientsUseCase;
+import com.jcondotta.account_recipients.application.usecase.get_recipients.model.result.GetRecipientsResult;
 import com.jcondotta.account_recipients.get_recipients.controller.mapper.request.GetAccountRecipientsRequestRestMapper;
 import com.jcondotta.account_recipients.get_recipients.controller.mapper.response.GetAccountRecipientsResponseMapper;
 import com.jcondotta.account_recipients.get_recipients.controller.model.request.GetAccountRecipientsRestRequestParams;
@@ -19,7 +19,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class GetAccountRecipientsControllerImpl implements GetAccountRecipientsController {
 
-  private final GetAccountRecipientsUseCase useCase;
+  private final GetRecipientsUseCase useCase;
   private final GetAccountRecipientsRequestRestMapper requestMapper;
   private final GetAccountRecipientsResponseMapper responseMapper;
 
@@ -29,7 +29,7 @@ public class GetAccountRecipientsControllerImpl implements GetAccountRecipientsC
       percentiles = {0.5, 0.95, 0.99})
   public ResponseEntity<GetAccountRecipientsResponse> byQuery(
       UUID bankAccountId, GetAccountRecipientsRestRequestParams restRequestParams) {
-    GetAccountRecipientsResult result =
+    GetRecipientsResult result =
         useCase.execute(requestMapper.toQuery(bankAccountId, restRequestParams));
     if (result.accountRecipients().isEmpty()) {
       return ResponseEntity.noContent().build();

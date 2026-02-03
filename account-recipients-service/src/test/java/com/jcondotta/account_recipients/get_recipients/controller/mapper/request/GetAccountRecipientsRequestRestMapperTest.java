@@ -1,10 +1,10 @@
 package com.jcondotta.account_recipients.get_recipients.controller.mapper.request;
 
-import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model.GetAccountRecipientsQueryParams;
+import com.jcondotta.account_recipients.application.ports.output.repository.get_recipients.model.GetRecipientsQueryParams;
 import com.jcondotta.account_recipients.application.ports.output.repository.shared.value_objects.PaginationCursor;
 import com.jcondotta.account_recipients.application.ports.output.repository.shared.value_objects.QueryLimit;
 import com.jcondotta.account_recipients.application.ports.output.repository.shared.value_objects.RecipientNamePrefix;
-import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
+import com.jcondotta.account_recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.account_recipients.get_recipients.controller.model.request.GetAccountRecipientsRestRequestParams;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -55,7 +55,7 @@ class GetAccountRecipientsRequestRestMapperTest {
     var queryParams = mapper.toQueryParams(requestParams);
 
     assertThat(queryParams.limit().value())
-        .isEqualTo(GetAccountRecipientsQueryParams.DEFAULT_LIMIT);
+        .isEqualTo(GetRecipientsQueryParams.DEFAULT_LIMIT);
     assertThat(queryParams.cursor()).isNull();
     assertThat(queryParams.namePrefix()).isNull();
   }
@@ -66,7 +66,7 @@ class GetAccountRecipientsRequestRestMapperTest {
     var queryParams = mapper.toQueryParams(requestParams);
 
     assertThat(queryParams.limit().value())
-        .isEqualTo(GetAccountRecipientsQueryParams.DEFAULT_LIMIT);
+        .isEqualTo(GetRecipientsQueryParams.DEFAULT_LIMIT);
     assertThat(queryParams.cursor()).isNull();
     assertThat(queryParams.namePrefix()).isNull();
   }

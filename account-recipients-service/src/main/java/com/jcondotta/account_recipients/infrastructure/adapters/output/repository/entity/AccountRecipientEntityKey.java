@@ -1,7 +1,7 @@
 package com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity;
 
-import com.jcondotta.account_recipients.domain.recipient.value_objects.RecipientId;
-import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
+import com.jcondotta.account_recipients.domain.value_objects.RecipientId;
+import com.jcondotta.account_recipients.domain.value_objects.BankAccountId;
 
 import java.util.UUID;
 
