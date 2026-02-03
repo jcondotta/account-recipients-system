@@ -37,7 +37,7 @@ class CreateRecipientRepositoryImplTest {
   private ArgumentCaptor<RecipientEntity> entityCaptor;
 
   @Test
-  void shouldPutEntityIntoDynamoDb_whenRecipientIsValid() {
+  void shouldPutEntityIntoDynamoDb_whenAccountRecipientIsValid() {
     when(entityMapper.toEntity(recipientMock)).thenReturn(recipientEntityMock);
 
     repository.create(recipientMock);

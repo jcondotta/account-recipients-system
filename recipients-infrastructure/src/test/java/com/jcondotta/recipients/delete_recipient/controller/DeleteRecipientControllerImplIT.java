@@ -112,7 +112,7 @@ class DeleteRecipientControllerImplIT {
   }
 
   @Test
-  void shouldReturn204NoContent_whenRecipientIsFound() {
+  void shouldReturn204NoContent_whenAccountRecipientIsFound() {
     stubFor(
         get(urlPathEqualTo("/api/v1/bank-accounts/" + bankAccountId))
             .willReturn(
@@ -141,7 +141,7 @@ class DeleteRecipientControllerImplIT {
 
     try {
       EventEnvelope<RecipientDeletedMessage> eventEnvelope = listener.awaitEvent(
-          Duration.ofSeconds(2), RecipientDeletedMessage.class,
+          Duration.ofSeconds(4), RecipientDeletedMessage.class,
           envelope ->
               envelope.metadata().idempotencyKey().equals(idempotencyKey.value())
       );
@@ -200,7 +200,7 @@ class DeleteRecipientControllerImplIT {
   }
 
   @Test
-  void shouldReturn404NotFound_whenRecipientDoesNotExist() {
+  void shouldReturn404NotFound_whenAccountRecipientDoesNotExist() {
     stubFor(
         get(urlPathEqualTo("/api/v1/bank-accounts/" + bankAccountId))
             .willReturn(

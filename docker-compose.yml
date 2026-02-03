@@ -34,9 +34,9 @@ services:
     networks:
       - recipients-network
 
-  account-recipients-service:
-    container_name: account-recipients-service
-    image: jcondotta/account-recipients-service:1.0.0
+  recipients-service:
+    container_name: recipients-service
+    image: jcondotta/recipients-service:1.0.0
     depends_on:
       localstack:
         condition: service_healthy

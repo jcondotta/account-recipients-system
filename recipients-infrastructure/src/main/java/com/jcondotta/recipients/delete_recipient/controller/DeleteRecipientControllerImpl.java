@@ -27,7 +27,7 @@ public class DeleteRecipientControllerImpl implements DeleteRecipientController 
       description = "account recipient creation time measurement",
       percentiles = {0.5, 0.95, 0.99})
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public ResponseEntity<Void> deleteRecipient(UUID idempotencyKey, UUID bankAccountId, UUID recipientId) {
+  public ResponseEntity<Void> deleteAccountRecipient(UUID idempotencyKey, UUID bankAccountId, UUID recipientId) {
     useCase.execute(requestMapper.toCommand(bankAccountId, recipientId), IdempotencyKey.of(idempotencyKey));
     return ResponseEntity.noContent().build();
   }

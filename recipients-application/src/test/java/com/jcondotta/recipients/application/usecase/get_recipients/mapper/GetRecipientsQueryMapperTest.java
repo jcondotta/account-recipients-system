@@ -26,7 +26,7 @@ class GetRecipientsQueryMapperTest {
   private final GetRecipientsQueryMapper mapper = new GetRecipientsQueryMapperImpl();
 
   @Test
-  void shouldMapToRecipientDetails_whenValidRecipientDomainObject() {
+  void shouldMapToAccountRecipientDetails_whenValidRecipientDomainObject() {
     var recipient = Recipient.restore(ACCOUNT_RECIPIENT_ID, BANK_ACCOUNT_ID, RECIPIENT_NAME, IBAN, CREATED_AT);
 
     assertThat(mapper.toRecipient(recipient))
@@ -41,7 +41,7 @@ class GetRecipientsQueryMapperTest {
   }
 
   @Test
-  void shouldReturnNull_whenRecipientIsNull() {
+  void shouldReturnNull_whenAccountRecipientIsNull() {
     assertThat(mapper.toRecipient(null)).isNull();
   }
 }

@@ -16,12 +16,13 @@
         <dependency>
             <groupId>com.jcondotta</groupId>
             <artifactId>recipients-domain</artifactId>
-            <version>1.0.0</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.jcondotta</groupId>
             <artifactId>recipients-application</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>

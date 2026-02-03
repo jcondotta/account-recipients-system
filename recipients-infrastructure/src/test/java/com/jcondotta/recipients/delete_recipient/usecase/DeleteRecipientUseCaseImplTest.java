@@ -120,7 +120,7 @@ class DeleteRecipientUseCaseImplTest {
   }
 
   @Test
-  void shouldThrowRecipientNotFoundException_whenRecipientDoesNotExist() {
+  void shouldThrowAccountRecipientNotFoundException_whenRecipientDoesNotExist() {
     BankAccount bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
     when(lookupBankAccountFacadeMock.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccount);
 

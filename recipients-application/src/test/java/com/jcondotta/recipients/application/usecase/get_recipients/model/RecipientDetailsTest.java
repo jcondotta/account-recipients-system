@@ -25,7 +25,7 @@ class RecipientDetailsTest {
       ZonedDateTime.now(ClockTestFactory.TEST_CLOCK_FIXED);
 
   @Test
-  void shouldCreateRecipientDetails_whenAllFieldsAreValid() {
+  void shouldCreateAccountRecipientDetails_whenAllFieldsAreValid() {
     RecipientDetails details =
         RecipientDetails.of(
             ACCOUNT_RECIPIENT_ID, BANK_ACCOUNT_ID, RECIPIENT_NAME, IBAN, CREATED_AT);

@@ -44,7 +44,7 @@ class GetRecipientsResponseMapperImplTest {
     mapper = new GetRecipientsResponseMapperImpl();
   }
 
-  // --- toRecipientResponse() ---
+  // --- toAccountRecipientResponse() ---
 
   @Test
   void shouldReturnNull_whenDetailsIsNull() {

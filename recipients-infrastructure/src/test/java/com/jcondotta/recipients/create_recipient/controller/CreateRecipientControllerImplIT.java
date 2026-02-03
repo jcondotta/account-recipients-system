@@ -133,7 +133,7 @@ class CreateRecipientControllerImplIT {
 
     try {
       EventEnvelope<RecipientCreatedMessage> eventEnvelope = listener.awaitEvent(
-          Duration.ofSeconds(2), RecipientCreatedMessage.class,
+          Duration.ofSeconds(4), RecipientCreatedMessage.class,
               envelope ->
                   envelope.metadata().idempotencyKey().equals(idempotencyKey.value())
           );

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
-@RequestMapping("${RecipientURIProperties}")
+@RequestMapping("${api.v1.recipients.root-path}")
 public interface GetRecipientsController {
 
   @ResponseStatus(HttpStatus.OK)

@@ -26,7 +26,7 @@ class RecipientEntityMapperTest {
   private final RecipientEntityMapper mapper = RecipientEntityMapper.INSTANCE;
 
   @Test
-  void shouldMapDomainToEntity_whenValidRecipient() {
+  void shouldMapDomainToEntity_whenValidAccountRecipient() {
     var recipient = Recipient.restore(ACCOUNT_RECIPIENT_ID, BANK_ACCOUNT_ID, RECIPIENT_NAME, IBAN, CREATED_AT);
 
     assertThat(mapper.toEntity(recipient))

@@ -36,7 +36,7 @@ class GetRecipientRepositoryImplTest {
   private GetRecipientRepositoryImpl repository;
 
   @Test
-  void shouldReturnRecipient_whenEntityExists() {
+  void shouldReturnAccountRecipient_whenEntityExists() {
     Key key = Key.builder()
         .partitionValue(RecipientEntityKey.partitionKey(BANK_ACCOUNT_ID))
         .sortValue(RecipientEntityKey.sortKey(RECIPIENT_ID))

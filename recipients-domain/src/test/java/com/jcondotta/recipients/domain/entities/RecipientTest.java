@@ -30,7 +30,7 @@ class RecipientTest {
     private static final ZonedDateTime CREATED_AT = ZonedDateTime.now(CLOCK);
 
     @Test
-    void shouldCreateRecipientUsingFactoryMethod_whenAllValuesAreValid() {
+    void shouldCreateAccountRecipientUsingFactoryMethod_whenAllValuesAreValid() {
         var recipient = Recipient.create(BANK_ACCOUNT_ID, RECIPIENT_NAME_JEFFERSON, IBAN, CLOCK);
 
         assertThat(recipient.getRecipientId()).isNotNull();
@@ -53,8 +53,8 @@ class RecipientTest {
     }
 
     @Test
-    void shouldMarkRecipientAsDeleted_whenDeleteIsCalled() {
-        var recipient = createValidRecipient();
+    void shouldMarkAccountRecipientAsDeleted_whenDeleteIsCalled() {
+        var recipient = createValidAccountRecipient();
 
         recipient.delete(CLOCK);
 
@@ -64,7 +64,7 @@ class RecipientTest {
 
     @Test
     void shouldNotChangeDeletedAt_whenDeleteIsCalledMoreThanOnce() {
-        var recipient = createValidRecipient();
+        var recipient = createValidAccountRecipient();
 
         recipient.delete(CLOCK);
         var firstDeletedAt = recipient.getDeletedAt();
@@ -153,7 +153,7 @@ class RecipientTest {
                         null));
     }
 
-    private Recipient createValidRecipient() {
+    private Recipient createValidAccountRecipient() {
         return Recipient.create(BANK_ACCOUNT_ID, RECIPIENT_NAME_JEFFERSON, IBAN, CLOCK);
     }
 

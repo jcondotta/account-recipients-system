@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
-@RequestMapping("${RecipientURIProperties}")
+@RequestMapping("${api.v1.recipients.root-path}")
 public interface CreateRecipientController {
 
   @ResponseStatus(HttpStatus.CREATED)
   @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-  ResponseEntity<String> createRecipient(
+  ResponseEntity<String> createAccountRecipient(
       @RequestHeader(name = HttpHeadersCustom.IDEMPOTENCY_KEY) UUID idempotencyKey,
       @PathVariable("bank-account-id") UUID bankAccountId,
       @Valid @RequestBody CreateRecipientRestRequest request);

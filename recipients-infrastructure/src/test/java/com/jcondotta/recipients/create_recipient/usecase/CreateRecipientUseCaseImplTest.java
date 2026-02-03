@@ -81,8 +81,8 @@ class CreateRecipientUseCaseImplTest {
 
     when(lookupBankAccountFacadeMock.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccount);
 
-    var createRecipientCommand = buildCreateRecipientCommand();
-    useCase.execute(createRecipientCommand, idempotencyKey);
+    var createAccountRecipientCommand = buildCreateAccountRecipientCommand();
+    useCase.execute(createAccountRecipientCommand, idempotencyKey);
 
     verify(createRecipientRepositoryMock).create(recipientCaptor.capture());
 
@@ -124,9 +124,9 @@ class CreateRecipientUseCaseImplTest {
             new BankAccountNotFoundException(
                 BANK_ACCOUNT_ID, new RuntimeException("404 simulated")));
 
-    var createRecipientCommand = buildCreateRecipientCommand();
+    var createAccountRecipientCommand = buildCreateAccountRecipientCommand();
 
-    assertThatThrownBy(() -> useCase.execute(createRecipientCommand, idempotencyKey))
+    assertThatThrownBy(() -> useCase.execute(createAccountRecipientCommand, idempotencyKey))
         .isInstanceOf(BankAccountNotFoundException.class)
         .hasMessage(BankAccountNotFoundException.BANK_ACCOUNT_NOT_FOUND_TEMPLATE);
 
@@ -150,7 +150,7 @@ class CreateRecipientUseCaseImplTest {
 
   @Test
   void shouldThrowNullPointerException_whenIdempotencyKeyIsNull() {
-    var command = buildCreateRecipientCommand();
+    var command = buildCreateAccountRecipientCommand();
 
     assertThatThrownBy(() -> useCase.execute(command, null))
         .isInstanceOf(NullPointerException.class)
@@ -171,14 +171,14 @@ class CreateRecipientUseCaseImplTest {
         .when(recipientCreatedEventPublisherMock)
         .send(any(), any());
 
-    var command = buildCreateRecipientCommand();
+    var command = buildCreateAccountRecipientCommand();
 
     assertThatThrownBy(() -> useCase.execute(command, idempotencyKey))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Kinesis down");
   }
 
-  private CreateRecipientCommand buildCreateRecipientCommand() {
+  private CreateRecipientCommand buildCreateAccountRecipientCommand() {
     return CreateRecipientCommand.of(BANK_ACCOUNT_ID, RECIPIENT_NAME, IBAN);
   }
 }
