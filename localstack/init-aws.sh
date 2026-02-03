@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
 
-echo "🚀 Creating DynamoDB table: account-recipients..."
+echo "🚀 Creating DynamoDB table: recipients..."
 
 awslocal dynamodb create-table \
-  --table-name account-recipients \
+  --table-name recipients \
   --attribute-definitions \
       AttributeName=partitionKey,AttributeType=S \
       AttributeName=sortKey,AttributeType=S \
@@ -26,7 +26,7 @@ awslocal dynamodb create-table \
   ]' \
   --billing-mode PAY_PER_REQUEST
 
-echo "✅ DynamoDB table 'account-recipients' created successfully."
+echo "✅ DynamoDB table 'recipients' created successfully."
 
 echo "🚀 Creating Kinesis stream: recipients.created..."
 

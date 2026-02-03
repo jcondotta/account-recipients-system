@@ -17,9 +17,9 @@
     <name>account-recipients-system</name>
 
     <modules>
-        <module>account-recipients-domain-service</module>
-        <module>account-recipients-application-service</module>
-        <module>account-recipients-service</module>
+        <module>recipients-domain</module>
+        <module>recipients-application</module>
+        <module>recipients-infrastructure</module>
     </modules>
 
     <properties>
@@ -41,8 +41,6 @@
         <rest-assured.version>5.5.1</rest-assured.version>
 
         <micrometer.version>1.15.5</micrometer.version>
-        <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
-        <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
         <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
         <spotless-maven-plugin.version>2.43.0</spotless-maven-plugin.version>
 
@@ -63,13 +61,13 @@
         <dependencies>
             <dependency>
                 <groupId>com.jcondotta</groupId>
-                <artifactId>account-recipients-domain-service</artifactId>
+                <artifactId>recipients-domain</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jcondotta</groupId>
-                <artifactId>account-recipients-application-service</artifactId>
+                <artifactId>recipients-application</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

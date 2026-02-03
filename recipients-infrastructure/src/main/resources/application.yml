@@ -1,0 +1,61 @@
+server:
+  port: ${SERVER_PORT:8096}
+
+app:
+  environment: ${APPLICATION_ENV}
+
+spring:
+  application:
+    name: account-recipients
+
+cloud:
+  aws:
+    region:
+      static: ${AWS_DEFAULT_REGION}
+    dynamodb:
+      tables:
+        recipients:
+          table-name: ${AWS_DYNAMODB_RECIPIENTS_TABLE_NAME}
+    kinesis:
+      streams:
+        recipients-created:
+          stream-name: ${AWS_KINESIS_RECIPIENTS_CREATED_STREAM_NAME}
+        recipients-deleted:
+          stream-name: ${AWS_KINESIS_RECIPIENTS_DELETED_STREAM_NAME}
+
+api:
+  v1:
+    recipients:
+      root-path: '/api/v1/bank-accounts/{bank-account-id}/recipients'
+      recipient-id-path: '/api/v1/bank-accounts/{bank-account-id}/recipients/{recipient-id}'
+
+client:
+  api:
+    bank-accounts:
+      base-url: ${BANK_ACCOUNTS_API_BASE_URL}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus, metrics
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+        account.recipients.create: true
+        account.recipients.query: true
+        cache.get: true
+        cache.put_if_absent: true
+        cache.put: true
+      percentiles:
+        http.server.requests: 0.5, 0.95, 0.99
+        account.recipients.create: 0.5, 0.95, 0.99
+        account.recipients.query: 0.5, 0.95, 0.99
+        cache.get: 0.5, 0.95, 0.99
+        cache.put_if_absent: 0.5, 0.95, 0.99
+        cache.put: 0.5, 0.95, 0.99
+
+

@@ -52,7 +52,7 @@ services:
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
 
-      AWS_DYNAMODB_ACCOUNT_RECIPIENTS_TABLE_NAME: account-recipients
+      AWS_DYNAMODB_RECIPIENTS_TABLE_NAME: recipients
       AWS_KINESIS_RECIPIENTS_CREATED_STREAM_NAME: recipients.created
       AWS_KINESIS_RECIPIENTS_DELETED_STREAM_NAME: recipients.deleted
 
