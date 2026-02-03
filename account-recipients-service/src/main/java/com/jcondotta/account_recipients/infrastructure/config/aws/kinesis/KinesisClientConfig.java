@@ -16,6 +16,7 @@ import java.net.URI;
 
 @Slf4j
 @Configuration
+@SuppressWarnings("all")
 public class KinesisClientConfig {
 
   @Bean
@@ -38,7 +39,6 @@ public class KinesisClientConfig {
   }
 
   @Bean
-  @SuppressWarnings("java:S3306")
   @Qualifier("kinesisEndpointOverride")
   @ConditionalOnProperty(name = "cloud.aws.kinesis.endpoint")
   EndpointOverride kinesisEndpoint(@Value("${cloud.aws.kinesis.endpoint}") String endpoint) {
