@@ -7,8 +7,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.time.Clock;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.UUID;
@@ -29,9 +27,6 @@ class RecipientDeletedEventTest {
 
     private static final ZonedDateTime ZONED_DATE_TIME =
             ZonedDateTime.of(2024, 6, 1, 12, 0, 0, 0, ZoneOffset.UTC);
-
-    private static final Clock FIXED_CLOCK =
-            Clock.fixed(ZONED_DATE_TIME.toInstant(), ZoneId.of("UTC"));
 
     @Test
     void shouldCreateRecipientDeletedEvent_whenAllValuesAreValid() {

@@ -38,6 +38,7 @@ public class KinesisClientConfig {
   }
 
   @Bean
+  @SuppressWarnings("java:S3306")
   @Qualifier("kinesisEndpointOverride")
   @ConditionalOnProperty(name = "cloud.aws.kinesis.endpoint")
   EndpointOverride kinesisEndpoint(@Value("${cloud.aws.kinesis.endpoint}") String endpoint) {

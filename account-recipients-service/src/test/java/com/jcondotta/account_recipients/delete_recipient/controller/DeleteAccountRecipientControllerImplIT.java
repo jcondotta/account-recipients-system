@@ -11,7 +11,6 @@ import com.jcondotta.account_recipients.domain.recipient.value_objects.Recipient
 import com.jcondotta.account_recipients.domain.shared.value_objects.BankAccountId;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.messaging.EventEnvelope;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.messaging.EventMetadata;
-import com.jcondotta.account_recipients.infrastructure.adapters.output.messaging.RecipientCreatedMessage;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.messaging.RecipientDeletedMessage;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.entity.AccountRecipientEntity;
 import com.jcondotta.account_recipients.infrastructure.adapters.output.repository.mapper.AccountRecipientEntityMapper;
@@ -35,7 +34,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
@@ -256,16 +254,6 @@ class DeleteAccountRecipientControllerImplIT {
         .partitionValue(entity.getPartitionKey())
         .sortValue(entity.getSortKey())
         .build();
-  }
-
-  private RequestSpecification buildRequestSpecification(int port) {
-    return given()
-        .baseUri("http://localhost")
-        .port(port)
-        .basePath(uriProperties.recipientIdPath())
-        .header(HttpHeadersCustom.IDEMPOTENCY_KEY, UUID.randomUUID())
-        .contentType(ContentType.JSON)
-        .accept(ContentType.JSON);
   }
 
   private String resolveMessage(String code, Locale locale, Object... args) {

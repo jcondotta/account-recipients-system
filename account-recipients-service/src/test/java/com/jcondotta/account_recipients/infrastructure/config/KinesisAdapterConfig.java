@@ -14,7 +14,6 @@ import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.config.EnableIntegration;
 import org.springframework.messaging.MessageChannel;
 import software.amazon.awssdk.services.kinesis.KinesisAsyncClient;
-import software.amazon.awssdk.services.kinesis.model.ShardIteratorType;
 
 import java.nio.charset.StandardCharsets;
 
@@ -42,7 +41,7 @@ public class KinesisAdapterConfig {
     adapter.setConsumerGroup("recipients-created-consumer");
     adapter.setOutputChannel(recipientsCreatedChannel);
     adapter.setCheckpointMode(CheckpointMode.record);
-    adapter.setConverter(record -> new String(record, StandardCharsets.UTF_8));
+    adapter.setConverter(converter -> new String(converter, StandardCharsets.UTF_8));
 
 
     adapter.setStreamInitialSequence(KinesisShardOffset.trimHorizon());
@@ -69,7 +68,7 @@ public class KinesisAdapterConfig {
     adapter.setConsumerGroup("recipients-deleted-consumer");
     adapter.setOutputChannel(recipientsCreatedChannel);
     adapter.setCheckpointMode(CheckpointMode.record);
-    adapter.setConverter(record -> new String(record, StandardCharsets.UTF_8));
+    adapter.setConverter(converter -> new String(converter, StandardCharsets.UTF_8));
 
 
     adapter.setStreamInitialSequence(KinesisShardOffset.trimHorizon());
