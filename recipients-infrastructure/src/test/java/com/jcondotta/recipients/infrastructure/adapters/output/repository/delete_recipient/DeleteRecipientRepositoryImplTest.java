@@ -49,7 +49,7 @@ class DeleteRecipientRepositoryImplTest {
   private ArgumentCaptor<Consumer<DeleteItemEnhancedRequest.Builder>> deleteItemConsumerCaptor;
 
   @Test
-  void shouldDeleteRecipientSuccessfully_whenAccountRecipientExists() {
+  void shouldDeleteRecipientSuccessfully_whenRecipientExists() {
     var recipient =
         Recipient.restore(
             RECIPIENT_ID, BANK_ACCOUNT_ID, RECIPIENT_NAME_JEFFERSON, IBAN, CREATED_AT);
@@ -79,7 +79,7 @@ class DeleteRecipientRepositoryImplTest {
   }
 
   @Test
-  void shouldThrowAccountRecipientNotFoundException_whenRecipientDoesNotExist() {
+  void shouldThrowRecipientNotFoundException_whenRecipientDoesNotExist() {
     var recipient =
         Recipient.restore(
             RECIPIENT_ID, BANK_ACCOUNT_ID, RECIPIENT_NAME_JEFFERSON, IBAN, CREATED_AT);

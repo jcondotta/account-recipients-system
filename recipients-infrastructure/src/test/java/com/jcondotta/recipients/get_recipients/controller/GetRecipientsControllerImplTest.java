@@ -5,7 +5,7 @@ import com.jcondotta.recipients.application.usecase.get_recipients.model.Recipie
 import com.jcondotta.recipients.application.usecase.get_recipients.model.query.GetRecipientsQuery;
 import com.jcondotta.recipients.application.usecase.get_recipients.model.result.GetRecipientsResult;
 import com.jcondotta.recipients.get_recipients.controller.mapper.request.GetRecipientsRequestRestMapper;
-import com.jcondotta.recipients.get_recipients.controller.mapper.response.GetAccountRecipientsResponseMapper;
+import com.jcondotta.recipients.get_recipients.controller.mapper.response.GetRecipientsResponseMapper;
 import com.jcondotta.recipients.get_recipients.controller.model.request.GetRecipientsRestRequestParams;
 import com.jcondotta.recipients.get_recipients.controller.model.response.GetRecipientsResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,7 +33,7 @@ class GetRecipientsControllerImplTest {
   private GetRecipientsRequestRestMapper requestMapper;
 
   @Mock
-  private GetAccountRecipientsResponseMapper responseMapper;
+  private GetRecipientsResponseMapper responseMapper;
 
   @Mock
   private GetRecipientsRestRequestParams restRequestParams;
@@ -53,7 +53,7 @@ class GetRecipientsControllerImplTest {
   }
 
   @Test
-  void shouldReturnNoContent_whenNoAccountRecipientsAreFound() {
+  void shouldReturnNoContent_whenNoRecipientsAreFound() {
     var result = GetRecipientsResult.of(List.of(), null);
 
     when(requestMapper.toQuery(BANK_ACCOUNT_ID, restRequestParams)).thenReturn(query);
@@ -73,7 +73,7 @@ class GetRecipientsControllerImplTest {
   }
 
   @Test
-  void shouldReturnOkWithResponseBody_whenAccountRecipientsAreFound() {
+  void shouldReturnOkWithResponseBody_whenRecipientsAreFound() {
     var recipients = List.of(mock(RecipientDetails.class));
     var nextCursor = "next-cursor";
     var result = GetRecipientsResult.of(recipients, nextCursor);

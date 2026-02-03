@@ -58,7 +58,7 @@ class CreateRecipientControllerImplTest {
   }
 
   @Test
-  void shouldCreateAccountRecipientAndReturnCreatedResponse_whenRequestIsValid() {
+  void shouldCreateRecipientAndReturnCreatedResponse_whenRequestIsValid() {
     var request = CreateRecipientRestRequest.of(RECIPIENT_NAME, IBAN);
 
     when(requestMapper.toCommand(BANK_ACCOUNT_UUID, request))
@@ -67,7 +67,7 @@ class CreateRecipientControllerImplTest {
     when(uriProperties.recipientsURI(BANK_ACCOUNT_UUID)).thenReturn(EXPECTED_LOCATION_URI);
 
     ResponseEntity<String> response =
-        controller.createAccountRecipient(IDEMPOTENCY_KEY_UUID, BANK_ACCOUNT_UUID, request);
+        controller.createRecipient(IDEMPOTENCY_KEY_UUID, BANK_ACCOUNT_UUID, request);
 
     assertThat(response.getStatusCode().value()).isEqualTo(201);
     assertThat(response.getHeaders().getLocation()).isEqualTo(EXPECTED_LOCATION_URI);

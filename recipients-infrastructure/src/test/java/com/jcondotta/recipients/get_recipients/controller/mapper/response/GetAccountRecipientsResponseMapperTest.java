@@ -35,21 +35,21 @@ class GetRecipientsResponseMapperImplTest {
   private static final Iban IBAN = Iban.of(IBAN_VALUE);
   private static final ZonedDateTime CREATED_AT =
       ZonedDateTime.now(ClockTestFactory.TEST_CLOCK_FIXED);
-  private GetAccountRecipientsResponseMapperImpl mapper;
+  private GetRecipientsResponseMapperImpl mapper;
   @Mock
   private RecipientDetails detailsMock;
 
   @BeforeEach
   void setUp() {
-    mapper = new GetAccountRecipientsResponseMapperImpl();
+    mapper = new GetRecipientsResponseMapperImpl();
   }
 
-  // --- toAccountRecipientResponse() ---
+  // --- toRecipientResponse() ---
 
   @Test
   void shouldReturnNull_whenDetailsIsNull() {
     // when
-    RecipientResponse response = mapper.toAccountRecipientResponse(null);
+    RecipientResponse response = mapper.toRecipientResponse(null);
 
     // then
     assertThat(response).isNull();
@@ -63,7 +63,7 @@ class GetRecipientsResponseMapperImplTest {
             ACCOUNT_RECIPIENT_ID, BANK_ACCOUNT_ID, RECIPIENT_NAME, IBAN, CREATED_AT);
 
     // when
-    RecipientResponse response = mapper.toAccountRecipientResponse(details);
+    RecipientResponse response = mapper.toRecipientResponse(details);
 
     // then
     assertThat(response)
@@ -79,7 +79,7 @@ class GetRecipientsResponseMapperImplTest {
   @Test
   void shouldReturnNull_whenDetailsListIsNull() {
     // when
-    List<RecipientResponse> result = mapper.toAccountRecipientResponses(null);
+    List<RecipientResponse> result = mapper.toRecipientResponses(null);
 
     // then
     assertThat(result).isNull();
@@ -88,7 +88,7 @@ class GetRecipientsResponseMapperImplTest {
   @Test
   void shouldReturnEmptyList_whenDetailsListIsEmpty() {
     // when
-    List<RecipientResponse> result = mapper.toAccountRecipientResponses(List.of());
+    List<RecipientResponse> result = mapper.toRecipientResponses(List.of());
 
     // then
     assertThat(result).isEmpty();
@@ -112,7 +112,7 @@ class GetRecipientsResponseMapperImplTest {
     var list = List.of(details1, details2);
 
     // when
-    var result = mapper.toAccountRecipientResponses(list);
+    var result = mapper.toRecipientResponses(list);
 
     // then
     assertThat(result)
@@ -129,12 +129,12 @@ class GetRecipientsResponseMapperImplTest {
   @Test
   void shouldMapListWithMixedNullAndValidDetails() {
     // given
-    var accountRecipientDetails =
+    var recipientDetails =
         RecipientDetails.of(
             ACCOUNT_RECIPIENT_ID, BANK_ACCOUNT_ID, RECIPIENT_NAME, IBAN, CREATED_AT);
-    var list = List.of(accountRecipientDetails);
+    var list = List.of(recipientDetails);
 
-    var responses = mapper.toAccountRecipientResponses(list);
+    var responses = mapper.toRecipientResponses(list);
 
     // then
     assertThat(responses)
@@ -158,7 +158,7 @@ class GetRecipientsResponseMapperImplTest {
     when(detailsMock.iban()).thenReturn(null);
 
     // when
-    RecipientResponse response = mapper.toAccountRecipientResponse(detailsMock);
+    RecipientResponse response = mapper.toRecipientResponse(detailsMock);
 
     // then
     verify(detailsMock).recipientId();

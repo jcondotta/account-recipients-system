@@ -28,7 +28,7 @@ public class CreateRecipientUseCaseImpl implements CreateRecipientUseCase {
   @Override
   @Observed(
       name = "account.recipients.create",
-      contextualName = "createAccountRecipient",
+      contextualName = "createRecipient",
       lowCardinalityKeyValues = {"operation", "create"})
   public void execute(CreateRecipientCommand command, IdempotencyKey idempotencyKey) {
     Objects.requireNonNull(command, "command must not be null");

@@ -13,7 +13,7 @@ public interface DeleteRecipientController {
 
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @DeleteMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-  ResponseEntity<Void> deleteAccountRecipient(
+  ResponseEntity<Void> deleteRecipient(
       @RequestHeader(name = HttpHeadersCustom.IDEMPOTENCY_KEY) UUID idempotencyKey,
       @PathVariable("bank-account-id") UUID bankAccountId,
       @PathVariable("recipient-id") UUID recipientId);

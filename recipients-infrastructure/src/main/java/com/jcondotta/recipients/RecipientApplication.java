@@ -8,10 +8,10 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @SpringBootApplication(scanBasePackages = "com.jcondotta.recipients")
 @EnableFeignClients(basePackages = "com.jcondotta.recipients.infrastructure")
 @ConfigurationPropertiesScan(basePackages = "com.jcondotta.recipients.infrastructure.properties")
-public class AccountRecipientApplication {
+public class RecipientApplication {
 
   public static void main(String[] args) {
-    SpringApplication.run(AccountRecipientApplication.class, args);
+    SpringApplication.run(RecipientApplication.class, args);
   }
 }
 

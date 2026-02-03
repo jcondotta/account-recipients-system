@@ -23,17 +23,17 @@ public class GetRecipientsUseCaseImpl implements GetRecipientsUseCase {
   @Override
   @Observed(
       name = "account.recipients.query",
-      contextualName = "queryAccountRecipients",
+      contextualName = "queryRecipients",
       lowCardinalityKeyValues = {"operation", "query"})
   public GetRecipientsResult execute(GetRecipientsQuery query) {
     PaginatedResult<Recipient> paginatedResult =
         getRecipientsRepository.findByQuery(query);
 
-    var accountRecipientDetailsList = paginatedResult.items()
+    var recipientDetailsList = paginatedResult.items()
         .stream()
         .map(queryMapper::toRecipient)
         .toList();
 
-    return GetRecipientsResult.of(accountRecipientDetailsList, paginatedResult.nextCursor());
+    return GetRecipientsResult.of(recipientDetailsList, paginatedResult.nextCursor());
   }
 }

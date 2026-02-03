@@ -28,7 +28,7 @@ class GetRecipientsResponseTest {
     assertThat(response)
         .satisfies(
             it -> {
-              assertThat(it.accountRecipients())
+              assertThat(it.recipients())
                   .hasSize(1)
                   .first()
                   .satisfies(

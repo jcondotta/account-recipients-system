@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class GetRecipientsControllerImplIT {
 
   @Autowired
-  private DynamoDbTable<RecipientEntity> accountRecipientsTable;
+  private DynamoDbTable<RecipientEntity> recipientsTable;
 
   @Autowired
   private RecipientURIProperties uriProperties;
@@ -82,9 +82,9 @@ class GetRecipientsControllerImplIT {
 
     @Test
     void shouldReturnFirstPageAndNextCursor_whenMultiplePagesAvailable() {
-      accountRecipientsTable.putItem(recipientJefferson);
-      accountRecipientsTable.putItem(recipientPatrizio);
-      accountRecipientsTable.putItem(recipientVirginio);
+      recipientsTable.putItem(recipientJefferson);
+      recipientsTable.putItem(recipientPatrizio);
+      recipientsTable.putItem(recipientVirginio);
 
       var pageLimit = 2;
 
@@ -101,7 +101,7 @@ class GetRecipientsControllerImplIT {
               .body()
               .as(GetRecipientsResponse.class);
 
-      assertThat(responsePage1.accountRecipients())
+      assertThat(responsePage1.recipients())
           .hasSize(pageLimit)
           .extracting(RecipientResponse::recipientName)
           .containsExactly(JEFFERSON.getRecipientName(), PATRIZIO.getRecipientName());
@@ -122,7 +122,7 @@ class GetRecipientsControllerImplIT {
               .body()
               .as(GetRecipientsResponse.class);
 
-      assertThat(responsePage2.accountRecipients())
+      assertThat(responsePage2.recipients())
           .hasSize(1)
           .extracting(RecipientResponse::recipientName)
           .containsExactly(VIRGINIO.getRecipientName());
@@ -132,9 +132,9 @@ class GetRecipientsControllerImplIT {
 
     @Test
     void shouldReturnFirstPageWithNextCursor_whenItemsExceedLimit() {
-      accountRecipientsTable.putItem(recipientJefferson);
-      accountRecipientsTable.putItem(recipientPatrizio);
-      accountRecipientsTable.putItem(recipientVirginio);
+      recipientsTable.putItem(recipientJefferson);
+      recipientsTable.putItem(recipientPatrizio);
+      recipientsTable.putItem(recipientVirginio);
 
       var pageLimit = 2;
       var response =
@@ -150,7 +150,7 @@ class GetRecipientsControllerImplIT {
               .body()
               .as(GetRecipientsResponse.class);
 
-      assertThat(response.accountRecipients())
+      assertThat(response.recipients())
           .hasSize(pageLimit)
           .extracting(RecipientResponse::recipientName)
           .containsExactly(JEFFERSON.getRecipientName(), PATRIZIO.getRecipientName());
@@ -160,8 +160,8 @@ class GetRecipientsControllerImplIT {
 
     @Test
     void shouldReturnAllItemsAndNullCursor_whenItemsExactlyFillPageLimit() {
-      accountRecipientsTable.putItem(recipientJefferson);
-      accountRecipientsTable.putItem(recipientPatrizio);
+      recipientsTable.putItem(recipientJefferson);
+      recipientsTable.putItem(recipientPatrizio);
 
       var pageLimit = 2;
       var response =
@@ -177,7 +177,7 @@ class GetRecipientsControllerImplIT {
               .body()
               .as(GetRecipientsResponse.class);
 
-      assertThat(response.accountRecipients())
+      assertThat(response.recipients())
           .hasSize(pageLimit)
           .extracting(RecipientResponse::recipientName)
           .containsExactly(JEFFERSON.getRecipientName(), PATRIZIO.getRecipientName());
@@ -192,7 +192,7 @@ class GetRecipientsControllerImplIT {
 
       for (int i = 0; i < numbersOfRecipients; i++) {
         var recipient = RecipientEntityTestFactory.create(bankAccountId, "Recipient #" + i);
-        accountRecipientsTable.putItem(recipient);
+        recipientsTable.putItem(recipient);
       }
 
       var response =
@@ -207,7 +207,7 @@ class GetRecipientsControllerImplIT {
               .body()
               .as(GetRecipientsResponse.class);
 
-      assertThat(response.accountRecipients())
+      assertThat(response.recipients())
           .hasSize(GetRecipientsQueryParams.DEFAULT_LIMIT)
           .extracting(RecipientResponse::recipientName)
           .allSatisfy(name -> assertThat(name).startsWith("Recipient #"));
@@ -227,7 +227,7 @@ class GetRecipientsControllerImplIT {
               .body()
               .as(GetRecipientsResponse.class);
 
-      assertThat(responsePage2.accountRecipients())
+      assertThat(responsePage2.recipients())
           .hasSize(2)
           .extracting(RecipientResponse::recipientName)
           .allSatisfy(name -> assertThat(name).startsWith("Recipient #"));
@@ -241,9 +241,9 @@ class GetRecipientsControllerImplIT {
 
     @Test
     void shouldReturnAllItemsAndNullCursor_whenLastPageIsReached() {
-      accountRecipientsTable.putItem(recipientVirginio);
-      accountRecipientsTable.putItem(recipientJefferson);
-      accountRecipientsTable.putItem(recipientPatrizio);
+      recipientsTable.putItem(recipientVirginio);
+      recipientsTable.putItem(recipientJefferson);
+      recipientsTable.putItem(recipientPatrizio);
 
       var pageLimit = 3;
       var response =
@@ -259,7 +259,7 @@ class GetRecipientsControllerImplIT {
               .body()
               .as(GetRecipientsResponse.class);
 
-      assertThat(response.accountRecipients())
+      assertThat(response.recipients())
           .hasSize(pageLimit)
           .extracting(RecipientResponse::recipientName)
           .containsExactly(
@@ -272,8 +272,8 @@ class GetRecipientsControllerImplIT {
 
     @Test
     void shouldReturnNoContent_whenCursorBelongsToAnotherBankAccount() {
-      accountRecipientsTable.putItem(recipientJefferson);
-      accountRecipientsTable.putItem(recipientPatrizio);
+      recipientsTable.putItem(recipientJefferson);
+      recipientsTable.putItem(recipientPatrizio);
 
       var pageLimit = 1;
 
@@ -290,7 +290,7 @@ class GetRecipientsControllerImplIT {
               .body()
               .as(GetRecipientsResponse.class);
 
-      assertThat(response1.accountRecipients()).hasSize(pageLimit);
+      assertThat(response1.recipients()).hasSize(pageLimit);
       assertThat(response1.nextCursor()).isNotBlank();
 
       var nonExistingBankAccountId = UUID.randomUUID();
@@ -312,8 +312,8 @@ class GetRecipientsControllerImplIT {
 
     @Test
     void shouldPopulateCache_whenQueryIsExecuted() {
-      accountRecipientsTable.putItem(recipientJefferson);
-      accountRecipientsTable.putItem(recipientPatrizio);
+      recipientsTable.putItem(recipientJefferson);
+      recipientsTable.putItem(recipientPatrizio);
 
       var pageLimit = 2;
       given()
@@ -328,8 +328,8 @@ class GetRecipientsControllerImplIT {
 
     @Test
     void shouldReturnSameResultFromCache_whenQueryIsExecutedTwice() {
-      accountRecipientsTable.putItem(recipientJefferson);
-      accountRecipientsTable.putItem(recipientPatrizio);
+      recipientsTable.putItem(recipientJefferson);
+      recipientsTable.putItem(recipientPatrizio);
 
       var pageLimit = 2;
       var recipientsResponse1 =
@@ -360,10 +360,10 @@ class GetRecipientsControllerImplIT {
 
       assertThat(recipientsResponse1.nextCursor()).isBlank();
       assertThat(recipientsResponse2.nextCursor()).isBlank();
-      assertThat(recipientsResponse2.accountRecipients())
+      assertThat(recipientsResponse2.recipients())
           .extracting(RecipientResponse::recipientName)
           .containsExactlyElementsOf(
-              recipientsResponse1.accountRecipients().stream()
+              recipientsResponse1.recipients().stream()
                   .map(RecipientResponse::recipientName)
                   .toList());
     }
@@ -373,7 +373,7 @@ class GetRecipientsControllerImplIT {
   class EmptyResults {
 
     @Test
-    void shouldReturnNoContent_whenNoAccountRecipientsAreFound() {
+    void shouldReturnNoContent_whenNoRecipientsAreFound() {
       given()
           .spec(requestSpecification)
           .pathParam("bank-account-id", bankAccountId)

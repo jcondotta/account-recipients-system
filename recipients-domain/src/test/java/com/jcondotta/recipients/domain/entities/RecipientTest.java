@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class AccountRecipientTest {
+class RecipientTest {
 
     private static final BankAccountId BANK_ACCOUNT_ID = BankAccountId.of(UUID.randomUUID());
     private static final RecipientId RECIPIENT_ID = RecipientId.newId();
@@ -30,7 +30,7 @@ class AccountRecipientTest {
     private static final ZonedDateTime CREATED_AT = ZonedDateTime.now(CLOCK);
 
     @Test
-    void shouldCreateAccountRecipientUsingFactoryMethod_whenAllValuesAreValid() {
+    void shouldCreateRecipientUsingFactoryMethod_whenAllValuesAreValid() {
         var recipient = Recipient.create(BANK_ACCOUNT_ID, RECIPIENT_NAME_JEFFERSON, IBAN, CLOCK);
 
         assertThat(recipient.getRecipientId()).isNotNull();
@@ -53,8 +53,8 @@ class AccountRecipientTest {
     }
 
     @Test
-    void shouldMarkAccountRecipientAsDeleted_whenDeleteIsCalled() {
-        var recipient = createValidAccountRecipient();
+    void shouldMarkRecipientAsDeleted_whenDeleteIsCalled() {
+        var recipient = createValidRecipient();
 
         recipient.delete(CLOCK);
 
@@ -64,7 +64,7 @@ class AccountRecipientTest {
 
     @Test
     void shouldNotChangeDeletedAt_whenDeleteIsCalledMoreThanOnce() {
-        var recipient = createValidAccountRecipient();
+        var recipient = createValidRecipient();
 
         recipient.delete(CLOCK);
         var firstDeletedAt = recipient.getDeletedAt();
@@ -153,7 +153,7 @@ class AccountRecipientTest {
                         null));
     }
 
-    private Recipient createValidAccountRecipient() {
+    private Recipient createValidRecipient() {
         return Recipient.create(BANK_ACCOUNT_ID, RECIPIENT_NAME_JEFFERSON, IBAN, CLOCK);
     }
 

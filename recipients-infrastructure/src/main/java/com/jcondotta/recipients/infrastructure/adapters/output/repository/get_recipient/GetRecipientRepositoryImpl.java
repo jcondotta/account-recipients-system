@@ -32,9 +32,9 @@ public class GetRecipientRepositoryImpl implements GetRecipientRepository {
         .sortValue(RecipientEntityKey.sortKey(recipientId))
         .build();
 
-    var accountRecipientEntity = dynamoDbTable.getItem(key);
+    var recipientEntity = dynamoDbTable.getItem(key);
 
-    return Optional.ofNullable(accountRecipientEntity)
+    return Optional.ofNullable(recipientEntity)
         .map(recipientEntityMapper::toDomain);
   }
 }

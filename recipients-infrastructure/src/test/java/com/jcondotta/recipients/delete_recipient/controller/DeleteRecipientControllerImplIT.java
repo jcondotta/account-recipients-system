@@ -112,7 +112,7 @@ class DeleteRecipientControllerImplIT {
   }
 
   @Test
-  void shouldReturn204NoContent_whenAccountRecipientIsFound() {
+  void shouldReturn204NoContent_whenRecipientIsFound() {
     stubFor(
         get(urlPathEqualTo("/api/v1/bank-accounts/" + bankAccountId))
             .willReturn(
@@ -123,7 +123,7 @@ class DeleteRecipientControllerImplIT {
                     .withTransformers("response-template")));
 
     var recipient = Recipient.restore(recipientId, bankAccountId, recipientName, iban, fixedZonedDateTime);
-    var accountRecipientEntity = seed(recipient);
+    var recipientEntity = seed(recipient);
 
     given()
         .spec(requestSpecification)
@@ -134,7 +134,7 @@ class DeleteRecipientControllerImplIT {
     .then()
         .statusCode(HttpStatus.NO_CONTENT.value());
 
-    var key = buildRecipientKey(accountRecipientEntity);
+    var key = buildRecipientKey(recipientEntity);
     assertThat(dynamoDbTable.getItem(r -> r.key(key).consistentRead(true)))
         .as("The account recipient entity should be deleted from the database")
         .isNull();
@@ -168,7 +168,7 @@ class DeleteRecipientControllerImplIT {
   @Test
   void shouldReturn404NotFound_whenBankAccountDoesNotExist() {
     var recipient = Recipient.restore(recipientId, bankAccountId, recipientName, iban, fixedZonedDateTime);
-    var accountRecipientEntity = seed(recipient);
+    var recipientEntity = seed(recipient);
 
     var nonExistentBankAccountId = UUID.randomUUID();
     var problemDetail =
@@ -191,7 +191,7 @@ class DeleteRecipientControllerImplIT {
                 () -> assertThat(problemDetail.getDetail()).isEqualTo(expectedMessageError),
                 () -> assertThat(problemDetail.getInstance()).isEqualTo(uriProperties.recipientURI(nonExistentBankAccountId, recipientId.value())));
 
-    var key = buildRecipientKey(accountRecipientEntity);
+    var key = buildRecipientKey(recipientEntity);
     assertThat(dynamoDbTable.getItem(r -> r.key(key).consistentRead(true)))
         .as(
             "Recipient must remain because bank account %s does not exist",
@@ -200,7 +200,7 @@ class DeleteRecipientControllerImplIT {
   }
 
   @Test
-  void shouldReturn404NotFound_whenAccountRecipientDoesNotExist() {
+  void shouldReturn404NotFound_whenRecipientDoesNotExist() {
     stubFor(
         get(urlPathEqualTo("/api/v1/bank-accounts/" + bankAccountId))
             .willReturn(
@@ -211,7 +211,7 @@ class DeleteRecipientControllerImplIT {
                     .withTransformers("response-template")));
 
     var recipient = Recipient.restore(recipientId, bankAccountId, recipientName, iban, fixedZonedDateTime);
-    var accountRecipientEntity = seed(recipient);
+    var recipientEntity = seed(recipient);
 
     var nonExistentRecipientId = UUID.randomUUID();
     var problemDetail =
@@ -235,7 +235,7 @@ class DeleteRecipientControllerImplIT {
                 () -> assertThat(problemDetail.getInstance())
                     .isEqualTo(uriProperties.recipientURI(bankAccountId.value(), nonExistentRecipientId)));
 
-    var key = buildRecipientKey(accountRecipientEntity);
+    var key = buildRecipientKey(recipientEntity);
     assertThat(dynamoDbTable.getItem(r -> r.key(key).consistentRead(true)))
         .as(
             "Recipient must remain because account recipient %s does not exist",
@@ -244,9 +244,9 @@ class DeleteRecipientControllerImplIT {
   }
 
   private RecipientEntity seed(Recipient recipient) {
-    var accountRecipientEntity = entityMapper.toEntity(recipient);
-    dynamoDbTable.putItem(accountRecipientEntity);
-    return accountRecipientEntity;
+    var recipientEntity = entityMapper.toEntity(recipient);
+    dynamoDbTable.putItem(recipientEntity);
+    return recipientEntity;
   }
 
   private Key buildRecipientKey(RecipientEntity entity) {

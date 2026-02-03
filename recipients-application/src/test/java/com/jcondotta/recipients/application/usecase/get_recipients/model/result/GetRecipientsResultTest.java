@@ -43,22 +43,22 @@ class GetRecipientsResultTest {
   void shouldCreateResult_whenValidArguments() {
     var result = new GetRecipientsResult(List.of(recipientDetails), nextCursor);
 
-    assertThat(result.accountRecipients()).containsExactly(recipientDetails);
+    assertThat(result.recipients()).containsExactly(recipientDetails);
     assertThat(result.nextCursor()).isEqualTo(nextCursor);
   }
 
   @Test
-  void shouldThrowNullPointerException_whenAccountRecipientsIsNull() {
+  void shouldThrowNullPointerException_whenRecipientsIsNull() {
     assertThatThrownBy(() -> new GetRecipientsResult(null, nextCursor))
         .isInstanceOf(NullPointerException.class)
-        .hasMessage("accountRecipients must not be null");
+        .hasMessage("recipients must not be null");
   }
 
   @Test
-  void shouldAllowNullCursor_whenAccountRecipientsIsValid() {
+  void shouldAllowNullCursor_whenRecipientsIsValid() {
     var result = new GetRecipientsResult(List.of(recipientDetails), null);
 
-    assertThat(result.accountRecipients()).containsExactly(recipientDetails);
+    assertThat(result.recipients()).containsExactly(recipientDetails);
     assertThat(result.nextCursor()).isNull();
   }
 
@@ -66,7 +66,7 @@ class GetRecipientsResultTest {
   void shouldCreateResultUsingFactoryMethod_whenValidArguments() {
     var result = GetRecipientsResult.of(List.of(recipientDetails), nextCursor);
 
-    assertThat(result.accountRecipients()).containsExactly(recipientDetails);
+    assertThat(result.recipients()).containsExactly(recipientDetails);
     assertThat(result.nextCursor()).isEqualTo(nextCursor);
   }
 }

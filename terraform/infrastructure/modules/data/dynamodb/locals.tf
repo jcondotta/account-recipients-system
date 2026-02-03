@@ -1,5 +1,5 @@
 locals {
-  recipients_table_name = "account-recipients-${var.environment}"
+  recipients_table_name = "recipients-${var.environment}"
 
   tier = "data"
 }

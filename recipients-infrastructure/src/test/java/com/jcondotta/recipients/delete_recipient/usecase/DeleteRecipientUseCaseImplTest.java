@@ -69,7 +69,7 @@ class DeleteRecipientUseCaseImplTest {
   private RecipientDeletedEventPublisher deletedEventPublisher;
 
   @Captor
-  private ArgumentCaptor<Recipient> accountRecipientCaptor;
+  private ArgumentCaptor<Recipient> recipientCaptor;
 
   @Captor
   private ArgumentCaptor<RecipientDeletedEvent> recipientDeletedEventCaptor;
@@ -120,7 +120,7 @@ class DeleteRecipientUseCaseImplTest {
   }
 
   @Test
-  void shouldThrowAccountRecipientNotFoundException_whenRecipientDoesNotExist() {
+  void shouldThrowRecipientNotFoundException_whenRecipientDoesNotExist() {
     BankAccount bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
     when(lookupBankAccountFacadeMock.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccount);
 

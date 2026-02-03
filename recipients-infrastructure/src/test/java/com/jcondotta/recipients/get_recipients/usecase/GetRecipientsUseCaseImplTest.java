@@ -42,10 +42,10 @@ class GetRecipientsUseCaseImplTest {
   private GetRecipientsRepository repositoryMock;
 
   @Mock
-  private Recipient accountRecipientMock1;
+  private Recipient recipientMock1;
 
   @Mock
-  private Recipient accountRecipientMock2;
+  private Recipient recipientMock2;
 
   @Mock
   private RecipientDetails recipientDetails1;
@@ -72,26 +72,26 @@ class GetRecipientsUseCaseImplTest {
 
   @Test
   void shouldReturnMappedRecipientsAndNextCursor_andPutResultInCache_whenRepositoryReturnsResults() {
-    var recipients = List.of(accountRecipientMock1, accountRecipientMock2);
+    var recipients = List.of(recipientMock1, recipientMock2);
     var paginatedResult = PaginatedResult.of(recipients, null);
 
     var query = GetRecipientsQuery.of(bankAccountId, queryParams);
 
     when(repositoryMock.findByQuery(query)).thenReturn(paginatedResult);
-    when(queryMapperMock.toRecipient(accountRecipientMock1)).thenReturn(recipientDetails1);
-    when(queryMapperMock.toRecipient(accountRecipientMock2)).thenReturn(recipientDetails2);
+    when(queryMapperMock.toRecipient(recipientMock1)).thenReturn(recipientDetails1);
+    when(queryMapperMock.toRecipient(recipientMock2)).thenReturn(recipientDetails2);
 
     GetRecipientsResult result = useCase.execute(query);
 
     verify(repositoryMock).findByQuery(query);
-    verify(queryMapperMock).toRecipient(accountRecipientMock1);
-    verify(queryMapperMock).toRecipient(accountRecipientMock2);
+    verify(queryMapperMock).toRecipient(recipientMock1);
+    verify(queryMapperMock).toRecipient(recipientMock2);
 
     verifyNoMoreInteractions(repositoryMock, queryMapperMock);
 
     assertThat(result)
         .satisfies(it -> {
-          assertThat(it.accountRecipients())
+          assertThat(it.recipients())
               .containsExactly(recipientDetails1, recipientDetails2);
           assertThat(it.nextCursor()).isNull();
         });
@@ -113,7 +113,7 @@ class GetRecipientsUseCaseImplTest {
 
     assertThat(result)
         .satisfies(it -> {
-          assertThat(it.accountRecipients()).isEmpty();
+          assertThat(it.recipients()).isEmpty();
           assertThat(it.nextCursor()).isNull();
         });
   }

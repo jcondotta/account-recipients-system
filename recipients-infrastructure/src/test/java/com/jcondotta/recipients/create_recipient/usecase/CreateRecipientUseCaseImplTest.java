@@ -57,7 +57,7 @@ class CreateRecipientUseCaseImplTest {
   private RecipientCreatedEventPublisher recipientCreatedEventPublisherMock;
 
   @Captor
-  private ArgumentCaptor<Recipient> accountRecipientCaptor;
+  private ArgumentCaptor<Recipient> recipientCaptor;
 
   @Captor
   private ArgumentCaptor<RecipientCreatedEvent> recipientCreatedEventCaptor;
@@ -81,12 +81,12 @@ class CreateRecipientUseCaseImplTest {
 
     when(lookupBankAccountFacadeMock.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccount);
 
-    var createAccountRecipientCommand = buildCreateAccountRecipientCommand();
-    useCase.execute(createAccountRecipientCommand, idempotencyKey);
+    var createRecipientCommand = buildCreateRecipientCommand();
+    useCase.execute(createRecipientCommand, idempotencyKey);
 
-    verify(createRecipientRepositoryMock).create(accountRecipientCaptor.capture());
+    verify(createRecipientRepositoryMock).create(recipientCaptor.capture());
 
-    assertThat(accountRecipientCaptor.getValue())
+    assertThat(recipientCaptor.getValue())
         .satisfies(
             recipient -> {
               assertThat(recipient.getRecipientId()).isNotNull();
@@ -124,9 +124,9 @@ class CreateRecipientUseCaseImplTest {
             new BankAccountNotFoundException(
                 BANK_ACCOUNT_ID, new RuntimeException("404 simulated")));
 
-    var createAccountRecipientCommand = buildCreateAccountRecipientCommand();
+    var createRecipientCommand = buildCreateRecipientCommand();
 
-    assertThatThrownBy(() -> useCase.execute(createAccountRecipientCommand, idempotencyKey))
+    assertThatThrownBy(() -> useCase.execute(createRecipientCommand, idempotencyKey))
         .isInstanceOf(BankAccountNotFoundException.class)
         .hasMessage(BankAccountNotFoundException.BANK_ACCOUNT_NOT_FOUND_TEMPLATE);
 
@@ -150,7 +150,7 @@ class CreateRecipientUseCaseImplTest {
 
   @Test
   void shouldThrowNullPointerException_whenIdempotencyKeyIsNull() {
-    var command = buildCreateAccountRecipientCommand();
+    var command = buildCreateRecipientCommand();
 
     assertThatThrownBy(() -> useCase.execute(command, null))
         .isInstanceOf(NullPointerException.class)
@@ -171,14 +171,14 @@ class CreateRecipientUseCaseImplTest {
         .when(recipientCreatedEventPublisherMock)
         .send(any(), any());
 
-    var command = buildCreateAccountRecipientCommand();
+    var command = buildCreateRecipientCommand();
 
     assertThatThrownBy(() -> useCase.execute(command, idempotencyKey))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Kinesis down");
   }
 
-  private CreateRecipientCommand buildCreateAccountRecipientCommand() {
+  private CreateRecipientCommand buildCreateRecipientCommand() {
     return CreateRecipientCommand.of(BANK_ACCOUNT_ID, RECIPIENT_NAME, IBAN);
   }
 }

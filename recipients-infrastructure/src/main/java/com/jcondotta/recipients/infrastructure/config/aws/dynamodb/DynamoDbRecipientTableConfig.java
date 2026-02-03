@@ -10,20 +10,19 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 
 @Configuration
-public class DynamoDbAccountRecipientTableConfig {
+public class DynamoDbRecipientTableConfig {
 
   @Bean
-  public DynamoDbTable<RecipientEntity> dynamoDbTable(
-      DynamoDbEnhancedClient dynamoDbEnhancedClient,
-      RecipientsTableProperties tableProperties) {
-
+  public DynamoDbTable<RecipientEntity> dynamoDbTable(DynamoDbEnhancedClient dynamoDbEnhancedClient, RecipientsTableProperties tableProperties) {
     return dynamoDbEnhancedClient.table(
-        tableProperties.tableName(), TableSchema.fromBean(RecipientEntity.class));
+        tableProperties.tableName(),
+        TableSchema.fromBean(RecipientEntity.class)
+    );
   }
 
   @Bean
   public DynamoDbIndex<RecipientEntity> recipientNameLSI(
-      DynamoDbTable<RecipientEntity> accountRecipientsTable) {
-    return accountRecipientsTable.index("RecipientNameLSI");
+      DynamoDbTable<RecipientEntity> recipientsTable) {
+    return recipientsTable.index("RecipientNameLSI");
   }
 }

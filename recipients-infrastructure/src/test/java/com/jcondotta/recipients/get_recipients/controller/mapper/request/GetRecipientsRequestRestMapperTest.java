@@ -26,7 +26,7 @@ class GetRecipientsRequestRestMapperTest {
   private final GetRecipientsRequestRestMapper mapper = new GetRecipientsRequestRestMapperImpl();
 
   @Test
-  void shouldMapGetAccountRecipientsQuery_whenAllValuesAreProvided() {
+  void shouldMapGetRecipientsQuery_whenAllValuesAreProvided() {
     var requestParams =
         new GetRecipientsRestRequestParams(LIMIT_10, CURSOR_VALUE, NAME_PREFIX);
 
@@ -34,8 +34,8 @@ class GetRecipientsRequestRestMapperTest {
     var expectedRecipientPrefixName = RecipientNamePrefix.of(requestParams.namePrefix());
     var expectedPaginationCursor = PaginationCursor.of(requestParams.cursor());
 
-    var getAccountRecipientsQuery = mapper.toQuery(BANK_ACCOUNT_UUID, requestParams);
-    assertThat(getAccountRecipientsQuery)
+    var getRecipientsQuery = mapper.toQuery(BANK_ACCOUNT_UUID, requestParams);
+    assertThat(getRecipientsQuery)
         .satisfies(
             query -> {
               assertThat(query.bankAccountId()).isEqualTo(BankAccountId.of(BANK_ACCOUNT_UUID));

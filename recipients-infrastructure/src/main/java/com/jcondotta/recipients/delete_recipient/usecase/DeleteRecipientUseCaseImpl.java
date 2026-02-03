@@ -32,7 +32,7 @@ public class DeleteRecipientUseCaseImpl implements DeleteRecipientUseCase {
   @Override
   @Observed(
       name = "account.recipients.delete",
-      contextualName = "deleteAccountRecipient",
+      contextualName = "deleteRecipient",
       lowCardinalityKeyValues = {"operation", "delete"})
   public void execute(DeleteRecipientCommand command, IdempotencyKey idempotencyKey) {
     Objects.requireNonNull(command, "Command must not be null");

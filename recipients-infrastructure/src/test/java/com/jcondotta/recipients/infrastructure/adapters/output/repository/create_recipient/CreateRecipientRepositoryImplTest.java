@@ -25,7 +25,7 @@ class CreateRecipientRepositoryImplTest {
   private RecipientEntityMapper entityMapper;
 
   @Mock
-  private Recipient accountRecipientMock;
+  private Recipient recipientMock;
 
   @Mock
   private RecipientEntity recipientEntityMock;
@@ -37,15 +37,15 @@ class CreateRecipientRepositoryImplTest {
   private ArgumentCaptor<RecipientEntity> entityCaptor;
 
   @Test
-  void shouldPutEntityIntoDynamoDb_whenAccountRecipientIsValid() {
-    when(entityMapper.toEntity(accountRecipientMock)).thenReturn(recipientEntityMock);
+  void shouldPutEntityIntoDynamoDb_whenRecipientIsValid() {
+    when(entityMapper.toEntity(recipientMock)).thenReturn(recipientEntityMock);
 
-    repository.create(accountRecipientMock);
+    repository.create(recipientMock);
 
     verify(dynamoDbTable).putItem(entityCaptor.capture());
     assertThat(entityCaptor.getValue()).isSameAs(recipientEntityMock);
 
-    verify(entityMapper).toEntity(accountRecipientMock);
+    verify(entityMapper).toEntity(recipientMock);
     verifyNoMoreInteractions(entityMapper, dynamoDbTable);
   }
 }

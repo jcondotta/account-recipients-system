@@ -31,22 +31,22 @@ class GetRecipientRepositoryImplTest {
   @Mock
   private RecipientEntity recipientEntityMock;
   @Mock
-  private Recipient accountRecipientMock;
+  private Recipient recipientMock;
   @InjectMocks
   private GetRecipientRepositoryImpl repository;
 
   @Test
-  void shouldReturnAccountRecipient_whenEntityExists() {
+  void shouldReturnRecipient_whenEntityExists() {
     Key key = Key.builder()
         .partitionValue(RecipientEntityKey.partitionKey(BANK_ACCOUNT_ID))
         .sortValue(RecipientEntityKey.sortKey(RECIPIENT_ID))
         .build();
 
     when(dynamoDbTable.getItem(key)).thenReturn(recipientEntityMock);
-    when(recipientEntityMapper.toDomain(recipientEntityMock)).thenReturn(accountRecipientMock);
+    when(recipientEntityMapper.toDomain(recipientEntityMock)).thenReturn(recipientMock);
 
     assertThat(repository.getRecipient(BANK_ACCOUNT_ID, RECIPIENT_ID))
-        .hasValue(accountRecipientMock);
+        .hasValue(recipientMock);
 
     verify(dynamoDbTable).getItem(key);
     verify(recipientEntityMapper).toDomain(recipientEntityMock);

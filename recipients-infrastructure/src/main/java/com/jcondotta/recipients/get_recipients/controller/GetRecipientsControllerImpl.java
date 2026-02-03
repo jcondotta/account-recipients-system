@@ -3,7 +3,7 @@ package com.jcondotta.recipients.get_recipients.controller;
 import com.jcondotta.recipients.application.usecase.get_recipients.GetRecipientsUseCase;
 import com.jcondotta.recipients.application.usecase.get_recipients.model.result.GetRecipientsResult;
 import com.jcondotta.recipients.get_recipients.controller.mapper.request.GetRecipientsRequestRestMapper;
-import com.jcondotta.recipients.get_recipients.controller.mapper.response.GetAccountRecipientsResponseMapper;
+import com.jcondotta.recipients.get_recipients.controller.mapper.response.GetRecipientsResponseMapper;
 import com.jcondotta.recipients.get_recipients.controller.model.request.GetRecipientsRestRequestParams;
 import com.jcondotta.recipients.get_recipients.controller.model.response.GetRecipientsResponse;
 import io.micrometer.core.annotation.Timed;
@@ -21,7 +21,7 @@ public class GetRecipientsControllerImpl implements GetRecipientsController {
 
   private final GetRecipientsUseCase useCase;
   private final GetRecipientsRequestRestMapper requestMapper;
-  private final GetAccountRecipientsResponseMapper responseMapper;
+  private final GetRecipientsResponseMapper responseMapper;
 
   @Timed(
       value = "account.recipients.query.duration",
@@ -31,11 +31,11 @@ public class GetRecipientsControllerImpl implements GetRecipientsController {
       UUID bankAccountId, GetRecipientsRestRequestParams restRequestParams) {
     GetRecipientsResult result =
         useCase.execute(requestMapper.toQuery(bankAccountId, restRequestParams));
-    if (result.accountRecipients().isEmpty()) {
+    if (result.recipients().isEmpty()) {
       return ResponseEntity.noContent().build();
     }
 
     return ResponseEntity.ok(
-        responseMapper.toResponse(result.accountRecipients(), result.nextCursor()));
+        responseMapper.toResponse(result.recipients(), result.nextCursor()));
   }
 }

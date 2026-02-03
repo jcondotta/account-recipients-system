@@ -9,19 +9,19 @@ import org.mapstruct.Mapping;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
-public interface GetAccountRecipientsResponseMapper {
+public interface GetRecipientsResponseMapper {
 
   @Mapping(target = "recipientId", source = "recipientId.value")
   @Mapping(target = "bankAccountId", source = "bankAccountId.value")
   @Mapping(target = "recipientName", source = "recipientName.value")
   @Mapping(target = "iban", source = "iban.value")
-  RecipientResponse toAccountRecipientResponse(RecipientDetails details);
+  RecipientResponse toRecipientResponse(RecipientDetails details);
 
-  List<RecipientResponse> toAccountRecipientResponses(
+  List<RecipientResponse> toRecipientResponses(
       List<RecipientDetails> detailsList);
 
   default GetRecipientsResponse toResponse(
       List<RecipientDetails> detailsList, String nextCursor) {
-    return GetRecipientsResponse.of(toAccountRecipientResponses(detailsList), nextCursor);
+    return GetRecipientsResponse.of(toRecipientResponses(detailsList), nextCursor);
   }
 }
