@@ -1,16 +1,18 @@
 package com.jcondotta.recipients.domain.events;
 
 import com.jcondotta.recipients.domain.value_objects.BankAccountId;
+import com.jcondotta.recipients.domain.value_objects.EventId;
 import com.jcondotta.recipients.domain.value_objects.RecipientId;
 
 import java.time.ZonedDateTime;
 
 import static java.util.Objects.requireNonNull;
 
-public record RecipientDeletedEvent(RecipientId recipientId, BankAccountId bankAccountId, ZonedDateTime occurredAt)
+public record RecipientDeletedEvent(EventId eventId, RecipientId recipientId, BankAccountId bankAccountId, ZonedDateTime occurredAt)
     implements RecipientEvent {
 
   public RecipientDeletedEvent {
+    requireNonNull(eventId, "eventId must not be null");
     requireNonNull(recipientId, "recipientId must not be null");
     requireNonNull(bankAccountId, "bankAccountId must not be null");
     requireNonNull(occurredAt, "occurredAt must not be null");
@@ -18,6 +20,7 @@ public record RecipientDeletedEvent(RecipientId recipientId, BankAccountId bankA
 
   public static RecipientDeletedEvent of(RecipientId recipientId, BankAccountId bankAccountId, ZonedDateTime occurredAt) {
     return new RecipientDeletedEvent(
+        EventId.newEventId(),
         recipientId,
         bankAccountId,
         occurredAt

@@ -1,9 +1,6 @@
 package com.jcondotta.recipients.domain.events;
 
-import com.jcondotta.recipients.domain.value_objects.BankAccountId;
-import com.jcondotta.recipients.domain.value_objects.Iban;
-import com.jcondotta.recipients.domain.value_objects.RecipientId;
-import com.jcondotta.recipients.domain.value_objects.RecipientName;
+import com.jcondotta.recipients.domain.value_objects.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -20,6 +17,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class RecipientCreatedEventTest {
+
+  private static final EventId EVENT_ID_1 = EventId.newEventId();
 
   private static final RecipientId RECIPIENT_ID_1 = RecipientId.newId();
   private static final RecipientId RECIPIENT_ID_2 = RecipientId.newId();
@@ -40,6 +39,7 @@ class RecipientCreatedEventTest {
   void shouldCreateRecipientCreatedEvent_whenAllValuesAreValid() {
     var event =
         new RecipientCreatedEvent(
+            EVENT_ID_1,
             RECIPIENT_ID_1,
             RECIPIENT_NAME_JEFFERSON,
             BANK_ACCOUNT_ID_1,
@@ -48,12 +48,14 @@ class RecipientCreatedEventTest {
 
     assertThat(event)
         .extracting(
+            RecipientCreatedEvent::eventId,
             RecipientCreatedEvent::recipientId,
             RecipientCreatedEvent::recipientName,
             RecipientCreatedEvent::bankAccountId,
             RecipientCreatedEvent::iban,
             RecipientCreatedEvent::occurredAt)
         .containsExactly(
+            EVENT_ID_1,
             RECIPIENT_ID_1,
             RECIPIENT_NAME_JEFFERSON,
             BANK_ACCOUNT_ID_1,
@@ -92,9 +94,12 @@ class RecipientCreatedEventTest {
             IBAN_1,
             OCCURRED_AT);
 
+    assertThat(event1.eventId()).isNotEqualTo(event2.eventId());
+
     assertThat(event1)
-        .isEqualTo(event2)
-        .hasSameHashCodeAs(event2);
+        .usingRecursiveComparison()
+        .ignoringFields("eventId")
+        .isEqualTo(event2);
   }
 
   @Test
@@ -140,6 +145,7 @@ class RecipientCreatedEventTest {
   @MethodSource("nullFieldProvider")
   void shouldThrowNullPointerException_whenAnyRequiredFieldIsNull(
       String fieldName,
+      EventId eventId,
       RecipientId recipientId,
       RecipientName recipientName,
       BankAccountId bankAccountId,
@@ -148,6 +154,7 @@ class RecipientCreatedEventTest {
     assertThatThrownBy(
         () ->
             new RecipientCreatedEvent(
+                eventId,
                 recipientId,
                 recipientName,
                 bankAccountId,
@@ -159,11 +166,12 @@ class RecipientCreatedEventTest {
 
   static Stream<Arguments> nullFieldProvider() {
     return Stream.of(
-        Arguments.of("recipientId", null, RECIPIENT_NAME_JEFFERSON, BANK_ACCOUNT_ID_1, IBAN_1, OCCURRED_AT),
-        Arguments.of("recipientName", RECIPIENT_ID_1, null, BANK_ACCOUNT_ID_1, IBAN_1, OCCURRED_AT),
-        Arguments.of("bankAccountId", RECIPIENT_ID_1, RECIPIENT_NAME_JEFFERSON, null, IBAN_1, OCCURRED_AT),
-        Arguments.of("iban", RECIPIENT_ID_1, RECIPIENT_NAME_JEFFERSON, BANK_ACCOUNT_ID_1, null, OCCURRED_AT),
-        Arguments.of("occurredAt", RECIPIENT_ID_1, RECIPIENT_NAME_JEFFERSON, BANK_ACCOUNT_ID_1, IBAN_1, null)
+        Arguments.of("eventId", null, RECIPIENT_ID_1, RECIPIENT_NAME_JEFFERSON, BANK_ACCOUNT_ID_1, IBAN_1, OCCURRED_AT),
+        Arguments.of("recipientId", EVENT_ID_1, null, RECIPIENT_NAME_JEFFERSON, BANK_ACCOUNT_ID_1, IBAN_1, OCCURRED_AT),
+        Arguments.of("recipientName", EVENT_ID_1, RECIPIENT_ID_1, null, BANK_ACCOUNT_ID_1, IBAN_1, OCCURRED_AT),
+        Arguments.of("bankAccountId", EVENT_ID_1, RECIPIENT_ID_1, RECIPIENT_NAME_JEFFERSON, null, IBAN_1, OCCURRED_AT),
+        Arguments.of("iban", EVENT_ID_1, RECIPIENT_ID_1, RECIPIENT_NAME_JEFFERSON, BANK_ACCOUNT_ID_1, null, OCCURRED_AT),
+        Arguments.of("occurredAt", EVENT_ID_1, RECIPIENT_ID_1, RECIPIENT_NAME_JEFFERSON, BANK_ACCOUNT_ID_1, IBAN_1, null)
     );
   }
 }

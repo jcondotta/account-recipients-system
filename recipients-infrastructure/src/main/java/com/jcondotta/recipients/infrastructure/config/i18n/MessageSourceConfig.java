@@ -12,7 +12,6 @@ import java.util.Locale;
 public class MessageSourceConfig {
 
   @Bean
-  @Qualifier("errorMessageSource")
   public MessageSource errorMessageSource() {
     var messageSource = new ResourceBundleMessageSource();
 

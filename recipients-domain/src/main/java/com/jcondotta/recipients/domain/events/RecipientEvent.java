@@ -7,6 +7,5 @@ public sealed interface RecipientEvent extends DomainEvent
     permits RecipientCreatedEvent, RecipientDeletedEvent {
 
   RecipientId recipientId();
-
   BankAccountId bankAccountId();
 }
