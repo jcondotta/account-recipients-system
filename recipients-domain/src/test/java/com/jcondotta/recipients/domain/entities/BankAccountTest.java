@@ -5,9 +5,9 @@ import com.jcondotta.recipients.domain.events.RecipientCreatedEvent;
 import com.jcondotta.recipients.domain.events.RecipientDeletedEvent;
 import com.jcondotta.recipients.domain.events.RecipientEvent;
 import com.jcondotta.recipients.domain.exceptions.BankAccountNotActiveException;
+import com.jcondotta.recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.recipients.domain.value_objects.Iban;
 import com.jcondotta.recipients.domain.value_objects.RecipientName;
-import com.jcondotta.recipients.domain.value_objects.BankAccountId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -56,30 +56,6 @@ class BankAccountTest {
                 .hasMessage(ACCOUNT_STATUS_NOT_NULL);
     }
 
-    @ParameterizedTest
-    @EnumSource(AccountStatus.class)
-    void shouldEvaluateIfBankAccountIsActive_whenStatusIsValid(AccountStatus status) {
-        var bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, status);
-
-        assertThat(bankAccount.isActive()).isEqualTo(status == AccountStatus.ACTIVE);
-    }
-
-    @ParameterizedTest
-    @EnumSource(AccountStatus.class)
-    void shouldEvaluateIfBankAccountIsPending_whenStatusIsValid(AccountStatus status) {
-        var bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, status);
-
-        assertThat(bankAccount.isPending()).isEqualTo(status == AccountStatus.PENDING);
-    }
-
-    @ParameterizedTest
-    @EnumSource(AccountStatus.class)
-    void shouldEvaluateIfBankAccountIsCancelled_whenStatusIsValid(AccountStatus status) {
-        var bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, status);
-
-        assertThat(bankAccount.isCancelled()).isEqualTo(status == AccountStatus.CANCELLED);
-    }
-
     @Test
     void shouldCreateRecipient_whenAccountIsActive() {
         var bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
@@ -107,12 +83,12 @@ class BankAccountTest {
 
     @ParameterizedTest
     @EnumSource(value = AccountStatus.class, mode = EnumSource.Mode.EXCLUDE, names = {"ACTIVE"})
-    void shouldThrowIllegalStateException_whenAccountIsNotActive(AccountStatus accountStatus) {
+    void shouldThrowBankAccountNotActiveException_whenCreateRecipientAndAccountIsNotActive(AccountStatus accountStatus) {
         var bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, accountStatus);
 
         assertThatThrownBy(() -> bankAccount.createRecipient(RECIPIENT_NAME_JEFFERSON, IBAN, CLOCK))
             .isInstanceOf(BankAccountNotActiveException.class)
-            .hasMessage(BankAccountNotActiveException.BANK_ACCOUNT_NOT_ACTIVE_TEMPLATE);
+            .hasMessage("recipient.cannotBeCreated.bankAccountNotActive");
     }
 
     @Test
@@ -151,13 +127,13 @@ class BankAccountTest {
 
     @ParameterizedTest
     @EnumSource(value = AccountStatus.class, mode = EnumSource.Mode.EXCLUDE, names = "ACTIVE")
-    void shouldThrowIllegalStateException_whenDeleteRecipientWhichAccountIsNotActive(AccountStatus status) {
+    void shouldThrowBankAccountNotActiveException_whenDeleteRecipientAndAccountIsNotActive(AccountStatus status) {
         var bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, status);
         var recipient = Recipient.create(BANK_ACCOUNT_ID, RECIPIENT_NAME_JEFFERSON, IBAN, CLOCK);
 
         assertThatThrownBy(() -> bankAccount.deleteRecipient(recipient, CLOCK))
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessage("Cannot delete recipient for non-active account");
+            .isInstanceOf(BankAccountNotActiveException.class)
+            .hasMessage("recipient.cannotBeDeleted.bankAccountNotActive");
     }
 
     @Test

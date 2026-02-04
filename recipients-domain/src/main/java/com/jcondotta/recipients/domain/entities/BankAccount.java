@@ -35,7 +35,7 @@ public final class BankAccount {
   }
 
   public Recipient createRecipient(RecipientName name, Iban iban, Clock clock) {
-    if (!isActive()) {
+    if (!this.accountStatus.isActive()) {
       throw new BankAccountNotActiveException(
           "recipient.cannotBeCreated.bankAccountNotActive",
           "Recipient cannot be created",
@@ -62,8 +62,12 @@ public final class BankAccount {
       throw new IllegalStateException("Recipient does not belong to this account");
     }
 
-    if (!this.isActive()) {
-      throw new IllegalStateException("Cannot delete recipient for non-active account");
+    if (!this.accountStatus.isActive()) {
+      throw new BankAccountNotActiveException(
+          "recipient.cannotBeDeleted.bankAccountNotActive",
+          "Recipient cannot be deleted",
+          bankAccountId
+      );
     }
 
     recipient.delete(clock);
@@ -88,18 +92,6 @@ public final class BankAccount {
 
   public AccountStatus getAccountStatus() {
     return accountStatus;
-  }
-
-  public boolean isActive() {
-    return accountStatus.isActive();
-  }
-
-  public boolean isPending() {
-    return accountStatus.isPending();
-  }
-
-  public boolean isCancelled() {
-    return accountStatus.isCancelled();
   }
 
   @Override

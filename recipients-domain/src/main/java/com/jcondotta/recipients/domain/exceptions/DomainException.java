@@ -4,7 +4,7 @@ public abstract class DomainException extends RuntimeException {
 
   private final String messageCode;
   private final String title;
-  private final Object[] args;
+  private final transient Object[] args;
 
   protected DomainException(String messageCode, String title, Object... args) {
     super(messageCode);

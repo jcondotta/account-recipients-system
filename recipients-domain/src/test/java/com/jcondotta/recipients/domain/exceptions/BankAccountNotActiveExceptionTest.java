@@ -12,22 +12,30 @@ class BankAccountNotActiveExceptionTest {
   private static final UUID BANK_ACCOUNT_UUID = UUID.randomUUID();
 
   @Test
-  void shouldCreateExceptionWithoutCause_whenBankAccountIdIsValid() {
+  void shouldCreateExceptionWithProvidedMessageCodeAndTitle_whenParametersAreValid() {
     var bankAccountId = BankAccountId.of(BANK_ACCOUNT_UUID);
-    var exception = new BankAccountNotActiveException(bankAccountId);
+
+    var messageCode = "recipient.cannotBeDeleted.bankAccountNotActive";
+    var title = "Recipient cannot be deleted";
+
+    var exception =
+        new BankAccountNotActiveException(
+            messageCode,
+            title,
+            bankAccountId.value()
+        );
 
     assertThat(exception)
         .isInstanceOf(DomainException.class)
-        .hasMessage(BankAccountNotActiveException.BANK_ACCOUNT_NOT_ACTIVE_TEMPLATE)
         .satisfies(
             e -> {
-              assertThat(e.title()).isEqualTo(BankAccountNotActiveException.BANK_ACCOUNT_NOT_ACTIVE_TITLE);
+              assertThat(e.messageCode()).isEqualTo(messageCode);
+              assertThat(e.title()).isEqualTo(title);
               assertThat(e.getCause()).isNull();
-              assertThat(e.messageCode()).isEqualTo(BankAccountNotActiveException.BANK_ACCOUNT_NOT_ACTIVE_TEMPLATE);
+              assertThat(e.getMessage()).isEqualTo(messageCode);
               assertThat(e.args())
                   .hasSize(1)
                   .containsExactly(BANK_ACCOUNT_UUID);
             });
   }
-
 }
