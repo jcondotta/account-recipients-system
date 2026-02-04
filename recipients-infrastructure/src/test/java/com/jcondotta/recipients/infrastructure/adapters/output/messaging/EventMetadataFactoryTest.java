@@ -5,14 +5,13 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class EventMetadataFactoryTest {
 
   private final EventMetadataFactory factory = new EventMetadataFactory();
 
   @Test
-  void shouldCreateEventMetadataWithIdempotencyKeyAndPublishedAt_whenValuesAreValid() {
+  void shouldCreateEventMetadata_whenValuesAreValid() {
     var before = Instant.now();
 
     var eventMetadata = factory.create();

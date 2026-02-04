@@ -1,0 +1,101 @@
+package com.jcondotta.recipients.infrastructure.adapters.input.rest.get_recipients.model.request;
+
+import org.apache.commons.codec.digest.DigestUtils;
+import org.junit.jupiter.api.Test;
+
+import java.nio.charset.StandardCharsets;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * Unit tests for {@link GetRecipientsRestRequestParams}.
+ */
+class GetRecipientsRestRequestParamsTest {
+
+  private static final Integer LIMIT = 50;
+  private static final String RECIPIENT_NAME_PREFIX = "jeff";
+  private static final String CURSOR = "abc123cursor";
+
+  @Test
+  void shouldCreateRequestParams_whenAllFieldsAreProvided() {
+    var params = GetRecipientsRestRequestParams.of(LIMIT, RECIPIENT_NAME_PREFIX, CURSOR);
+
+    assertThat(params)
+        .satisfies(
+            it -> {
+              assertThat(it.limit()).isEqualTo(LIMIT);
+              assertThat(it.namePrefix()).isEqualTo(RECIPIENT_NAME_PREFIX);
+              assertThat(it.cursor()).isEqualTo(CURSOR);
+            });
+  }
+
+      @Test
+      void shouldGenerateSHA256Hex_whenFieldsAreValid() {
+          var params = GetRecipientsRestRequestParams.of(LIMIT, CURSOR);
+
+          var expectedRaw = String.join("|", LIMIT.toString(), CURSOR);
+          var expectedHash = DigestUtils.sha256Hex(expectedRaw.getBytes(StandardCharsets.UTF_8));
+
+          assertThat(params.toSHA256Hex()).isEqualTo(expectedHash);
+      }
+
+      @Test
+      void shouldGenerateSHA256Hex_whenCursorIsNull() {
+          var params = GetRecipientsRestRequestParams.of(LIMIT, null);
+
+          var expectedRaw = String.join("|", LIMIT.toString(), "");
+          var expectedHash = DigestUtils.sha256Hex(expectedRaw.getBytes(StandardCharsets.UTF_8));
+
+          assertThat(params.toSHA256Hex()).isEqualTo(expectedHash);
+      }
+
+      @Test
+      void shouldGenerateSHA256Hex_whenLimitIsNull() {
+          var params = GetRecipientsRestRequestParams.of(null, CURSOR);
+
+          var expectedRaw = String.join("|", "", CURSOR);
+          var expectedHash = DigestUtils.sha256Hex(expectedRaw.getBytes(StandardCharsets.UTF_8));
+
+          assertThat(params.toSHA256Hex()).isEqualTo(expectedHash);
+      }
+
+      @Test
+      void shouldGenerateSHA256Hex_whenBothFieldsAreNull() {
+          var params = GetRecipientsRestRequestParams.of(null, null);
+
+          var expectedRaw = String.join("|", "", "");
+          var expectedHash = DigestUtils.sha256Hex(expectedRaw.getBytes(StandardCharsets.UTF_8));
+
+          assertThat(params.toSHA256Hex()).isEqualTo(expectedHash);
+      }
+
+      @Test
+      void shouldGenerateSHA256Hex_whenOnlyLimitIsProvided() {
+        var params = GetRecipientsRestRequestParams.of(null);
+
+        var expectedRaw = String.join("|", "", "");
+        var expectedHash = DigestUtils.sha256Hex(expectedRaw.getBytes(StandardCharsets.UTF_8));
+
+        assertThat(params.toSHA256Hex()).isEqualTo(expectedHash);
+      }
+
+
+      @Test
+      void shouldHaveValueEquality_whenFieldsAreIdentical() {
+          var params1 = GetRecipientsRestRequestParams.of(LIMIT, CURSOR);
+          var params2 = GetRecipientsRestRequestParams.of(LIMIT, CURSOR);
+
+          assertThat(params1)
+              .isEqualTo(params2)
+              .hasSameHashCodeAs(params2);
+      }
+
+      @Test
+      void shouldIncludeFieldValuesInToString() {
+          var params = GetRecipientsRestRequestParams.of(LIMIT, CURSOR);
+
+          assertThat(params.toString())
+              .contains(LIMIT.toString())
+              .contains(CURSOR);
+      }
+}

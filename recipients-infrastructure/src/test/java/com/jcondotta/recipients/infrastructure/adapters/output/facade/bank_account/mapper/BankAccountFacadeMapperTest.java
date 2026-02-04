@@ -1,7 +1,7 @@
 package com.jcondotta.recipients.infrastructure.adapters.output.facade.bank_account.mapper;
 
 import com.jcondotta.recipients.domain.enums.AccountStatus;
-import com.jcondotta.recipients.infrastructure.adapters.output.client.lookup_bank_account.model.BankAccountCdo;
+import com.jcondotta.recipients.infrastructure.adapters.output.client.bank_account.model.BankAccountCdo;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;

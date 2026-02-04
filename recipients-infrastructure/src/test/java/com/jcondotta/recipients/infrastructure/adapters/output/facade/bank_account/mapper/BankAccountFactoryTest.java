@@ -3,7 +3,7 @@ package com.jcondotta.recipients.infrastructure.adapters.output.facade.bank_acco
 import com.jcondotta.recipients.domain.entities.BankAccount;
 import com.jcondotta.recipients.domain.enums.AccountStatus;
 import com.jcondotta.recipients.domain.value_objects.BankAccountId;
-import com.jcondotta.recipients.infrastructure.adapters.output.client.lookup_bank_account.model.BankAccountCdo;
+import com.jcondotta.recipients.infrastructure.adapters.output.client.bank_account.model.BankAccountCdo;
 import nl.altindag.log.LogCaptor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

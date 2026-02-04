@@ -4,7 +4,7 @@ import com.jcondotta.recipients.application.ports.output.facade.bank_account.Ban
 import com.jcondotta.recipients.domain.entities.BankAccount;
 import com.jcondotta.recipients.domain.exceptions.BankAccountNotFoundException;
 import com.jcondotta.recipients.domain.value_objects.BankAccountId;
-import com.jcondotta.recipients.infrastructure.adapters.output.client.lookup_bank_account.BankAccountLookupClient;
+import com.jcondotta.recipients.infrastructure.adapters.output.client.bank_account.BankAccountLookupClient;
 import com.jcondotta.recipients.infrastructure.adapters.output.facade.bank_account.mapper.BankAccountFacadeMapper;
 import feign.FeignException;
 import lombok.AllArgsConstructor;

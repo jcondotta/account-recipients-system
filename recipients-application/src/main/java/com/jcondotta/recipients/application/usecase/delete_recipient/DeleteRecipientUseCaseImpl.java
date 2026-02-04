@@ -33,7 +33,7 @@ public class DeleteRecipientUseCaseImpl implements DeleteRecipientUseCase {
       contextualName = "deleteRecipient",
       lowCardinalityKeyValues = {"operation", "delete"})
   public void execute(DeleteRecipientCommand command) {
-    Objects.requireNonNull(command, "Command must not be null");
+    Objects.requireNonNull(command, "command must not be null");
 
     log.info(
         "Attempting to delete a recipient [bankAccountId={}, recipientId={}]",

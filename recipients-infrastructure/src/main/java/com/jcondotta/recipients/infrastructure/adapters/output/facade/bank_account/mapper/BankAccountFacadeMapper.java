@@ -1,7 +1,7 @@
 package com.jcondotta.recipients.infrastructure.adapters.output.facade.bank_account.mapper;
 
 import com.jcondotta.recipients.domain.entities.BankAccount;
-import com.jcondotta.recipients.infrastructure.adapters.output.client.lookup_bank_account.model.BankAccountCdo;
+import com.jcondotta.recipients.infrastructure.adapters.output.client.bank_account.model.BankAccountCdo;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 

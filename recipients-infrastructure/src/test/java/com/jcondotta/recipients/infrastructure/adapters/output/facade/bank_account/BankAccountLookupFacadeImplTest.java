@@ -4,9 +4,9 @@ import com.jcondotta.recipients.application.ports.output.facade.bank_account.Ban
 import com.jcondotta.recipients.domain.enums.AccountStatus;
 import com.jcondotta.recipients.domain.exceptions.BankAccountNotFoundException;
 import com.jcondotta.recipients.domain.value_objects.BankAccountId;
-import com.jcondotta.recipients.infrastructure.adapters.output.client.lookup_bank_account.BankAccountLookupClient;
-import com.jcondotta.recipients.infrastructure.adapters.output.client.lookup_bank_account.model.BankAccountCdo;
-import com.jcondotta.recipients.infrastructure.adapters.output.client.lookup_bank_account.model.BankAccountResponseCdo;
+import com.jcondotta.recipients.infrastructure.adapters.output.client.bank_account.BankAccountLookupClient;
+import com.jcondotta.recipients.infrastructure.adapters.output.client.bank_account.model.BankAccountCdo;
+import com.jcondotta.recipients.infrastructure.adapters.output.client.bank_account.model.BankAccountResponseCdo;
 import com.jcondotta.recipients.infrastructure.adapters.output.facade.bank_account.mapper.BankAccountFacadeMapper;
 import com.jcondotta.recipients.infrastructure.adapters.output.facade.bank_account.mapper.BankAccountFacadeMapperImpl;
 import com.jcondotta.recipients.infrastructure.adapters.output.facade.bank_account.mapper.BankAccountFactory;

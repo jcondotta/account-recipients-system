@@ -10,7 +10,7 @@ import com.jcondotta.recipients.domain.entities.Recipient;
 import com.jcondotta.recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.recipients.domain.value_objects.RecipientId;
 import com.jcondotta.recipients.domain.value_objects.RecipientName;
-import com.jcondotta.recipients.get_recipients.controller.model.response.PaginationCursorCodec;
+import com.jcondotta.recipients.infrastructure.adapters.input.rest.get_recipients.model.response.PaginationCursorCodec;
 import com.jcondotta.recipients.infrastructure.adapters.output.repository.entity.RecipientEntity;
 import com.jcondotta.recipients.infrastructure.adapters.output.repository.entity.RecipientEntityKey;
 import com.jcondotta.recipients.infrastructure.adapters.output.repository.get_recipients.mapper.GetRecipientsLastEvaluatedKeyMapper;

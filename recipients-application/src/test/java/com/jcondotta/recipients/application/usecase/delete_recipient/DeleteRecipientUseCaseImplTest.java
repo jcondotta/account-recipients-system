@@ -187,7 +187,7 @@ class DeleteRecipientUseCaseImplTest {
   void shouldThrowException_whenCommandIsNull() {
     assertThatThrownBy(() -> useCase.execute(null))
         .isInstanceOf(NullPointerException.class)
-        .hasMessage("Command must not be null");
+        .hasMessage("command must not be null");
 
     verifyNoInteractions(
         getRecipientRepository,

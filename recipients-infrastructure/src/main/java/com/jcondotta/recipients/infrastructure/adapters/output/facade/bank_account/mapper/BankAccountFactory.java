@@ -3,7 +3,7 @@ package com.jcondotta.recipients.infrastructure.adapters.output.facade.bank_acco
 import com.jcondotta.recipients.domain.entities.BankAccount;
 import com.jcondotta.recipients.domain.enums.AccountStatus;
 import com.jcondotta.recipients.domain.value_objects.BankAccountId;
-import com.jcondotta.recipients.infrastructure.adapters.output.client.lookup_bank_account.model.BankAccountCdo;
+import com.jcondotta.recipients.infrastructure.adapters.output.client.bank_account.model.BankAccountCdo;
 import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.ObjectFactory;
 import org.springframework.stereotype.Component;
