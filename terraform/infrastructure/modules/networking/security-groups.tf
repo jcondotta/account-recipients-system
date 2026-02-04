@@ -1,6 +1,6 @@
 locals {
-#   ecr_vpc_endpoint_sg_name             = "ecr-vpc-endpoint-sg-${var.environment}"
-#   sqs_vpc_endpoint_sg_name             = "sqs-vpc-endpoint-sg-${var.environment}"
+  #   ecr_vpc_endpoint_sg_name             = "ecr-vpc-endpoint-sg-${var.environment}"
+  #   sqs_vpc_endpoint_sg_name             = "sqs-vpc-endpoint-sg-${var.environment}"
   cloudwatch_logs_vpc_endpoint_sg_name = "recipients-cloudwatch-logs-vpc-endpoint-sg-${var.environment}"
 }
 #

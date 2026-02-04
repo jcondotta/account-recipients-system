@@ -46,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 @ActiveProfiles("test")
 @AutoConfigureWireMock(port = 0)
-@ContextConfiguration(initializers = { LocalStackTestContainer.class })
+@ContextConfiguration(initializers = {LocalStackTestContainer.class})
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class CreateRecipientControllerImplIT {
 
@@ -106,9 +106,9 @@ class CreateRecipientControllerImplIT {
         .spec(requestSpecification)
         .pathParam("bank-account-id", bankAccountId)
         .body(restRequest)
-    .when()
+        .when()
         .post()
-    .then()
+        .then()
         .statusCode(HttpStatus.CREATED.value())
         .header("location", equalTo(expectedLocationURI))
         .header(HttpHeaders.CONTENT_TYPE, nullValue());
@@ -171,7 +171,7 @@ class CreateRecipientControllerImplIT {
             .as(ProblemDetail.class);
 
     var expectedMessageError = messageResolverPort.resolveMessage(
-            BANK_ACCOUNT_NOT_FOUND_TEMPLATE, new Object[]{bankAccountId}, defaultLocale);
+        BANK_ACCOUNT_NOT_FOUND_TEMPLATE, new Object[]{bankAccountId}, defaultLocale);
 
     assertAll(
         () -> assertThat(problemDetail.getType()).hasToString(ProblemTypes.RESOURCE_NOT_FOUND.toString()),

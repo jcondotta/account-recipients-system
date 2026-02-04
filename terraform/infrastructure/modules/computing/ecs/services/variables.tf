@@ -19,7 +19,7 @@ variable "vpc_id" {
 }
 
 variable "service_subnet_ids" {
-  type        = list(string)
+  type = list(string)
   description = "List of subnet IDs where the ECS service will run"
 }
 
@@ -54,6 +54,6 @@ variable "kinesis_recipients_deleted_stream_arn" {
 }
 
 variable "environment_variables" {
-  type    = map(string)
+  type = map(string)
   default = {}
 }

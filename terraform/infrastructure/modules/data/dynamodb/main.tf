@@ -21,9 +21,9 @@ resource "aws_dynamodb_table" "recipients" {
   }
 
   local_secondary_index {
-    name               = "RecipientNameLSI"
-    range_key          = "recipientName"
-    projection_type    = "ALL"
+    name            = "RecipientNameLSI"
+    range_key       = "recipientName"
+    projection_type = "ALL"
   }
 
   tags = {

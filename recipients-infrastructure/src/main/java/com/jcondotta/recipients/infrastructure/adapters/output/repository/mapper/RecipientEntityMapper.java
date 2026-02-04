@@ -47,11 +47,11 @@ public interface RecipientEntityMapper {
     }
 
     return Recipient.restore(
-            RecipientId.of(entity.getRecipientId()),
-            BankAccountId.of(entity.getBankAccountId()),
-            RecipientName.of(entity.getRecipientName()),
-            Iban.of(entity.getIban()),
-            ZonedDateTime.ofInstant(entity.getCreatedAt(), entity.getCreatedAtZoneId())
+        RecipientId.of(entity.getRecipientId()),
+        BankAccountId.of(entity.getBankAccountId()),
+        RecipientName.of(entity.getRecipientName()),
+        Iban.of(entity.getIban()),
+        ZonedDateTime.ofInstant(entity.getCreatedAt(), entity.getCreatedAtZoneId())
     );
   }
 }

@@ -15,5 +15,5 @@ variable "vpc_id" {
 
 variable "route_table_ids" {
   description = "List of private route table IDs used for the DynamoDB Gateway VPC Endpoint"
-  type        = list(string)
+  type = list(string)
 }

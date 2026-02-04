@@ -14,7 +14,7 @@ services:
       AWS_SECRET_ACCESS_KEY: test
       AWS_DEFAULT_REGION: us-east-1
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:4566/_localstack/health" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -27,7 +27,7 @@ services:
     ports:
       - "6379:6379"
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       timeout: 3s
       retries: 10

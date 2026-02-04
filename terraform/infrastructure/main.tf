@@ -61,7 +61,7 @@ module "ecs_recipients_service" {
   lb_security_group_id = module.load_balancer.security_group_id
   lb_target_group_arn  = module.lb_target_group_recipients_service.target_group_arn
 
-  dynamodb_recipients_table_arn = module.dynamodb.recipients_table_arn
+  dynamodb_recipients_table_arn         = module.dynamodb.recipients_table_arn
   kinesis_recipients_created_stream_arn = module.kinesis.recipients_created_stream_arn
   kinesis_recipients_deleted_stream_arn = module.kinesis.recipients_deleted_stream_arn
 

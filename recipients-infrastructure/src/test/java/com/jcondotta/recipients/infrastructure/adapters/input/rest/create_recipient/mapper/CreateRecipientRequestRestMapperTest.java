@@ -2,10 +2,10 @@ package com.jcondotta.recipients.infrastructure.adapters.input.rest.create_recip
 
 import com.jcondotta.recipients.application.usecase.create_recipient.model.CreateRecipientCommand;
 import com.jcondotta.recipients.common.fixtures.RecipientFixtures;
-import com.jcondotta.recipients.infrastructure.adapters.input.rest.create_recipient.model.CreateRecipientRestRequest;
 import com.jcondotta.recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.recipients.domain.value_objects.Iban;
 import com.jcondotta.recipients.domain.value_objects.RecipientName;
+import com.jcondotta.recipients.infrastructure.adapters.input.rest.create_recipient.model.CreateRecipientRestRequest;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
@@ -36,11 +36,11 @@ class CreateRecipientRequestRestMapperTest {
     CreateRecipientCommand command = mapper.toCommand(BANK_ACCOUNT_UUID, request);
 
     assertThat(command).satisfies(
-            it -> {
-              assertThat(it.bankAccountId()).isEqualTo(BANK_ACCOUNT_ID);
-              assertThat(it.recipientName()).isEqualTo(RECIPIENT_NAME);
-              assertThat(it.iban()).isEqualTo(IBAN);
-            });
+        it -> {
+          assertThat(it.bankAccountId()).isEqualTo(BANK_ACCOUNT_ID);
+          assertThat(it.recipientName()).isEqualTo(RECIPIENT_NAME);
+          assertThat(it.iban()).isEqualTo(IBAN);
+        });
   }
 
   @Test

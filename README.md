@@ -19,9 +19,9 @@ At a high level, the system follows these architectural principles:
 
 - Multi-module Maven project
 - Clear separation of concerns
-  - Domain
-  - Application
-  - Infrastructure / Service
+    - Domain
+    - Application
+    - Infrastructure / Service
 - Event-driven architecture
 - Idempotent command & event processing
 - Cloud-ready and locally reproducible
@@ -43,26 +43,26 @@ exposed through an **Application Load Balancer**.
 ### Main Components
 
 - **Application Load Balancer (ALB)**
-  - Public entry point
-  - Routes `/recipients/*` traffic to the ECS service
+    - Public entry point
+    - Routes `/recipients/*` traffic to the ECS service
 - **ECS Fargate (Multi-AZ, Private Subnets)**
-  - Stateless service tasks
-  - Horizontal scaling and self-healing
+    - Stateless service tasks
+    - Horizontal scaling and self-healing
 - **DynamoDB**
-  - Primary persistence store for account recipients
-  - Accessed via VPC Endpoint (no public internet access)
+    - Primary persistence store for account recipients
+    - Accessed via VPC Endpoint (no public internet access)
 - **Kinesis Data Streams**
-  - Publishes domain events:
-    - `recipients.created`
-    - `recipients.deleted`
-  - Enables asynchronous, decoupled integrations
+    - Publishes domain events:
+        - `recipients.created`
+        - `recipients.deleted`
+    - Enables asynchronous, decoupled integrations
 - **VPC Endpoints**
-  - Private connectivity to:
-    - DynamoDB
-    - Kinesis
-    - ECR
-    - CloudWatch
-  - No outbound internet access required
+    - Private connectivity to:
+        - DynamoDB
+        - Kinesis
+        - ECR
+        - CloudWatch
+    - No outbound internet access required
 
 ---
 
@@ -71,18 +71,21 @@ exposed through an **Application Load Balancer**.
 The project is organized as a **multi-module Maven setup**, enforcing strict boundaries between layers:
 
 ### Domain Module
+
 - Aggregates, entities, and value objects
 - Business rules and invariants
 - Domain events (e.g. `RecipientCreated`, `RecipientDeleted`)
 - No framework or infrastructure dependencies
 
 ### Application Module
+
 - Use cases (commands and queries)
 - Input and output ports
 - Idempotency and transaction boundaries
 - Orchestrates domain behavior
 
 ### Infrastructure / Service Module
+
 - REST controllers (HTTP API)
 - Persistence adapters (DynamoDB)
 - Messaging adapters (Kinesis)
@@ -117,6 +120,7 @@ This guarantees **consistency, fault tolerance, and resilience** in distributed 
 ## 🛠️ Tech Stack
 
 ### Languages & Frameworks
+
 - Java 17
 - Spring Boot 3.x
 - Spring MVC
@@ -127,6 +131,7 @@ This guarantees **consistency, fault tolerance, and resilience** in distributed 
 ---
 
 ### Architecture & Design
+
 - Clean Architecture / Hexagonal Architecture
 - Domain Events & Integration Events
 - Idempotency control
@@ -135,6 +140,7 @@ This guarantees **consistency, fault tolerance, and resilience** in distributed 
 ---
 
 ### Infrastructure
+
 - Amazon DynamoDB
 - Amazon Kinesis Data Streams
 - AWS ECS Fargate
@@ -146,6 +152,7 @@ This guarantees **consistency, fault tolerance, and resilience** in distributed 
 ---
 
 ### Observability & Monitoring
+
 - Micrometer
 - Prometheus-compatible metrics
 - Spring Boot Actuator health checks
@@ -154,18 +161,20 @@ This guarantees **consistency, fault tolerance, and resilience** in distributed 
 ---
 
 ### Mapping & Utilities
+
 - MapStruct (compile-time mapping)
 - Lombok
 
 ---
 
 ### Testing
+
 - JUnit 5
 - Mockito
 - AssertJ
 - Testcontainers
-  - LocalStack
-  - Redis
+    - LocalStack
+    - Redis
 - WireMock
 - Rest-Assured
 - LogCaptor
@@ -175,23 +184,23 @@ This guarantees **consistency, fault tolerance, and resilience** in distributed 
 ## ✨ Features
 
 - Recipient Management
-  - Create recipients
-  - Fetch recipients
-  - Delete recipients
+    - Create recipients
+    - Fetch recipients
+    - Delete recipients
 - Domain Events
-  - `RecipientCreatedEvent`
-  - `RecipientDeletedEvent`
+    - `RecipientCreatedEvent`
+    - `RecipientDeletedEvent`
 - Idempotent Processing
-  - Safe retries for commands and events
+    - Safe retries for commands and events
 - Event-driven Integration
-  - Kinesis-based messaging
+    - Kinesis-based messaging
 - Observability
-  - Metrics exposed for Prometheus
-  - Health checks via Actuator
+    - Metrics exposed for Prometheus
+    - Health checks via Actuator
 - Local Cloud Simulation
-  - Full AWS stack via LocalStack
+    - Full AWS stack via LocalStack
 - CI-ready
-  - Designed for GitHub Actions pipelines
+    - Designed for GitHub Actions pipelines
 
 ---
 

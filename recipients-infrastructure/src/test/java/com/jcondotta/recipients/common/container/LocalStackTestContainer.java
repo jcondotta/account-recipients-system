@@ -33,8 +33,7 @@ public class LocalStackTestContainer
   private static void startContainer() {
     try {
       Startables.deepStart(LOCALSTACK_CONTAINER).join();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       log.error("Failed to start LocalStack container: {}", e.getMessage());
       throw new RuntimeException("Failed to start LocalStack container", e);
     }
@@ -51,7 +50,7 @@ public class LocalStackTestContainer
 
   @Override
   public void initialize(@NotNull ConfigurableApplicationContext applicationContext) {
-      startContainer();
-      TestPropertyValues.of(getContainerProperties()).applyTo(applicationContext.getEnvironment());
+    startContainer();
+    TestPropertyValues.of(getContainerProperties()).applyTo(applicationContext.getEnvironment());
   }
 }

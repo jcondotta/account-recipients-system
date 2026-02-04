@@ -11,8 +11,8 @@ resource "aws_ecs_service" "ecs_recipients_service" {
   enable_execute_command = true
 
   network_configuration {
-    subnets          = var.service_subnet_ids
-    security_groups  = [
+    subnets = var.service_subnet_ids
+    security_groups = [
       aws_security_group.ecs_recipients_task_sg.id
     ]
     assign_public_ip = false

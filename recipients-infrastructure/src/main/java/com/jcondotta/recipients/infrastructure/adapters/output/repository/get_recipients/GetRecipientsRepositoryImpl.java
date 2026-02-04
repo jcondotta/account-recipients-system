@@ -156,7 +156,8 @@ public class GetRecipientsRepositoryImpl implements GetRecipientsRepository {
 
   static class QueryConditionalBuilder {
 
-    private QueryConditionalBuilder() {}
+    private QueryConditionalBuilder() {
+    }
 
     public static QueryConditional build(GetRecipientsQuery query) {
       var partitionKey = RecipientEntityKey.partitionKey(query.bankAccountId());

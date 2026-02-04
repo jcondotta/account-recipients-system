@@ -10,5 +10,5 @@ variable "vpc_id" {
 
 variable "subnet_ids" {
   description = "The IDs of the subnets where the load balancer will be deployed."
-  type        = list(string)
+  type = list(string)
 }

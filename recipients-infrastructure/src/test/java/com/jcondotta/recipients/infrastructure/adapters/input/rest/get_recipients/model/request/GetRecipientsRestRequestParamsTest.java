@@ -29,73 +29,73 @@ class GetRecipientsRestRequestParamsTest {
             });
   }
 
-      @Test
-      void shouldGenerateSHA256Hex_whenFieldsAreValid() {
-          var params = GetRecipientsRestRequestParams.of(LIMIT, CURSOR);
+  @Test
+  void shouldGenerateSHA256Hex_whenFieldsAreValid() {
+    var params = GetRecipientsRestRequestParams.of(LIMIT, CURSOR);
 
-          var expectedRaw = String.join("|", LIMIT.toString(), CURSOR);
-          var expectedHash = DigestUtils.sha256Hex(expectedRaw.getBytes(StandardCharsets.UTF_8));
+    var expectedRaw = String.join("|", LIMIT.toString(), CURSOR);
+    var expectedHash = DigestUtils.sha256Hex(expectedRaw.getBytes(StandardCharsets.UTF_8));
 
-          assertThat(params.toSHA256Hex()).isEqualTo(expectedHash);
-      }
+    assertThat(params.toSHA256Hex()).isEqualTo(expectedHash);
+  }
 
-      @Test
-      void shouldGenerateSHA256Hex_whenCursorIsNull() {
-          var params = GetRecipientsRestRequestParams.of(LIMIT, null);
+  @Test
+  void shouldGenerateSHA256Hex_whenCursorIsNull() {
+    var params = GetRecipientsRestRequestParams.of(LIMIT, null);
 
-          var expectedRaw = String.join("|", LIMIT.toString(), "");
-          var expectedHash = DigestUtils.sha256Hex(expectedRaw.getBytes(StandardCharsets.UTF_8));
+    var expectedRaw = String.join("|", LIMIT.toString(), "");
+    var expectedHash = DigestUtils.sha256Hex(expectedRaw.getBytes(StandardCharsets.UTF_8));
 
-          assertThat(params.toSHA256Hex()).isEqualTo(expectedHash);
-      }
+    assertThat(params.toSHA256Hex()).isEqualTo(expectedHash);
+  }
 
-      @Test
-      void shouldGenerateSHA256Hex_whenLimitIsNull() {
-          var params = GetRecipientsRestRequestParams.of(null, CURSOR);
+  @Test
+  void shouldGenerateSHA256Hex_whenLimitIsNull() {
+    var params = GetRecipientsRestRequestParams.of(null, CURSOR);
 
-          var expectedRaw = String.join("|", "", CURSOR);
-          var expectedHash = DigestUtils.sha256Hex(expectedRaw.getBytes(StandardCharsets.UTF_8));
+    var expectedRaw = String.join("|", "", CURSOR);
+    var expectedHash = DigestUtils.sha256Hex(expectedRaw.getBytes(StandardCharsets.UTF_8));
 
-          assertThat(params.toSHA256Hex()).isEqualTo(expectedHash);
-      }
+    assertThat(params.toSHA256Hex()).isEqualTo(expectedHash);
+  }
 
-      @Test
-      void shouldGenerateSHA256Hex_whenBothFieldsAreNull() {
-          var params = GetRecipientsRestRequestParams.of(null, null);
+  @Test
+  void shouldGenerateSHA256Hex_whenBothFieldsAreNull() {
+    var params = GetRecipientsRestRequestParams.of(null, null);
 
-          var expectedRaw = String.join("|", "", "");
-          var expectedHash = DigestUtils.sha256Hex(expectedRaw.getBytes(StandardCharsets.UTF_8));
+    var expectedRaw = String.join("|", "", "");
+    var expectedHash = DigestUtils.sha256Hex(expectedRaw.getBytes(StandardCharsets.UTF_8));
 
-          assertThat(params.toSHA256Hex()).isEqualTo(expectedHash);
-      }
+    assertThat(params.toSHA256Hex()).isEqualTo(expectedHash);
+  }
 
-      @Test
-      void shouldGenerateSHA256Hex_whenOnlyLimitIsProvided() {
-        var params = GetRecipientsRestRequestParams.of(null);
+  @Test
+  void shouldGenerateSHA256Hex_whenOnlyLimitIsProvided() {
+    var params = GetRecipientsRestRequestParams.of(null);
 
-        var expectedRaw = String.join("|", "", "");
-        var expectedHash = DigestUtils.sha256Hex(expectedRaw.getBytes(StandardCharsets.UTF_8));
+    var expectedRaw = String.join("|", "", "");
+    var expectedHash = DigestUtils.sha256Hex(expectedRaw.getBytes(StandardCharsets.UTF_8));
 
-        assertThat(params.toSHA256Hex()).isEqualTo(expectedHash);
-      }
+    assertThat(params.toSHA256Hex()).isEqualTo(expectedHash);
+  }
 
 
-      @Test
-      void shouldHaveValueEquality_whenFieldsAreIdentical() {
-          var params1 = GetRecipientsRestRequestParams.of(LIMIT, CURSOR);
-          var params2 = GetRecipientsRestRequestParams.of(LIMIT, CURSOR);
+  @Test
+  void shouldHaveValueEquality_whenFieldsAreIdentical() {
+    var params1 = GetRecipientsRestRequestParams.of(LIMIT, CURSOR);
+    var params2 = GetRecipientsRestRequestParams.of(LIMIT, CURSOR);
 
-          assertThat(params1)
-              .isEqualTo(params2)
-              .hasSameHashCodeAs(params2);
-      }
+    assertThat(params1)
+        .isEqualTo(params2)
+        .hasSameHashCodeAs(params2);
+  }
 
-      @Test
-      void shouldIncludeFieldValuesInToString() {
-          var params = GetRecipientsRestRequestParams.of(LIMIT, CURSOR);
+  @Test
+  void shouldIncludeFieldValuesInToString() {
+    var params = GetRecipientsRestRequestParams.of(LIMIT, CURSOR);
 
-          assertThat(params.toString())
-              .contains(LIMIT.toString())
-              .contains(CURSOR);
-      }
+    assertThat(params.toString())
+        .contains(LIMIT.toString())
+        .contains(CURSOR);
+  }
 }

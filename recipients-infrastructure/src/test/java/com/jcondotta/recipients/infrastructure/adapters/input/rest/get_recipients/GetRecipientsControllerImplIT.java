@@ -3,10 +3,10 @@ package com.jcondotta.recipients.infrastructure.adapters.input.rest.get_recipien
 import com.jcondotta.recipients.application.ports.output.repository.get_recipients.model.GetRecipientsQueryParams;
 import com.jcondotta.recipients.common.container.LocalStackTestContainer;
 import com.jcondotta.recipients.common.factory.RecipientEntityTestFactory;
+import com.jcondotta.recipients.infrastructure.adapters.input.rest.common.headers.HttpHeadersCustom;
 import com.jcondotta.recipients.infrastructure.adapters.input.rest.get_recipients.model.response.GetRecipientsResponse;
 import com.jcondotta.recipients.infrastructure.adapters.input.rest.get_recipients.model.response.RecipientResponse;
 import com.jcondotta.recipients.infrastructure.adapters.output.repository.entity.RecipientEntity;
-import com.jcondotta.recipients.infrastructure.adapters.input.rest.common.headers.HttpHeadersCustom;
 import com.jcondotta.recipients.infrastructure.properties.RecipientURIProperties;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("test")
 @AutoConfigureWireMock(port = 0)
-@ContextConfiguration(initializers = { LocalStackTestContainer.class })
+@ContextConfiguration(initializers = {LocalStackTestContainer.class})
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class GetRecipientsControllerImplIT {
 

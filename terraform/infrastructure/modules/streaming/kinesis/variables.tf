@@ -15,10 +15,10 @@ variable "vpc_id" {
 
 variable "subnet_ids" {
   description = "List of private subnet IDs used for the Kinesis Interface VPC Endpoint"
-  type        = list(string)
+  type = list(string)
 }
 
 variable "vpc_cidr_blocks" {
   description = "List of CIDR blocks allowed to access the Kinesis VPC Interface Endpoint"
-  type        = list(string)
+  type = list(string)
 }

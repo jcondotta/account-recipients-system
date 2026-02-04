@@ -10,6 +10,6 @@ variable "environment" {
 
 variable "tags" {
   description = "Tags applied to all resources for organization and cost tracking across environments and projects."
-  type        = map(string)
+  type = map(string)
   default = {}
 }

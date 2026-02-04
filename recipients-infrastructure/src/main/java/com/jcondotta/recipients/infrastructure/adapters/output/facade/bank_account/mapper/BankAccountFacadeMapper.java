@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 
 @Mapper(
     componentModel = "spring",
-    uses = { BankAccountFactory.class },
+    uses = {BankAccountFactory.class},
     injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface BankAccountFacadeMapper {
 

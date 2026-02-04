@@ -1,12 +1,12 @@
 resource "aws_ecs_task_definition" "ecs_recipients_service_task" {
-  family                   = "ecs-recipients-service-task"
-  network_mode             = "awsvpc"
+  family       = "ecs-recipients-service-task"
+  network_mode = "awsvpc"
   requires_compatibilities = ["FARGATE"]
 
   execution_role_arn = aws_iam_role.ecs_recipients_task_execution_role.arn
   task_role_arn      = aws_iam_role.ecs_recipients_task_role.arn
 
-  cpu    = "512"   # 0.5 vCPU
+  cpu = "512"   # 0.5 vCPU
   memory = "1024"  # 1 GB memory
 
   container_definitions = jsonencode([
@@ -39,7 +39,10 @@ resource "aws_ecs_task_definition" "ecs_recipients_service_task" {
       }
 
       healthCheck = {
-        command     = ["CMD-SHELL", "curl -f http://localhost:${local.ecs_recipients_service_container_port}/actuator/health || exit 1"]
+        command = [
+          "CMD-SHELL",
+          "curl -f http://localhost:${local.ecs_recipients_service_container_port}/actuator/health || exit 1"
+        ]
         interval    = 30
         timeout     = 8
         retries     = 3

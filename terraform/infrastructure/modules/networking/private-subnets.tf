@@ -5,10 +5,10 @@ resource "aws_subnet" "private_subnets" {
     "us-east-1c" = "10.0.60.0/24"
   }
 
-  vpc_id                   = aws_vpc.this.id
-  cidr_block               = each.value
-  availability_zone        = each.key
-  map_public_ip_on_launch  = false
+  vpc_id                  = aws_vpc.this.id
+  cidr_block              = each.value
+  availability_zone       = each.key
+  map_public_ip_on_launch = false
 
   tags = {
     Name = "recipients-private-subnet-${each.key}",
