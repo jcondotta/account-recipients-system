@@ -1,4 +1,4 @@
-package com.jcondotta.recipients.get_recipients.usecase;
+package com.jcondotta.recipients.application.usecase.get_recipients;
 
 import com.jcondotta.recipients.application.ports.output.repository.get_recipients.GetRecipientsRepository;
 import com.jcondotta.recipients.application.ports.output.repository.get_recipients.model.GetRecipientsQueryParams;

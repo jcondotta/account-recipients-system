@@ -1,9 +1,8 @@
-package com.jcondotta.recipients.create_recipient.usecase;
+package com.jcondotta.recipients.application.usecase.create_recipient;
 
 import com.jcondotta.recipients.application.ports.output.facade.bank_account.BankAccountLookupFacade;
 import com.jcondotta.recipients.application.ports.output.messaging.RecipientCreatedEventPublisher;
 import com.jcondotta.recipients.application.ports.output.repository.create_recipient.CreateRecipientRepository;
-import com.jcondotta.recipients.application.usecase.create_recipient.CreateRecipientUseCase;
 import com.jcondotta.recipients.application.usecase.create_recipient.model.CreateRecipientCommand;
 import com.jcondotta.recipients.domain.events.RecipientCreatedEvent;
 import io.micrometer.observation.annotation.Observed;
@@ -26,8 +25,8 @@ public class CreateRecipientUseCaseImpl implements CreateRecipientUseCase {
 
   @Override
   @Observed(
-      name = "account.recipients.create",
-      contextualName = "createAccountRecipient",
+      name = "bankAccounts.recipients.create",
+      contextualName = "createRecipient",
       lowCardinalityKeyValues = {"operation", "create"})
   public void execute(CreateRecipientCommand command) {
     Objects.requireNonNull(command, "command must not be null");

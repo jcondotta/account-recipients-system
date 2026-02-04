@@ -1,11 +1,12 @@
-package com.jcondotta.recipients.delete_recipient.usecase;
+package com.jcondotta.recipients.application.usecase.delete_recipient;
 
+import com.jcondotta.recipients.application.common.fixtures.RecipientFixtures;
+import com.jcondotta.recipients.application.helper.ClockTestFactory;
+import com.jcondotta.recipients.application.ports.output.facade.bank_account.BankAccountLookupFacade;
 import com.jcondotta.recipients.application.ports.output.messaging.RecipientDeletedEventPublisher;
 import com.jcondotta.recipients.application.ports.output.repository.delete_recipient.DeleteRecipientRepository;
 import com.jcondotta.recipients.application.ports.output.repository.get_recipient.GetRecipientRepository;
 import com.jcondotta.recipients.application.usecase.delete_recipient.model.DeleteRecipientCommand;
-import com.jcondotta.recipients.common.factory.ClockTestFactory;
-import com.jcondotta.recipients.common.fixtures.RecipientFixtures;
 import com.jcondotta.recipients.domain.entities.BankAccount;
 import com.jcondotta.recipients.domain.entities.Recipient;
 import com.jcondotta.recipients.domain.enums.AccountStatus;
@@ -16,7 +17,6 @@ import com.jcondotta.recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.recipients.domain.value_objects.Iban;
 import com.jcondotta.recipients.domain.value_objects.RecipientId;
 import com.jcondotta.recipients.domain.value_objects.RecipientName;
-import com.jcondotta.recipients.infrastructure.adapters.output.facade.bank_account.BankAccountLookupFacadeImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,14 +48,14 @@ class DeleteRecipientUseCaseImplTest {
   private static final String RECIPIENT_NAME_JEFFERSON = RecipientFixtures.JEFFERSON.getRecipientName();
   private static final RecipientName RECIPIENT_NAME = RecipientName.of(RECIPIENT_NAME_JEFFERSON);
 
-  private static final String VALID_IBAN_NO_SPACES = RecipientFixtures.JEFFERSON.getRecipientIban();
+  private static final String VALID_IBAN_NO_SPACES = RecipientFixtures.JEFFERSON.getIban();
 
   private static final Iban IBAN = Iban.of(VALID_IBAN_NO_SPACES);
 
   private static final Clock FIXED_CLOCK = ClockTestFactory.TEST_CLOCK_FIXED;
 
   @Mock
-  private BankAccountLookupFacadeImpl lookupBankAccountFacadeMock;
+  private BankAccountLookupFacade bankAccountLookupFacade;
 
   @Mock
   private GetRecipientRepository getRecipientRepository;
@@ -67,9 +67,6 @@ class DeleteRecipientUseCaseImplTest {
   private RecipientDeletedEventPublisher deletedEventPublisher;
 
   @Captor
-  private ArgumentCaptor<Recipient> recipientCaptor;
-
-  @Captor
   private ArgumentCaptor<RecipientDeletedEvent> recipientDeletedEventCaptor;
 
   private DeleteRecipientUseCaseImpl useCase;
@@ -77,7 +74,7 @@ class DeleteRecipientUseCaseImplTest {
   @BeforeEach
   void setUp() {
     useCase = new DeleteRecipientUseCaseImpl(
-        lookupBankAccountFacadeMock,
+        bankAccountLookupFacade,
         getRecipientRepository,
         deleteRecipientRepository,
         deletedEventPublisher,
@@ -96,7 +93,7 @@ class DeleteRecipientUseCaseImplTest {
         ZonedDateTime.now(FIXED_CLOCK)
     );
 
-    when(lookupBankAccountFacadeMock.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccount);
+    when(bankAccountLookupFacade.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccount);
     when(getRecipientRepository.getRecipient(BANK_ACCOUNT_ID, RECIPIENT_ID))
         .thenReturn(Optional.of(recipient));
 
@@ -109,6 +106,7 @@ class DeleteRecipientUseCaseImplTest {
     assertThat(recipientDeletedEventCaptor.getValue())
         .satisfies(
             recipientDeletedEvent -> {
+              assertThat(recipientDeletedEvent.eventId()).isNotNull();
               assertThat(recipientDeletedEvent.recipientId()).isEqualTo(RECIPIENT_ID);
               assertThat(recipientDeletedEvent.bankAccountId()).isEqualTo(BANK_ACCOUNT_ID);
               assertThat(recipientDeletedEvent.occurredAt()).isEqualTo(ZonedDateTime.now(FIXED_CLOCK));
@@ -120,7 +118,7 @@ class DeleteRecipientUseCaseImplTest {
   @Test
   void shouldThrowAccountRecipientNotFoundException_whenRecipientDoesNotExist() {
     BankAccount bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
-    when(lookupBankAccountFacadeMock.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccount);
+    when(bankAccountLookupFacade.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccount);
 
     var command = DeleteRecipientCommand.of(BANK_ACCOUNT_ID, RECIPIENT_ID);
 
@@ -146,7 +144,7 @@ class DeleteRecipientUseCaseImplTest {
         ZonedDateTime.now(FIXED_CLOCK)
     );
 
-    when(lookupBankAccountFacadeMock.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccount);
+    when(bankAccountLookupFacade.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccount);
     when(getRecipientRepository.getRecipient(BANK_ACCOUNT_ID, RECIPIENT_ID))
         .thenReturn(Optional.of(recipient));
 
@@ -171,7 +169,7 @@ class DeleteRecipientUseCaseImplTest {
         ZonedDateTime.now(FIXED_CLOCK)
     );
 
-    when(lookupBankAccountFacadeMock.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccount);
+    when(bankAccountLookupFacade.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccount);
     when(getRecipientRepository.getRecipient(BANK_ACCOUNT_ID, RECIPIENT_ID))
         .thenReturn(Optional.of(recipient));
 

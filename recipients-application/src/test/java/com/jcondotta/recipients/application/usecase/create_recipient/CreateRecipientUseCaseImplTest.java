@@ -1,11 +1,11 @@
-package com.jcondotta.recipients.create_recipient.usecase;
+package com.jcondotta.recipients.application.usecase.create_recipient;
 
+import com.jcondotta.recipients.application.common.fixtures.RecipientFixtures;
+import com.jcondotta.recipients.application.helper.ClockTestFactory;
+import com.jcondotta.recipients.application.ports.output.facade.bank_account.BankAccountLookupFacade;
 import com.jcondotta.recipients.application.ports.output.messaging.RecipientCreatedEventPublisher;
 import com.jcondotta.recipients.application.ports.output.repository.create_recipient.CreateRecipientRepository;
-import com.jcondotta.recipients.application.usecase.create_recipient.CreateRecipientUseCase;
 import com.jcondotta.recipients.application.usecase.create_recipient.model.CreateRecipientCommand;
-import com.jcondotta.recipients.common.factory.ClockTestFactory;
-import com.jcondotta.recipients.common.fixtures.RecipientFixtures;
 import com.jcondotta.recipients.domain.entities.BankAccount;
 import com.jcondotta.recipients.domain.entities.Recipient;
 import com.jcondotta.recipients.domain.enums.AccountStatus;
@@ -14,7 +14,6 @@ import com.jcondotta.recipients.domain.exceptions.BankAccountNotFoundException;
 import com.jcondotta.recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.recipients.domain.value_objects.Iban;
 import com.jcondotta.recipients.domain.value_objects.RecipientName;
-import com.jcondotta.recipients.infrastructure.adapters.output.facade.bank_account.BankAccountLookupFacadeImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,19 +39,19 @@ class CreateRecipientUseCaseImplTest {
   private static final String RECIPIENT_NAME_JEFFERSON = RecipientFixtures.JEFFERSON.getRecipientName();
   private static final RecipientName RECIPIENT_NAME = RecipientName.of(RECIPIENT_NAME_JEFFERSON);
 
-  private static final String VALID_IBAN_NO_SPACES = RecipientFixtures.JEFFERSON.getRecipientIban();
+  private static final String VALID_IBAN_NO_SPACES = RecipientFixtures.JEFFERSON.getIban();
 
   private static final Iban IBAN = Iban.of(VALID_IBAN_NO_SPACES);
   private static final Clock CLOCK_FIXED = ClockTestFactory.TEST_CLOCK_FIXED;
 
   @Mock
-  private BankAccountLookupFacadeImpl lookupBankAccountFacadeMock;
+  private BankAccountLookupFacade bankAccountLookupFacade;
 
   @Mock
-  private CreateRecipientRepository createRecipientRepositoryMock;
+  private CreateRecipientRepository createRecipientRepository;
 
   @Mock
-  private RecipientCreatedEventPublisher recipientCreatedEventPublisherMock;
+  private RecipientCreatedEventPublisher recipientCreatedEventPublisher;
 
   @Captor
   private ArgumentCaptor<Recipient> recipientCaptor;
@@ -66,9 +65,9 @@ class CreateRecipientUseCaseImplTest {
   void setUp() {
     useCase =
         new CreateRecipientUseCaseImpl(
-            lookupBankAccountFacadeMock,
-            createRecipientRepositoryMock,
-            recipientCreatedEventPublisherMock,
+            bankAccountLookupFacade,
+            createRecipientRepository,
+            recipientCreatedEventPublisher,
             CLOCK_FIXED
         );
   }
@@ -77,12 +76,12 @@ class CreateRecipientUseCaseImplTest {
   void shouldCreateRecipient_whenCommandIsValidAndBankAccountExists() {
     BankAccount bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
 
-    when(lookupBankAccountFacadeMock.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccount);
+    when(bankAccountLookupFacade.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccount);
 
     var createAccountRecipientCommand = buildCreateAccountRecipientCommand();
     useCase.execute(createAccountRecipientCommand);
 
-    verify(createRecipientRepositoryMock).create(recipientCaptor.capture());
+    verify(createRecipientRepository).create(recipientCaptor.capture());
 
     assertThat(recipientCaptor.getValue())
         .satisfies(
@@ -95,10 +94,11 @@ class CreateRecipientUseCaseImplTest {
                   .isEqualTo(ZonedDateTime.now(CLOCK_FIXED));
             });
 
-    verify(recipientCreatedEventPublisherMock).publish(recipientCreatedEventCaptor.capture());
+    verify(recipientCreatedEventPublisher).publish(recipientCreatedEventCaptor.capture());
     assertThat(recipientCreatedEventCaptor.getValue())
         .satisfies(
             recipientCreatedEvent -> {
+              assertThat(recipientCreatedEvent.eventId()).isNotNull();
               assertThat(recipientCreatedEvent.recipientId()).isNotNull();
               assertThat(recipientCreatedEvent.bankAccountId()).isEqualTo(BANK_ACCOUNT_ID);
               assertThat(recipientCreatedEvent.recipientName()).isEqualTo(RECIPIENT_NAME);
@@ -106,18 +106,18 @@ class CreateRecipientUseCaseImplTest {
               assertThat(recipientCreatedEvent.occurredAt()).isEqualTo(ZonedDateTime.now(CLOCK_FIXED));
             });
 
-    verify(lookupBankAccountFacadeMock).byId(BANK_ACCOUNT_ID);
+    verify(bankAccountLookupFacade).byId(BANK_ACCOUNT_ID);
 
     verifyNoMoreInteractions(
-        lookupBankAccountFacadeMock,
-        createRecipientRepositoryMock,
-        recipientCreatedEventPublisherMock
+        bankAccountLookupFacade,
+        createRecipientRepository,
+        recipientCreatedEventPublisher
     );
   }
 
   @Test
   void shouldThrowBankAccountNotFoundException_whenBankAccountDoesNotExist() {
-    when(lookupBankAccountFacadeMock.byId(BANK_ACCOUNT_ID))
+    when(bankAccountLookupFacade.byId(BANK_ACCOUNT_ID))
         .thenThrow(
             new BankAccountNotFoundException(
                 BANK_ACCOUNT_ID, new RuntimeException("404 simulated")));
@@ -128,9 +128,9 @@ class CreateRecipientUseCaseImplTest {
         .isInstanceOf(BankAccountNotFoundException.class)
         .hasMessage(BankAccountNotFoundException.BANK_ACCOUNT_NOT_FOUND_TEMPLATE);
 
-    verify(lookupBankAccountFacadeMock).byId(BANK_ACCOUNT_ID);
+    verify(bankAccountLookupFacade).byId(BANK_ACCOUNT_ID);
     verifyNoInteractions(
-        createRecipientRepositoryMock, recipientCreatedEventPublisherMock);
+        createRecipientRepository, recipientCreatedEventPublisher);
   }
 
   @Test
@@ -140,18 +140,18 @@ class CreateRecipientUseCaseImplTest {
         .hasMessage("command must not be null");
 
     verifyNoInteractions(
-        lookupBankAccountFacadeMock,
-        createRecipientRepositoryMock,
-        recipientCreatedEventPublisherMock
+        bankAccountLookupFacade,
+        createRecipientRepository,
+        recipientCreatedEventPublisher
     );
   }
 
   @Test
   void shouldPropagateException_whenEventPublishingFails() {
     BankAccount bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
-    when(lookupBankAccountFacadeMock.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccount);
+    when(bankAccountLookupFacade.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccount);
     doThrow(new RuntimeException("Kinesis down"))
-        .when(recipientCreatedEventPublisherMock)
+        .when(recipientCreatedEventPublisher)
         .publish(any());
 
     var command = buildCreateAccountRecipientCommand();

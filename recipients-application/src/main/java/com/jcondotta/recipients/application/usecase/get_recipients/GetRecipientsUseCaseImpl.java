@@ -1,8 +1,7 @@
-package com.jcondotta.recipients.get_recipients.usecase;
+package com.jcondotta.recipients.application.usecase.get_recipients;
 
 import com.jcondotta.recipients.application.ports.output.repository.get_recipients.GetRecipientsRepository;
 import com.jcondotta.recipients.application.ports.output.repository.shared.model.PaginatedResult;
-import com.jcondotta.recipients.application.usecase.get_recipients.GetRecipientsUseCase;
 import com.jcondotta.recipients.application.usecase.get_recipients.mapper.GetRecipientsQueryMapper;
 import com.jcondotta.recipients.application.usecase.get_recipients.model.query.GetRecipientsQuery;
 import com.jcondotta.recipients.application.usecase.get_recipients.model.result.GetRecipientsResult;
@@ -22,12 +21,11 @@ public class GetRecipientsUseCaseImpl implements GetRecipientsUseCase {
 
   @Override
   @Observed(
-      name = "account.recipients.query",
+      name = "bankAccounts.recipients.query",
       contextualName = "queryRecipients",
       lowCardinalityKeyValues = {"operation", "query"})
   public GetRecipientsResult execute(GetRecipientsQuery query) {
-    PaginatedResult<Recipient> paginatedResult =
-        getRecipientsRepository.findByQuery(query);
+    PaginatedResult<Recipient> paginatedResult = getRecipientsRepository.findByQuery(query);
 
     var recipientDetailsList = paginatedResult.items()
         .stream()

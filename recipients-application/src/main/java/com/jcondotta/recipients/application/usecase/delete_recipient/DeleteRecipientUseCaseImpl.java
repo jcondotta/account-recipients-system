@@ -1,10 +1,9 @@
-package com.jcondotta.recipients.delete_recipient.usecase;
+package com.jcondotta.recipients.application.usecase.delete_recipient;
 
 import com.jcondotta.recipients.application.ports.output.facade.bank_account.BankAccountLookupFacade;
 import com.jcondotta.recipients.application.ports.output.messaging.RecipientDeletedEventPublisher;
 import com.jcondotta.recipients.application.ports.output.repository.delete_recipient.DeleteRecipientRepository;
 import com.jcondotta.recipients.application.ports.output.repository.get_recipient.GetRecipientRepository;
-import com.jcondotta.recipients.application.usecase.delete_recipient.DeleteRecipientUseCase;
 import com.jcondotta.recipients.application.usecase.delete_recipient.model.DeleteRecipientCommand;
 import com.jcondotta.recipients.domain.entities.BankAccount;
 import com.jcondotta.recipients.domain.events.RecipientDeletedEvent;
@@ -30,8 +29,8 @@ public class DeleteRecipientUseCaseImpl implements DeleteRecipientUseCase {
 
   @Override
   @Observed(
-      name = "account.recipients.delete",
-      contextualName = "deleteAccountRecipient",
+      name = "bankAccounts.recipients.delete",
+      contextualName = "deleteRecipient",
       lowCardinalityKeyValues = {"operation", "delete"})
   public void execute(DeleteRecipientCommand command) {
     Objects.requireNonNull(command, "Command must not be null");
