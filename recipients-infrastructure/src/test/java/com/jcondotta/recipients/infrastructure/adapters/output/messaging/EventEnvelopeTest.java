@@ -1,6 +1,5 @@
 package com.jcondotta.recipients.infrastructure.adapters.output.messaging;
 
-import com.jcondotta.recipients.application.usecase.shared.value_objects.IdempotencyKey;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -8,12 +7,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class EventEnvelopeTest {
 
-  private static final IdempotencyKey IDEMPOTENCY_KEY = IdempotencyKey.newKey();
   private static final String TEST_PAYLOAD = "test-payload";
 
   @Test
   void shouldCreateEventEnvelopeWithMetadataAndPayload_whenValuesAreValid() {
-    var eventMetadata = EventMetadata.of(IDEMPOTENCY_KEY.value());
+    var eventMetadata = EventMetadata.newEventMetadata();
     var eventEnvelope = EventEnvelope.of(eventMetadata, TEST_PAYLOAD);
 
     assertThat(eventEnvelope).isNotNull();
@@ -30,7 +28,7 @@ class EventEnvelopeTest {
 
   @Test
   void shouldThrowNullPointerException_whenPayloadIsNull() {
-    var eventMetadata = EventMetadata.of(IDEMPOTENCY_KEY.value());
+    var eventMetadata = EventMetadata.newEventMetadata();
 
     assertThatThrownBy(() -> EventEnvelope.of(eventMetadata, null))
         .isInstanceOf(NullPointerException.class)

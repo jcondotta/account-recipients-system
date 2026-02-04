@@ -2,7 +2,6 @@ package com.jcondotta.recipients.create_recipient.controller;
 
 import com.jcondotta.recipients.application.usecase.create_recipient.CreateRecipientUseCase;
 import com.jcondotta.recipients.application.usecase.create_recipient.model.CreateRecipientCommand;
-import com.jcondotta.recipients.application.usecase.shared.value_objects.IdempotencyKey;
 import com.jcondotta.recipients.common.fixtures.RecipientFixtures;
 import com.jcondotta.recipients.create_recipient.controller.mapper.CreateRecipientRequestRestMapper;
 import com.jcondotta.recipients.create_recipient.controller.model.CreateRecipientRestRequest;
@@ -74,7 +73,7 @@ class CreateRecipientControllerImplTest {
     assertThat(response.getBody()).isNull();
 
     verify(requestMapper).toCommand(BANK_ACCOUNT_UUID, request);
-    verify(useCase).execute(createRecipientCommand, IdempotencyKey.of(IDEMPOTENCY_KEY_UUID));
+    verify(useCase).execute(createRecipientCommand);
     verify(uriProperties).recipientsURI(BANK_ACCOUNT_UUID);
 
     verifyNoMoreInteractions(requestMapper, useCase, uriProperties);

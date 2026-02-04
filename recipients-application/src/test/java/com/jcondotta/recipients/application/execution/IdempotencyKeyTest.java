@@ -1,6 +1,5 @@
-package com.jcondotta.recipients.application.usecase.shared;
+package com.jcondotta.recipients.application.execution;
 
-import com.jcondotta.recipients.application.usecase.shared.value_objects.IdempotencyKey;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;

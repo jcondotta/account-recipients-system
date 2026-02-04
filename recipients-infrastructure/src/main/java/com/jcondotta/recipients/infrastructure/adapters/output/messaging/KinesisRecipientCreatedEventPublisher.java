@@ -2,7 +2,6 @@ package com.jcondotta.recipients.infrastructure.adapters.output.messaging;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jcondotta.recipients.application.ports.output.messaging.RecipientCreatedEventPublisher;
-import com.jcondotta.recipients.application.usecase.shared.value_objects.IdempotencyKey;
 import com.jcondotta.recipients.domain.events.RecipientCreatedEvent;
 import com.jcondotta.recipients.infrastructure.properties.RecipientsCreatedStreamProperties;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +25,8 @@ public class KinesisRecipientCreatedEventPublisher implements RecipientCreatedEv
   private final ObjectMapper objectMapper;
 
   @Override
-  public void send(RecipientCreatedEvent createdEvent, IdempotencyKey idempotencyKey) {
-    var eventMetadata = eventMetadataFactory.create(idempotencyKey);
+  public void publish(RecipientCreatedEvent createdEvent) {
+    var eventMetadata = eventMetadataFactory.create();
     var eventPayload = messageMapper.fromEvent(createdEvent);
     var eventEnvelope = EventEnvelope.of(eventMetadata, eventPayload);
 

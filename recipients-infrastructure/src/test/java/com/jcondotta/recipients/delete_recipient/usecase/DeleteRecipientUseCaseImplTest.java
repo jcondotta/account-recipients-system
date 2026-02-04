@@ -4,7 +4,6 @@ import com.jcondotta.recipients.application.ports.output.messaging.RecipientDele
 import com.jcondotta.recipients.application.ports.output.repository.delete_recipient.DeleteRecipientRepository;
 import com.jcondotta.recipients.application.ports.output.repository.get_recipient.GetRecipientRepository;
 import com.jcondotta.recipients.application.usecase.delete_recipient.model.DeleteRecipientCommand;
-import com.jcondotta.recipients.application.usecase.shared.value_objects.IdempotencyKey;
 import com.jcondotta.recipients.common.factory.ClockTestFactory;
 import com.jcondotta.recipients.common.fixtures.RecipientFixtures;
 import com.jcondotta.recipients.domain.entities.BankAccount;
@@ -52,8 +51,6 @@ class DeleteRecipientUseCaseImplTest {
   private static final String VALID_IBAN_NO_SPACES = RecipientFixtures.JEFFERSON.getRecipientIban();
 
   private static final Iban IBAN = Iban.of(VALID_IBAN_NO_SPACES);
-
-  private static final IdempotencyKey IDEMPOTENCY_KEY = IdempotencyKey.newKey();
 
   private static final Clock FIXED_CLOCK = ClockTestFactory.TEST_CLOCK_FIXED;
 
@@ -104,11 +101,11 @@ class DeleteRecipientUseCaseImplTest {
         .thenReturn(Optional.of(recipient));
 
     var command = DeleteRecipientCommand.of(BANK_ACCOUNT_ID, RECIPIENT_ID);
-    useCase.execute(command, IDEMPOTENCY_KEY);
+    useCase.execute(command);
 
     verify(deleteRecipientRepository).delete(recipient);
 
-    verify(deletedEventPublisher).send(recipientDeletedEventCaptor.capture(), eq(IDEMPOTENCY_KEY));
+    verify(deletedEventPublisher).publish(recipientDeletedEventCaptor.capture());
     assertThat(recipientDeletedEventCaptor.getValue())
         .satisfies(
             recipientDeletedEvent -> {
@@ -130,7 +127,7 @@ class DeleteRecipientUseCaseImplTest {
     when(getRecipientRepository.getRecipient(BANK_ACCOUNT_ID, RECIPIENT_ID))
         .thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> useCase.execute(command, IDEMPOTENCY_KEY))
+    assertThatThrownBy(() -> useCase.execute(command))
         .isInstanceOf(RecipientNotFoundException.class);
 
     verify(deleteRecipientRepository, never()).delete(any());
@@ -155,7 +152,7 @@ class DeleteRecipientUseCaseImplTest {
 
     var command = DeleteRecipientCommand.of(BANK_ACCOUNT_ID, RECIPIENT_ID);
 
-    assertThatThrownBy(() -> useCase.execute(command, IDEMPOTENCY_KEY))
+    assertThatThrownBy(() -> useCase.execute(command))
         .isInstanceOf(BankAccountNotActiveException.class)
         .hasMessage("recipient.cannotBeDeleted.bankAccountNotActive");
 
@@ -180,7 +177,7 @@ class DeleteRecipientUseCaseImplTest {
 
     var command = DeleteRecipientCommand.of(BANK_ACCOUNT_ID, RECIPIENT_ID);
 
-    assertThatThrownBy(() -> useCase.execute(command, IDEMPOTENCY_KEY))
+    assertThatThrownBy(() -> useCase.execute(command))
         .isInstanceOf(IllegalStateException.class)
         .hasMessage("Recipient does not belong to this account");
 
@@ -190,7 +187,7 @@ class DeleteRecipientUseCaseImplTest {
 
   @Test
   void shouldThrowException_whenCommandIsNull() {
-    assertThatThrownBy(() -> useCase.execute(null, IDEMPOTENCY_KEY))
+    assertThatThrownBy(() -> useCase.execute(null))
         .isInstanceOf(NullPointerException.class)
         .hasMessage("Command must not be null");
 

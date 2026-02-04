@@ -4,7 +4,6 @@ import com.jcondotta.recipients.application.ports.output.messaging.RecipientCrea
 import com.jcondotta.recipients.application.ports.output.repository.create_recipient.CreateRecipientRepository;
 import com.jcondotta.recipients.application.usecase.create_recipient.CreateRecipientUseCase;
 import com.jcondotta.recipients.application.usecase.create_recipient.model.CreateRecipientCommand;
-import com.jcondotta.recipients.application.usecase.shared.value_objects.IdempotencyKey;
 import com.jcondotta.recipients.common.factory.ClockTestFactory;
 import com.jcondotta.recipients.common.fixtures.RecipientFixtures;
 import com.jcondotta.recipients.domain.entities.BankAccount;
@@ -45,7 +44,6 @@ class CreateRecipientUseCaseImplTest {
 
   private static final Iban IBAN = Iban.of(VALID_IBAN_NO_SPACES);
   private static final Clock CLOCK_FIXED = ClockTestFactory.TEST_CLOCK_FIXED;
-  private final IdempotencyKey idempotencyKey = IdempotencyKey.newKey();
 
   @Mock
   private BankAccountLookupFacadeImpl lookupBankAccountFacadeMock;
@@ -82,7 +80,7 @@ class CreateRecipientUseCaseImplTest {
     when(lookupBankAccountFacadeMock.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccount);
 
     var createAccountRecipientCommand = buildCreateAccountRecipientCommand();
-    useCase.execute(createAccountRecipientCommand, idempotencyKey);
+    useCase.execute(createAccountRecipientCommand);
 
     verify(createRecipientRepositoryMock).create(recipientCaptor.capture());
 
@@ -97,7 +95,7 @@ class CreateRecipientUseCaseImplTest {
                   .isEqualTo(ZonedDateTime.now(CLOCK_FIXED));
             });
 
-    verify(recipientCreatedEventPublisherMock).send(recipientCreatedEventCaptor.capture(), eq(idempotencyKey));
+    verify(recipientCreatedEventPublisherMock).publish(recipientCreatedEventCaptor.capture());
     assertThat(recipientCreatedEventCaptor.getValue())
         .satisfies(
             recipientCreatedEvent -> {
@@ -126,7 +124,7 @@ class CreateRecipientUseCaseImplTest {
 
     var createAccountRecipientCommand = buildCreateAccountRecipientCommand();
 
-    assertThatThrownBy(() -> useCase.execute(createAccountRecipientCommand, idempotencyKey))
+    assertThatThrownBy(() -> useCase.execute(createAccountRecipientCommand))
         .isInstanceOf(BankAccountNotFoundException.class)
         .hasMessage(BankAccountNotFoundException.BANK_ACCOUNT_NOT_FOUND_TEMPLATE);
 
@@ -137,24 +135,9 @@ class CreateRecipientUseCaseImplTest {
 
   @Test
   void shouldThrowNullPointerException_whenCommandIsNull() {
-    assertThatThrownBy(() -> useCase.execute(null, idempotencyKey))
+    assertThatThrownBy(() -> useCase.execute(null))
         .isInstanceOf(NullPointerException.class)
         .hasMessage("command must not be null");
-
-    verifyNoInteractions(
-        lookupBankAccountFacadeMock,
-        createRecipientRepositoryMock,
-        recipientCreatedEventPublisherMock
-    );
-  }
-
-  @Test
-  void shouldThrowNullPointerException_whenIdempotencyKeyIsNull() {
-    var command = buildCreateAccountRecipientCommand();
-
-    assertThatThrownBy(() -> useCase.execute(command, null))
-        .isInstanceOf(NullPointerException.class)
-        .hasMessage("idempotencyKey must not be null");
 
     verifyNoInteractions(
         lookupBankAccountFacadeMock,
@@ -169,11 +152,11 @@ class CreateRecipientUseCaseImplTest {
     when(lookupBankAccountFacadeMock.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccount);
     doThrow(new RuntimeException("Kinesis down"))
         .when(recipientCreatedEventPublisherMock)
-        .send(any(), any());
+        .publish(any());
 
     var command = buildCreateAccountRecipientCommand();
 
-    assertThatThrownBy(() -> useCase.execute(command, idempotencyKey))
+    assertThatThrownBy(() -> useCase.execute(command))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Kinesis down");
   }

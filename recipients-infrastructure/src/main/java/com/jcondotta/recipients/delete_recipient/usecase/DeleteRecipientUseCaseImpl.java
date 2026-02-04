@@ -6,7 +6,6 @@ import com.jcondotta.recipients.application.ports.output.repository.delete_recip
 import com.jcondotta.recipients.application.ports.output.repository.get_recipient.GetRecipientRepository;
 import com.jcondotta.recipients.application.usecase.delete_recipient.DeleteRecipientUseCase;
 import com.jcondotta.recipients.application.usecase.delete_recipient.model.DeleteRecipientCommand;
-import com.jcondotta.recipients.application.usecase.shared.value_objects.IdempotencyKey;
 import com.jcondotta.recipients.domain.entities.BankAccount;
 import com.jcondotta.recipients.domain.events.RecipientDeletedEvent;
 import com.jcondotta.recipients.domain.exceptions.RecipientNotFoundException;
@@ -34,7 +33,7 @@ public class DeleteRecipientUseCaseImpl implements DeleteRecipientUseCase {
       name = "account.recipients.delete",
       contextualName = "deleteAccountRecipient",
       lowCardinalityKeyValues = {"operation", "delete"})
-  public void execute(DeleteRecipientCommand command, IdempotencyKey idempotencyKey) {
+  public void execute(DeleteRecipientCommand command) {
     Objects.requireNonNull(command, "Command must not be null");
 
     log.info(
@@ -50,7 +49,7 @@ public class DeleteRecipientUseCaseImpl implements DeleteRecipientUseCase {
     deleteRecipientRepository.delete(recipient);
 
     RecipientDeletedEvent event = (RecipientDeletedEvent) bankAccount.pullRecipientEvents().getFirst();
-    eventPublisher.send(event, idempotencyKey);
+    eventPublisher.publish(event);
 
     log.info(
         "Recipient deleted successfully [bankAccountId={}, recipientId={}]",

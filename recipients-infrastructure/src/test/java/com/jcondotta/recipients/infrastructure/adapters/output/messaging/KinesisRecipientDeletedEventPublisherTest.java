@@ -1,7 +1,6 @@
 package com.jcondotta.recipients.infrastructure.adapters.output.messaging;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jcondotta.recipients.application.usecase.shared.value_objects.IdempotencyKey;
 import com.jcondotta.recipients.common.factory.ClockTestFactory;
 import com.jcondotta.recipients.common.factory.ObjectMapperTestFactory;
 import com.jcondotta.recipients.domain.events.RecipientDeletedEvent;
@@ -32,8 +31,6 @@ import static org.mockito.Mockito.*;
 class KinesisRecipientDeletedEventPublisherTest {
 
   private static final String RECIPIENTS_DELETED_STREAM_NAME = "recipients.deleted";
-
-  private static final IdempotencyKey IDEMPOTENCY_KEY = IdempotencyKey.newKey();
 
   private static final BankAccountId BANK_ACCOUNT_ID =
       new BankAccountId(UUID.randomUUID());
@@ -82,17 +79,17 @@ class KinesisRecipientDeletedEventPublisherTest {
     when(streamProperties.streamName())
         .thenReturn(RECIPIENTS_DELETED_STREAM_NAME);
 
-    when(eventMetadataFactory.create(IDEMPOTENCY_KEY))
-        .thenReturn(EventMetadata.of(IDEMPOTENCY_KEY.value()));
+    when(eventMetadataFactory.create())
+        .thenReturn(EventMetadata.newEventMetadata());
 
     when(kinesisAsyncClient.putRecord(any(PutRecordRequest.class)))
         .thenReturn(CompletableFuture.completedFuture(null));
 
-    publisher.send(recipientDeletedEvent, IDEMPOTENCY_KEY);
+    publisher.publish(recipientDeletedEvent);
 
     verify(kinesisAsyncClient).putRecord(putRecordRequestCaptor.capture());
     verify(streamProperties, times(2)).streamName();
-    verify(eventMetadataFactory).create(IDEMPOTENCY_KEY);
+    verify(eventMetadataFactory).create();
     verifyNoMoreInteractions(kinesisAsyncClient, streamProperties, eventMetadataFactory);
 
     assertThat(putRecordRequestCaptor.getValue())
@@ -112,7 +109,6 @@ class KinesisRecipientDeletedEventPublisherTest {
 
           assertThat(eventEnvelope.metadata())
               .satisfies(metadata -> {
-                assertThat(metadata.idempotencyKey()).isEqualTo(IDEMPOTENCY_KEY.value());
                 assertThat(metadata.publishedAt()).isNotNull();
               });
 
@@ -129,23 +125,23 @@ class KinesisRecipientDeletedEventPublisherTest {
   @Test
   void shouldLogErrorAndNotThrowException_whenAsyncPublishFails() {
     when(streamProperties.streamName()).thenReturn(RECIPIENTS_DELETED_STREAM_NAME);
-    when(eventMetadataFactory.create(IDEMPOTENCY_KEY)).thenReturn(EventMetadata.of(IDEMPOTENCY_KEY.value()));
+    when(eventMetadataFactory.create()).thenReturn(EventMetadata.newEventMetadata());
 
     when(kinesisAsyncClient.putRecord(any(PutRecordRequest.class)))
         .thenReturn(CompletableFuture.failedFuture(new RuntimeException("kinesis down")));
 
-    publisher.send(recipientDeletedEvent, IDEMPOTENCY_KEY);
+    publisher.publish(recipientDeletedEvent);
 
     verify(kinesisAsyncClient).putRecord(any(PutRecordRequest.class));
     verify(streamProperties, times(3)).streamName();
-    verify(eventMetadataFactory).create(IDEMPOTENCY_KEY);
+    verify(eventMetadataFactory).create();
     verifyNoMoreInteractions(kinesisAsyncClient, streamProperties, eventMetadataFactory);
   }
 
   @Test
   void shouldNotPublishEvent_whenSerializationFails() throws Exception {
-    when(eventMetadataFactory.create(IDEMPOTENCY_KEY))
-        .thenReturn(EventMetadata.of(IDEMPOTENCY_KEY.value()));
+    when(eventMetadataFactory.create())
+        .thenReturn(EventMetadata.newEventMetadata());
 
     ObjectMapper failingObjectMapper = mock(ObjectMapper.class);
 
@@ -160,9 +156,9 @@ class KinesisRecipientDeletedEventPublisherTest {
         failingObjectMapper
     );
 
-    publisher.send(recipientDeletedEvent, IDEMPOTENCY_KEY);
+    publisher.publish(recipientDeletedEvent);
 
-    verify(eventMetadataFactory).create(IDEMPOTENCY_KEY);
+    verify(eventMetadataFactory).create();
     verifyNoInteractions(streamProperties, kinesisAsyncClient);
     verifyNoMoreInteractions(eventMetadataFactory);
   }

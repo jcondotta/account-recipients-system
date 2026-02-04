@@ -5,7 +5,6 @@ import com.jcondotta.recipients.application.ports.output.messaging.RecipientCrea
 import com.jcondotta.recipients.application.ports.output.repository.create_recipient.CreateRecipientRepository;
 import com.jcondotta.recipients.application.usecase.create_recipient.CreateRecipientUseCase;
 import com.jcondotta.recipients.application.usecase.create_recipient.model.CreateRecipientCommand;
-import com.jcondotta.recipients.application.usecase.shared.value_objects.IdempotencyKey;
 import com.jcondotta.recipients.domain.events.RecipientCreatedEvent;
 import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
@@ -30,9 +29,8 @@ public class CreateRecipientUseCaseImpl implements CreateRecipientUseCase {
       name = "account.recipients.create",
       contextualName = "createAccountRecipient",
       lowCardinalityKeyValues = {"operation", "create"})
-  public void execute(CreateRecipientCommand command, IdempotencyKey idempotencyKey) {
+  public void execute(CreateRecipientCommand command) {
     Objects.requireNonNull(command, "command must not be null");
-    Objects.requireNonNull(idempotencyKey, "idempotencyKey must not be null");
 
     log.info("Attempting to create a recipient [bankAccountId={}, recipientName={}]",
         command.bankAccountId(),
@@ -44,7 +42,7 @@ public class CreateRecipientUseCaseImpl implements CreateRecipientUseCase {
     createRecipientRepository.create(recipient);
 
     RecipientCreatedEvent event = (RecipientCreatedEvent) bankAccount.pullRecipientEvents().getFirst();
-    eventPublisher.send(event, idempotencyKey);
+    eventPublisher.publish(event);
 
     log.info(
         "Recipient created successfully [bankAccountId={}, recipientName={}]",

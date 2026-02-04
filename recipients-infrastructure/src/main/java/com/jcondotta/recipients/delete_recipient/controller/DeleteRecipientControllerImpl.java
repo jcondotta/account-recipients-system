@@ -1,7 +1,6 @@
 package com.jcondotta.recipients.delete_recipient.controller;
 
 import com.jcondotta.recipients.application.usecase.delete_recipient.DeleteRecipientUseCase;
-import com.jcondotta.recipients.application.usecase.shared.value_objects.IdempotencyKey;
 import com.jcondotta.recipients.delete_recipient.controller.mapper.DeleteRecipientRequestMapper;
 import io.micrometer.core.annotation.Timed;
 import lombok.AllArgsConstructor;
@@ -28,7 +27,7 @@ public class DeleteRecipientControllerImpl implements DeleteRecipientController 
       percentiles = {0.5, 0.95, 0.99})
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public ResponseEntity<Void> deleteAccountRecipient(UUID idempotencyKey, UUID bankAccountId, UUID recipientId) {
-    useCase.execute(requestMapper.toCommand(bankAccountId, recipientId), IdempotencyKey.of(idempotencyKey));
+    useCase.execute(requestMapper.toCommand(bankAccountId, recipientId));
     return ResponseEntity.noContent().build();
   }
 }

@@ -1,7 +1,6 @@
 package com.jcondotta.recipients.create_recipient.controller;
 
 import com.jcondotta.recipients.application.usecase.create_recipient.CreateRecipientUseCase;
-import com.jcondotta.recipients.application.usecase.shared.value_objects.IdempotencyKey;
 import com.jcondotta.recipients.create_recipient.controller.mapper.CreateRecipientRequestRestMapper;
 import com.jcondotta.recipients.create_recipient.controller.model.CreateRecipientRestRequest;
 import com.jcondotta.recipients.infrastructure.properties.RecipientURIProperties;
@@ -32,7 +31,7 @@ public class CreateRecipientControllerImpl implements CreateRecipientController 
   @ResponseStatus(HttpStatus.CREATED)
   public ResponseEntity<String> createAccountRecipient(UUID idempotencyKey, UUID bankAccountId, CreateRecipientRestRequest request) {
     var command = mapper.toCommand(bankAccountId, request);
-    useCase.execute(command, IdempotencyKey.of(idempotencyKey));
+    useCase.execute(command);
 
     return ResponseEntity.created(uriProperties.recipientsURI(bankAccountId)).build();
   }

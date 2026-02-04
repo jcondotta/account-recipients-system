@@ -1,7 +1,6 @@
 package com.jcondotta.recipients.infrastructure.adapters.output.messaging;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jcondotta.recipients.application.usecase.shared.value_objects.IdempotencyKey;
 import com.jcondotta.recipients.common.factory.ClockTestFactory;
 import com.jcondotta.recipients.common.factory.ObjectMapperTestFactory;
 import com.jcondotta.recipients.common.fixtures.RecipientFixtures;
@@ -35,8 +34,6 @@ import static org.mockito.Mockito.*;
 class KinesisRecipientCreatedEventPublisherTest {
 
   private static final String RECIPIENTS_CREATED_STREAM_NAME = "recipients.created";
-
-  private static final IdempotencyKey IDEMPOTENCY_KEY = IdempotencyKey.newKey();
 
   private static final BankAccountId BANK_ACCOUNT_ID = new BankAccountId(UUID.randomUUID());
   private static final RecipientId RECIPIENT_ID = RecipientId.newId();
@@ -82,15 +79,15 @@ class KinesisRecipientCreatedEventPublisherTest {
   @Test
   void shouldPublishRecipientCreatedEvent_whenEventIsValid() {
     when(streamProperties.streamName()).thenReturn(RECIPIENTS_CREATED_STREAM_NAME);
-    when(eventMetadataFactory.create(IDEMPOTENCY_KEY)).thenReturn(EventMetadata.of(IDEMPOTENCY_KEY.value()));
+    when(eventMetadataFactory.create()).thenReturn(EventMetadata.newEventMetadata());
     when(kinesisAsyncClient.putRecord(any(PutRecordRequest.class)))
         .thenReturn(CompletableFuture.completedFuture(null));
 
-    publisher.send(recipientCreatedEvent, IDEMPOTENCY_KEY);
+    publisher.publish(recipientCreatedEvent);
 
     verify(kinesisAsyncClient).putRecord(putRecordRequestCaptor.capture());
     verify(streamProperties, times(2)).streamName();
-    verify(eventMetadataFactory).create(IDEMPOTENCY_KEY);
+    verify(eventMetadataFactory).create();
     verifyNoMoreInteractions(kinesisAsyncClient, streamProperties, eventMetadataFactory);
 
     assertThat(putRecordRequestCaptor.getValue())
@@ -107,7 +104,6 @@ class KinesisRecipientCreatedEventPublisherTest {
 
         assertThat(eventEnvelope.metadata())
             .satisfies(metadata -> {
-              assertThat(metadata.idempotencyKey()).isEqualTo(IDEMPOTENCY_KEY.value());
               assertThat(metadata.publishedAt()).isNotNull();
             });
 
@@ -127,23 +123,23 @@ class KinesisRecipientCreatedEventPublisherTest {
   void shouldLogErrorAndNotThrowException_whenAsyncPublishFails() {
     when(streamProperties.streamName()).thenReturn(RECIPIENTS_CREATED_STREAM_NAME);
 
-    when(eventMetadataFactory.create(IDEMPOTENCY_KEY)).thenReturn(EventMetadata.of(IDEMPOTENCY_KEY.value()));
+    when(eventMetadataFactory.create()).thenReturn(EventMetadata.newEventMetadata());
 
     when(kinesisAsyncClient.putRecord(any(PutRecordRequest.class)))
         .thenReturn(CompletableFuture.failedFuture(new RuntimeException("kinesis down")));
 
-    publisher.send(recipientCreatedEvent, IDEMPOTENCY_KEY);
+    publisher.publish(recipientCreatedEvent);
 
     verify(kinesisAsyncClient).putRecord(any(PutRecordRequest.class));
     verify(streamProperties, times(3)).streamName();
-    verify(eventMetadataFactory).create(IDEMPOTENCY_KEY);
+    verify(eventMetadataFactory).create();
     verifyNoMoreInteractions(kinesisAsyncClient, streamProperties, eventMetadataFactory);
   }
 
   @Test
   void shouldNotPublishEvent_whenSerializationFails() throws Exception {
-    when(eventMetadataFactory.create(IDEMPOTENCY_KEY))
-        .thenReturn(EventMetadata.of(IDEMPOTENCY_KEY.value()));
+    when(eventMetadataFactory.create())
+        .thenReturn(EventMetadata.newEventMetadata());
 
     ObjectMapper failingObjectMapper = mock(ObjectMapper.class);
 
@@ -158,9 +154,9 @@ class KinesisRecipientCreatedEventPublisherTest {
         failingObjectMapper
     );
 
-    publisher.send(recipientCreatedEvent, IDEMPOTENCY_KEY);
+    publisher.publish(recipientCreatedEvent);
 
-    verify(eventMetadataFactory).create(IDEMPOTENCY_KEY);
+    verify(eventMetadataFactory).create();
     verifyNoInteractions(streamProperties, kinesisAsyncClient);
     verifyNoMoreInteractions(eventMetadataFactory);
   }

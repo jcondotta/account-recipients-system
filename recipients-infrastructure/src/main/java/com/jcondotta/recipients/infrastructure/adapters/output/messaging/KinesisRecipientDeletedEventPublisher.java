@@ -2,7 +2,6 @@ package com.jcondotta.recipients.infrastructure.adapters.output.messaging;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jcondotta.recipients.application.ports.output.messaging.RecipientDeletedEventPublisher;
-import com.jcondotta.recipients.application.usecase.shared.value_objects.IdempotencyKey;
 import com.jcondotta.recipients.domain.events.RecipientDeletedEvent;
 import com.jcondotta.recipients.infrastructure.properties.RecipientsDeletedStreamProperties;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +26,8 @@ public class KinesisRecipientDeletedEventPublisher
   private final ObjectMapper objectMapper;
 
   @Override
-  public void send(RecipientDeletedEvent deletedEvent, IdempotencyKey idempotencyKey) {
-    var eventMetadata = eventMetadataFactory.create(idempotencyKey);
+  public void publish(RecipientDeletedEvent deletedEvent) {
+    var eventMetadata = eventMetadataFactory.create();
     var eventPayload = messageMapper.fromEvent(deletedEvent);
     var eventEnvelope = EventEnvelope.of(eventMetadata, eventPayload);
 
