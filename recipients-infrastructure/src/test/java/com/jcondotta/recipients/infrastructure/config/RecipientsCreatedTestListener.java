@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 @Profile("test")
-public class RecipientsCreatedTestListener2 {
+public class RecipientsCreatedTestListener {
 
   private final BlockingQueue<EventEnvelope<RecipientCreatedMessage>> events = new LinkedBlockingQueue<>();
   private final ObjectMapper objectMapper = ObjectMapperTestFactory.getObjectMapper();

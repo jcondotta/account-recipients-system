@@ -6,8 +6,11 @@ import com.jcondotta.recipients.common.argument_provider.BlankValuesArgumentProv
 import com.jcondotta.recipients.common.container.LocalStackTestContainer;
 import com.jcondotta.recipients.common.fixtures.RecipientFixtures;
 import com.jcondotta.recipients.infrastructure.adapters.input.rest.create_recipient.model.CreateRecipientRestRequest;
+import com.jcondotta.recipients.infrastructure.adapters.output.messaging.EventEnvelope;
+import com.jcondotta.recipients.infrastructure.adapters.output.messaging.EventMetadata;
 import com.jcondotta.recipients.infrastructure.adapters.output.messaging.EventMetadataFactory;
-import com.jcondotta.recipients.infrastructure.config.RecipientsCreatedTestListener2;
+import com.jcondotta.recipients.infrastructure.adapters.output.messaging.RecipientCreatedMessage;
+import com.jcondotta.recipients.infrastructure.config.RecipientsCreatedTestListener;
 import com.jcondotta.recipients.infrastructure.adapters.input.rest.common.exception_handler.ProblemTypes;
 import com.jcondotta.recipients.infrastructure.adapters.input.rest.common.headers.HttpHeadersCustom;
 import com.jcondotta.recipients.infrastructure.properties.RecipientURIProperties;
@@ -36,6 +39,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.servlet.LocaleResolver;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -67,7 +71,7 @@ class CreateRecipientControllerImplIT {
   private LocaleResolver localeResolver;
 
   @Autowired
-  private RecipientsCreatedTestListener2 listener;
+  private RecipientsCreatedTestListener listener;
 
   private Locale defaultLocale;
 
@@ -78,8 +82,6 @@ class CreateRecipientControllerImplIT {
   private RequestSpecification requestSpecification;
   private IdempotencyKey idempotencyKey;
 
-  @Autowired
-  private EventMetadataFactory eventMetadataFactory;
 
   @BeforeAll
   static void beforeAll() {
@@ -127,33 +129,33 @@ class CreateRecipientControllerImplIT {
         .header("location", equalTo(expectedLocationURI))
         .header(HttpHeaders.CONTENT_TYPE, nullValue());
 
-//    try {
-//      EventEnvelope<RecipientCreatedMessage> eventEnvelope = listener.awaitEvent(
-//          Duration.ofSeconds(4), RecipientCreatedMessage.class,
-//              envelope ->
-//                  envelope.metadata().idempotencyKey().equals(idempotencyKey.value())
-//          );
-//      assertThat(eventEnvelope)
-//          .satisfies(envelope -> {
-//            EventMetadata eventMetadata = eventEnvelope.metadata();
-//            assertAll(
-//                () -> assertThat(eventMetadata.idempotencyKey()).isEqualTo(idempotencyKey.value()),
-//                () -> assertThat(eventMetadata.publishedAt()).isNotNull()
-//            );
-//
-//            RecipientCreatedMessage message = envelope.payload();
-//            assertAll(
-//                () -> assertThat(message.eventId()).isNotNull(),
-//                () -> assertThat(message.recipientId()).isNotNull(),
-//                () -> assertThat(message.recipientName()).isEqualTo(recipientName),
-//                () -> assertThat(message.bankAccountId()).isEqualTo(bankAccountId),
-//                () -> assertThat(message.iban()).isEqualTo(iban),
-//                () -> assertThat(message.occurredAt()).isNotNull()
-//            );
-//          });
-//    } catch (InterruptedException e) {
-//      throw new RuntimeException(e);
-//    }
+    try {
+      EventEnvelope<RecipientCreatedMessage> eventEnvelope =
+          listener.awaitEvent(
+              Duration.ofSeconds(4),
+              RecipientCreatedMessage.class,
+              envelope -> envelope.payload().bankAccountId().equals(bankAccountId)
+          );
+      assertThat(eventEnvelope)
+          .satisfies(envelope -> {
+            EventMetadata eventMetadata = eventEnvelope.metadata();
+            assertAll(
+                () -> assertThat(eventMetadata.publishedAt()).isNotNull()
+            );
+
+            RecipientCreatedMessage message = envelope.payload();
+            assertAll(
+                () -> assertThat(message.eventId()).isNotNull(),
+                () -> assertThat(message.recipientId()).isNotNull(),
+                () -> assertThat(message.recipientName()).isEqualTo(recipientName),
+                () -> assertThat(message.bankAccountId()).isEqualTo(bankAccountId),
+                () -> assertThat(message.iban()).isEqualTo(iban),
+                () -> assertThat(message.occurredAt()).isNotNull()
+            );
+          });
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Test
