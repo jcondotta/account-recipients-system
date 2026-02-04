@@ -248,4 +248,112 @@ class GetRecipientsRepositoryImplTest {
     assertThat(result.items()).isEmpty();
     assertThat(result.nextCursor()).isNull();
   }
+
+  @Test
+  void shouldIgnoreCursor_whenDecodedCursorResultsInNullMap() {
+    var lek =
+        new GetRecipientsLastEvaluatedKey(
+            bankAccountId.value(),
+            UUID.randomUUID(),
+            "Someone");
+
+    var encodedCursor = PaginationCursorCodec.encode(lek);
+
+    var params =
+        GetRecipientsQueryParams.of(
+            QueryLimit.of(5),
+            null,
+            PaginationCursor.of(encodedCursor));
+
+    var query = GetRecipientsQuery.of(bankAccountId, params);
+
+    // decode ok, mas mapper retorna null
+    when(lastEvaluatedKeyMapper.toMap(any()))
+        .thenReturn(null);
+
+    Page<RecipientEntity> page = mock(Page.class);
+    when(page.items()).thenReturn(List.of());
+
+    when(dynamoDbIndex.query(any(QueryEnhancedRequest.class)))
+        .thenReturn(() -> List.of(page).iterator());
+
+    PaginatedResult<Recipient> result = repository.findByQuery(query);
+
+    assertThat(result.items()).isEmpty();
+    assertThat(result.nextCursor()).isNull();
+  }
+
+  @Test
+  void shouldIgnoreCursor_whenStartKeyDoesNotContainPartitionKey() {
+    var lek =
+        new GetRecipientsLastEvaluatedKey(
+            bankAccountId.value(),
+            UUID.randomUUID(),
+            "Someone");
+
+    var encodedCursor = PaginationCursorCodec.encode(lek);
+
+    var params =
+        GetRecipientsQueryParams.of(
+            QueryLimit.of(5),
+            null,
+            PaginationCursor.of(encodedCursor));
+
+    var query = GetRecipientsQuery.of(bankAccountId, params);
+
+    // mapa sem PK
+    when(lastEvaluatedKeyMapper.toMap(any()))
+        .thenReturn(Map.of());
+
+    Page<RecipientEntity> page = mock(Page.class);
+    when(page.items()).thenReturn(List.of());
+
+    when(dynamoDbIndex.query(any(QueryEnhancedRequest.class)))
+        .thenReturn(() -> List.of(page).iterator());
+
+    PaginatedResult<Recipient> result = repository.findByQuery(query);
+
+    assertThat(result.items()).isEmpty();
+    assertThat(result.nextCursor()).isNull();
+  }
+
+  @Test
+  void shouldIgnoreCursor_whenPartitionKeyIsMalformed() {
+    var lek =
+        new GetRecipientsLastEvaluatedKey(
+            bankAccountId.value(),
+            UUID.randomUUID(),
+            "Someone");
+
+    var encodedCursor = PaginationCursorCodec.encode(lek);
+
+    var params =
+        GetRecipientsQueryParams.of(
+            QueryLimit.of(5),
+            null,
+            PaginationCursor.of(encodedCursor));
+
+    var query = GetRecipientsQuery.of(bankAccountId, params);
+
+    // PK inválida → RecipientEntityKey.extractBankAccountId lança exceção
+    when(lastEvaluatedKeyMapper.toMap(any()))
+        .thenReturn(
+            Map.of(
+                GetRecipientsLastEvaluatedKeyMapper.PARTITION_KEY_PARAM_NAME,
+                software.amazon.awssdk.services.dynamodb.model.AttributeValue
+                    .builder()
+                    .s("INVALID_PK_FORMAT")
+                    .build()));
+
+    Page<RecipientEntity> page = mock(Page.class);
+    when(page.items()).thenReturn(List.of());
+
+    when(dynamoDbIndex.query(any(QueryEnhancedRequest.class)))
+        .thenReturn(() -> List.of(page).iterator());
+
+    PaginatedResult<Recipient> result = repository.findByQuery(query);
+
+    assertThat(result.items()).isEmpty();
+    assertThat(result.nextCursor()).isNull();
+  }
 }
