@@ -2,7 +2,7 @@ package com.jcondotta.recipients.domain.exceptions;
 
 import com.jcondotta.recipients.domain.value_objects.BankAccountId;
 
-public class BankAccountNotFoundException extends DomainException implements DomainObjectNotFoundException {
+public class BankAccountNotFoundException extends DomainObjectNotFoundException {
 
   public static final String BANK_ACCOUNT_NOT_FOUND_TEMPLATE = "bankAccount.notFound";
   public static final String BANK_ACCOUNT_NOT_FOUND_TITLE = "Bank account not found";

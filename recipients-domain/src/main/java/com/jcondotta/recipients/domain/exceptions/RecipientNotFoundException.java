@@ -3,7 +3,7 @@ package com.jcondotta.recipients.domain.exceptions;
 import com.jcondotta.recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.recipients.domain.value_objects.RecipientId;
 
-public class RecipientNotFoundException extends DomainException implements DomainObjectNotFoundException {
+public class RecipientNotFoundException extends DomainObjectNotFoundException {
 
   public static final String RECIPIENT_NOT_FOUND_TEMPLATE = "recipient.notFound";
   public static final String RECIPIENT_NOT_FOUND_TITLE = "Recipient not found";

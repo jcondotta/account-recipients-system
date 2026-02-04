@@ -11,6 +11,7 @@ import com.jcondotta.recipients.domain.entities.BankAccount;
 import com.jcondotta.recipients.domain.enums.AccountStatus;
 import com.jcondotta.recipients.domain.entities.Recipient;
 import com.jcondotta.recipients.domain.events.RecipientDeletedEvent;
+import com.jcondotta.recipients.domain.exceptions.BankAccountNotActiveException;
 import com.jcondotta.recipients.domain.exceptions.RecipientNotFoundException;
 import com.jcondotta.recipients.domain.value_objects.Iban;
 import com.jcondotta.recipients.domain.value_objects.RecipientId;
@@ -138,7 +139,7 @@ class DeleteRecipientUseCaseImplTest {
 
   @ParameterizedTest
   @EnumSource(value = AccountStatus.class, mode = EnumSource.Mode.EXCLUDE, names = "ACTIVE")
-  void shouldThrowIllegalStateException_whenBankAccountIsNotActive(AccountStatus accountStatus) {
+  void shouldThrowBankAccountNotActiveException_whenBankAccountIsNotActive(AccountStatus accountStatus) {
     BankAccount bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, accountStatus);
     Recipient recipient = Recipient.restore(
         RECIPIENT_ID,
@@ -155,8 +156,8 @@ class DeleteRecipientUseCaseImplTest {
     var command = DeleteRecipientCommand.of(BANK_ACCOUNT_ID, RECIPIENT_ID);
 
     assertThatThrownBy(() -> useCase.execute(command, IDEMPOTENCY_KEY))
-        .isInstanceOf(IllegalStateException.class)
-        .hasMessage("Cannot delete recipient for non-active account");
+        .isInstanceOf(BankAccountNotActiveException.class)
+        .hasMessage("recipient.cannotBeDeleted.bankAccountNotActive");
 
     verify(deleteRecipientRepository, never()).delete(any());
     verifyNoInteractions(deletedEventPublisher);
