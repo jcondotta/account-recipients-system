@@ -1,8 +1,8 @@
 package com.jcondotta.recipients.delete_recipient.controller.mapper;
 
 import com.jcondotta.recipients.application.usecase.delete_recipient.model.DeleteRecipientCommand;
-import com.jcondotta.recipients.domain.value_objects.RecipientId;
 import com.jcondotta.recipients.domain.value_objects.BankAccountId;
+import com.jcondotta.recipients.domain.value_objects.RecipientId;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;

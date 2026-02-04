@@ -2,10 +2,10 @@ package com.jcondotta.recipients.get_recipients.controller.mapper.response;
 
 import com.jcondotta.recipients.application.usecase.get_recipients.model.RecipientDetails;
 import com.jcondotta.recipients.common.factory.ClockTestFactory;
+import com.jcondotta.recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.recipients.domain.value_objects.Iban;
 import com.jcondotta.recipients.domain.value_objects.RecipientId;
 import com.jcondotta.recipients.domain.value_objects.RecipientName;
-import com.jcondotta.recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.recipients.get_recipients.controller.model.response.RecipientResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

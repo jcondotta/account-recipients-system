@@ -1,7 +1,7 @@
 package com.jcondotta.recipients.infrastructure.adapters.output.repository.entity;
 
-import com.jcondotta.recipients.domain.value_objects.RecipientId;
 import com.jcondotta.recipients.domain.value_objects.BankAccountId;
+import com.jcondotta.recipients.domain.value_objects.RecipientId;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;

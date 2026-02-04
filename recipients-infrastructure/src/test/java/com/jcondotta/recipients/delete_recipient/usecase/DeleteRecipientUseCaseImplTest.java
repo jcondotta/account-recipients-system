@@ -8,15 +8,15 @@ import com.jcondotta.recipients.application.usecase.shared.value_objects.Idempot
 import com.jcondotta.recipients.common.factory.ClockTestFactory;
 import com.jcondotta.recipients.common.fixtures.RecipientFixtures;
 import com.jcondotta.recipients.domain.entities.BankAccount;
-import com.jcondotta.recipients.domain.enums.AccountStatus;
 import com.jcondotta.recipients.domain.entities.Recipient;
+import com.jcondotta.recipients.domain.enums.AccountStatus;
 import com.jcondotta.recipients.domain.events.RecipientDeletedEvent;
 import com.jcondotta.recipients.domain.exceptions.BankAccountNotActiveException;
 import com.jcondotta.recipients.domain.exceptions.RecipientNotFoundException;
+import com.jcondotta.recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.recipients.domain.value_objects.Iban;
 import com.jcondotta.recipients.domain.value_objects.RecipientId;
 import com.jcondotta.recipients.domain.value_objects.RecipientName;
-import com.jcondotta.recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.recipients.infrastructure.adapters.output.facade.bank_account.BankAccountLookupFacadeImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

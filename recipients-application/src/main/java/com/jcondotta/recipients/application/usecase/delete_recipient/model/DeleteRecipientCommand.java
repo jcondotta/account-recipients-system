@@ -1,7 +1,7 @@
 package com.jcondotta.recipients.application.usecase.delete_recipient.model;
 
-import com.jcondotta.recipients.domain.value_objects.RecipientId;
 import com.jcondotta.recipients.domain.value_objects.BankAccountId;
+import com.jcondotta.recipients.domain.value_objects.RecipientId;
 
 import java.util.Objects;
 

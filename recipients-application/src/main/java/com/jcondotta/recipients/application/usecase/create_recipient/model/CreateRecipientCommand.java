@@ -1,8 +1,8 @@
 package com.jcondotta.recipients.application.usecase.create_recipient.model;
 
+import com.jcondotta.recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.recipients.domain.value_objects.Iban;
 import com.jcondotta.recipients.domain.value_objects.RecipientName;
-import com.jcondotta.recipients.domain.value_objects.BankAccountId;
 
 import static java.util.Objects.requireNonNull;
 

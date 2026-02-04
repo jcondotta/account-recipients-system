@@ -1,8 +1,8 @@
 package com.jcondotta.recipients.get_recipients.controller.mapper.response;
 
 import com.jcondotta.recipients.application.usecase.get_recipients.model.RecipientDetails;
-import com.jcondotta.recipients.get_recipients.controller.model.response.RecipientResponse;
 import com.jcondotta.recipients.get_recipients.controller.model.response.GetRecipientsResponse;
+import com.jcondotta.recipients.get_recipients.controller.model.response.RecipientResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

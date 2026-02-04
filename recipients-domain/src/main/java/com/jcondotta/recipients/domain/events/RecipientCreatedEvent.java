@@ -3,7 +3,6 @@ package com.jcondotta.recipients.domain.events;
 import com.jcondotta.recipients.domain.value_objects.*;
 
 import java.time.ZonedDateTime;
-import java.util.UUID;
 
 import static java.util.Objects.requireNonNull;
 

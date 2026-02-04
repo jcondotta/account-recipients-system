@@ -2,9 +2,9 @@ package com.jcondotta.recipients.create_recipient.controller.mapper;
 
 import com.jcondotta.recipients.application.usecase.create_recipient.model.CreateRecipientCommand;
 import com.jcondotta.recipients.create_recipient.controller.model.CreateRecipientRestRequest;
+import com.jcondotta.recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.recipients.domain.value_objects.Iban;
 import com.jcondotta.recipients.domain.value_objects.RecipientName;
-import com.jcondotta.recipients.domain.value_objects.BankAccountId;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
