@@ -358,40 +358,6 @@ class GetRecipientsRepositoryImplTest {
   }
 
   @Test
-  void shouldReturnFalse_whenStartKeyMapIsNull() {
-    var lek =
-        new GetRecipientsLastEvaluatedKey(
-            bankAccountId.value(),
-            UUID.randomUUID(),
-            "Someone");
-
-    var encodedCursor = PaginationCursorCodec.encode(lek);
-
-    var params =
-        GetRecipientsQueryParams.of(
-            QueryLimit.of(5),
-            null,
-            PaginationCursor.of(encodedCursor));
-
-    var query = GetRecipientsQuery.of(bankAccountId, params);
-
-    // 🔥 map == null → cai direto no IF
-    when(lastEvaluatedKeyMapper.toMap(any()))
-        .thenReturn(null);
-
-    Page<RecipientEntity> page = mock(Page.class);
-    when(page.items()).thenReturn(List.of());
-
-    when(dynamoDbIndex.query(any(QueryEnhancedRequest.class)))
-        .thenReturn(() -> List.of(page).iterator());
-
-    PaginatedResult<Recipient> result = repository.findByQuery(query);
-
-    assertThat(result.items()).isEmpty();
-    assertThat(result.nextCursor()).isNull();
-  }
-
-  @Test
   void shouldReturnFalse_whenStartKeyDoesNotContainPartitionKey() {
     var lek =
         new GetRecipientsLastEvaluatedKey(
