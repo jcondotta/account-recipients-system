@@ -466,4 +466,45 @@ class GetRecipientsRepositoryImplTest {
     assertThat(result.items()).isEmpty();
     assertThat(result.nextCursor()).isNull();
   }
+
+  @Test
+  void shouldAcceptCursor_whenStartKeyIsValidAndBelongsToSamePartition() {
+    var lek =
+        new GetRecipientsLastEvaluatedKey(
+            bankAccountId.value(),
+            UUID.randomUUID(),
+            "Someone");
+
+    var encodedCursor = PaginationCursorCodec.encode(lek);
+
+    var params =
+        GetRecipientsQueryParams.of(
+            QueryLimit.of(5),
+            null,
+            PaginationCursor.of(encodedCursor));
+
+    var query = GetRecipientsQuery.of(bankAccountId, params);
+
+    // 🔥 map != null && containsKey == true && PK válida
+    when(lastEvaluatedKeyMapper.toMap(any()))
+        .thenReturn(
+            Map.of(
+                GetRecipientsLastEvaluatedKeyMapper.PARTITION_KEY_PARAM_NAME,
+                software.amazon.awssdk.services.dynamodb.model.AttributeValue
+                    .builder()
+                    .s(RecipientEntityKey.partitionKey(bankAccountId))
+                    .build()));
+
+    Page<RecipientEntity> page = mock(Page.class);
+    when(page.items()).thenReturn(List.of());
+
+    when(dynamoDbIndex.query(any(QueryEnhancedRequest.class)))
+        .thenReturn(() -> List.of(page).iterator());
+
+    PaginatedResult<Recipient> result = repository.findByQuery(query);
+
+    // não importa o resultado final, importa o branch ser executado
+    assertThat(result.items()).isEmpty();
+  }
+
 }
