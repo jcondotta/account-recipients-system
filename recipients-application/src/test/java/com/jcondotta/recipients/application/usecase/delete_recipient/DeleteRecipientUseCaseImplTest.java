@@ -3,14 +3,12 @@ package com.jcondotta.recipients.application.usecase.delete_recipient;
 import com.jcondotta.recipients.application.common.fixtures.RecipientFixtures;
 import com.jcondotta.recipients.application.helper.ClockTestFactory;
 import com.jcondotta.recipients.application.ports.output.facade.bank_account.BankAccountLookupFacade;
-import com.jcondotta.recipients.application.ports.output.messaging.RecipientDeletedEventPublisher;
 import com.jcondotta.recipients.application.ports.output.repository.delete_recipient.DeleteRecipientRepository;
 import com.jcondotta.recipients.application.ports.output.repository.get_recipient.GetRecipientRepository;
 import com.jcondotta.recipients.application.usecase.delete_recipient.model.DeleteRecipientCommand;
 import com.jcondotta.recipients.domain.entities.BankAccount;
 import com.jcondotta.recipients.domain.entities.Recipient;
 import com.jcondotta.recipients.domain.enums.AccountStatus;
-import com.jcondotta.recipients.domain.events.RecipientDeletedEvent;
 import com.jcondotta.recipients.domain.exceptions.BankAccountNotActiveException;
 import com.jcondotta.recipients.domain.exceptions.RecipientNotFoundException;
 import com.jcondotta.recipients.domain.value_objects.BankAccountId;
@@ -22,8 +20,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -32,7 +28,6 @@ import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
@@ -63,12 +58,6 @@ class DeleteRecipientUseCaseImplTest {
   @Mock
   private DeleteRecipientRepository deleteRecipientRepository;
 
-  @Mock
-  private RecipientDeletedEventPublisher deletedEventPublisher;
-
-  @Captor
-  private ArgumentCaptor<RecipientDeletedEvent> recipientDeletedEventCaptor;
-
   private DeleteRecipientUseCaseImpl useCase;
 
   @BeforeEach
@@ -77,7 +66,6 @@ class DeleteRecipientUseCaseImplTest {
         bankAccountLookupFacade,
         getRecipientRepository,
         deleteRecipientRepository,
-        deletedEventPublisher,
         FIXED_CLOCK
     );
   }
@@ -102,17 +90,11 @@ class DeleteRecipientUseCaseImplTest {
 
     verify(deleteRecipientRepository).delete(recipient);
 
-    verify(deletedEventPublisher).publish(recipientDeletedEventCaptor.capture());
-    assertThat(recipientDeletedEventCaptor.getValue())
-        .satisfies(
-            recipientDeletedEvent -> {
-              assertThat(recipientDeletedEvent.eventId()).isNotNull();
-              assertThat(recipientDeletedEvent.recipientId()).isEqualTo(RECIPIENT_ID);
-              assertThat(recipientDeletedEvent.bankAccountId()).isEqualTo(BANK_ACCOUNT_ID);
-              assertThat(recipientDeletedEvent.occurredAt()).isEqualTo(ZonedDateTime.now(FIXED_CLOCK));
-            });
-
-    verifyNoMoreInteractions(deleteRecipientRepository, deletedEventPublisher);
+    verifyNoMoreInteractions(
+        deleteRecipientRepository,
+        bankAccountLookupFacade,
+        getRecipientRepository
+    );
   }
 
   @Test
@@ -128,8 +110,8 @@ class DeleteRecipientUseCaseImplTest {
     assertThatThrownBy(() -> useCase.execute(command))
         .isInstanceOf(RecipientNotFoundException.class);
 
+    verify(getRecipientRepository).getRecipient(BANK_ACCOUNT_ID, RECIPIENT_ID);
     verify(deleteRecipientRepository, never()).delete(any());
-    verifyNoInteractions(deletedEventPublisher);
   }
 
   @ParameterizedTest
@@ -155,7 +137,6 @@ class DeleteRecipientUseCaseImplTest {
         .hasMessage("recipient.cannotBeDeleted.bankAccountNotActive");
 
     verify(deleteRecipientRepository, never()).delete(any());
-    verifyNoInteractions(deletedEventPublisher);
   }
 
   @Test
@@ -180,7 +161,6 @@ class DeleteRecipientUseCaseImplTest {
         .hasMessage("Recipient does not belong to this account");
 
     verify(deleteRecipientRepository, never()).delete(any());
-    verifyNoInteractions(deletedEventPublisher);
   }
 
   @Test
@@ -189,10 +169,6 @@ class DeleteRecipientUseCaseImplTest {
         .isInstanceOf(NullPointerException.class)
         .hasMessage("command must not be null");
 
-    verifyNoInteractions(
-        getRecipientRepository,
-        deleteRecipientRepository,
-        deletedEventPublisher
-    );
+    verifyNoInteractions(getRecipientRepository, deleteRecipientRepository, bankAccountLookupFacade);
   }
 }

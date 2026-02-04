@@ -1,12 +1,10 @@
 package com.jcondotta.recipients.application.usecase.delete_recipient;
 
 import com.jcondotta.recipients.application.ports.output.facade.bank_account.BankAccountLookupFacade;
-import com.jcondotta.recipients.application.ports.output.messaging.RecipientDeletedEventPublisher;
 import com.jcondotta.recipients.application.ports.output.repository.delete_recipient.DeleteRecipientRepository;
 import com.jcondotta.recipients.application.ports.output.repository.get_recipient.GetRecipientRepository;
 import com.jcondotta.recipients.application.usecase.delete_recipient.model.DeleteRecipientCommand;
 import com.jcondotta.recipients.domain.entities.BankAccount;
-import com.jcondotta.recipients.domain.events.RecipientDeletedEvent;
 import com.jcondotta.recipients.domain.exceptions.RecipientNotFoundException;
 import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +22,6 @@ public class DeleteRecipientUseCaseImpl implements DeleteRecipientUseCase {
   private final BankAccountLookupFacade bankAccountLookupFacade;
   private final GetRecipientRepository getRecipientRepository;
   private final DeleteRecipientRepository deleteRecipientRepository;
-  private final RecipientDeletedEventPublisher eventPublisher;
   private final Clock clock;
 
   @Override
@@ -46,9 +43,6 @@ public class DeleteRecipientUseCaseImpl implements DeleteRecipientUseCase {
 
     bankAccount.deleteRecipient(recipient, clock);
     deleteRecipientRepository.delete(recipient);
-
-    RecipientDeletedEvent event = (RecipientDeletedEvent) bankAccount.pullRecipientEvents().getFirst();
-    eventPublisher.publish(event);
 
     log.info(
         "Recipient deleted successfully [bankAccountId={}, recipientId={}]",

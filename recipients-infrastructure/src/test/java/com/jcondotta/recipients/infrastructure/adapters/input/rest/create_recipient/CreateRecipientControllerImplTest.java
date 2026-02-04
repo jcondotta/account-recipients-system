@@ -66,7 +66,7 @@ class CreateRecipientControllerImplTest {
     when(uriProperties.recipientsURI(BANK_ACCOUNT_UUID)).thenReturn(EXPECTED_LOCATION_URI);
 
     ResponseEntity<String> response =
-        controller.createAccountRecipient(IDEMPOTENCY_KEY_UUID, BANK_ACCOUNT_UUID, request);
+        controller.createAccountRecipient(BANK_ACCOUNT_UUID, request);
 
     assertThat(response.getStatusCode().value()).isEqualTo(201);
     assertThat(response.getHeaders().getLocation()).isEqualTo(EXPECTED_LOCATION_URI);

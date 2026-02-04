@@ -6,7 +6,7 @@ services:
     ports:
       - '127.0.0.1:4572:4566'
     environment:
-      SERVICES: dynamodb, kinesis
+      SERVICES: dynamodb
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
       AWS_DEFAULT_REGION: us-east-1
@@ -53,13 +53,10 @@ services:
       AWS_SECRET_ACCESS_KEY: test
 
       AWS_DYNAMODB_RECIPIENTS_TABLE_NAME: recipients
-      AWS_KINESIS_RECIPIENTS_CREATED_STREAM_NAME: recipients.created
-      AWS_KINESIS_RECIPIENTS_DELETED_STREAM_NAME: recipients.deleted
 
       BANK_ACCOUNTS_API_BASE_URL: http://host.docker.internal:8090
 
       AWS_DYNAMODB_ENDPOINT: http://localstack:4566
-      AWS_KINESIS_ENDPOINT: http://localstack:4566
 
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]

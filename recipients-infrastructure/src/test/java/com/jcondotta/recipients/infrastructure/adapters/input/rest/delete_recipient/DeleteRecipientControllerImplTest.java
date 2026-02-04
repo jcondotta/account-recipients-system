@@ -4,6 +4,7 @@ import com.jcondotta.recipients.application.usecase.delete_recipient.DeleteRecip
 import com.jcondotta.recipients.application.usecase.delete_recipient.model.DeleteRecipientCommand;
 import com.jcondotta.recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.recipients.domain.value_objects.RecipientId;
+import com.jcondotta.recipients.infrastructure.adapters.input.rest.delete_recipient.mapper.DeleteRecipientRequestMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +22,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class DeleteRecipientControllerImplTest {
 
-  private static final UUID IDEMPOTENCY_KEY_UUID = UUID.randomUUID();
   private static final UUID BANK_ACCOUNT_UUID = UUID.randomUUID();
   private static final UUID RECIPIENT_UUID = UUID.randomUUID();
 
@@ -54,7 +54,6 @@ class DeleteRecipientControllerImplTest {
 
     ResponseEntity<Void> response =
         controller.deleteAccountRecipient(
-            IDEMPOTENCY_KEY_UUID,
             BANK_ACCOUNT_UUID,
             RECIPIENT_UUID
         );

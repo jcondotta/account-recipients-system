@@ -1,18 +1,11 @@
 package com.jcondotta.recipients.infrastructure.adapters.input.rest.create_recipient;
 
 import com.jcondotta.recipients.application.ports.output.i18n.MessageResolverPort;
-import com.jcondotta.recipients.application.execution.IdempotencyKey;
 import com.jcondotta.recipients.common.argument_provider.BlankValuesArgumentProvider;
 import com.jcondotta.recipients.common.container.LocalStackTestContainer;
 import com.jcondotta.recipients.common.fixtures.RecipientFixtures;
-import com.jcondotta.recipients.infrastructure.adapters.input.rest.create_recipient.model.CreateRecipientRestRequest;
-import com.jcondotta.recipients.infrastructure.adapters.output.messaging.EventEnvelope;
-import com.jcondotta.recipients.infrastructure.adapters.output.messaging.EventMetadata;
-import com.jcondotta.recipients.infrastructure.adapters.output.messaging.EventMetadataFactory;
-import com.jcondotta.recipients.infrastructure.adapters.output.messaging.RecipientCreatedMessage;
-import com.jcondotta.recipients.infrastructure.config.RecipientsCreatedTestListener;
 import com.jcondotta.recipients.infrastructure.adapters.input.rest.common.exception_handler.ProblemTypes;
-import com.jcondotta.recipients.infrastructure.adapters.input.rest.common.headers.HttpHeadersCustom;
+import com.jcondotta.recipients.infrastructure.adapters.input.rest.create_recipient.model.CreateRecipientRestRequest;
 import com.jcondotta.recipients.infrastructure.properties.RecipientURIProperties;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
@@ -39,7 +32,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.servlet.LocaleResolver;
 
 import java.time.Clock;
-import java.time.Duration;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -70,9 +62,6 @@ class CreateRecipientControllerImplIT {
   @Autowired
   private LocaleResolver localeResolver;
 
-  @Autowired
-  private RecipientsCreatedTestListener listener;
-
   private Locale defaultLocale;
 
   private UUID bankAccountId;
@@ -80,8 +69,6 @@ class CreateRecipientControllerImplIT {
   private String iban;
 
   private RequestSpecification requestSpecification;
-  private IdempotencyKey idempotencyKey;
-
 
   @BeforeAll
   static void beforeAll() {
@@ -97,11 +84,8 @@ class CreateRecipientControllerImplIT {
     recipientName = RecipientFixtures.JEFFERSON.getRecipientName();
     iban = RecipientFixtures.JEFFERSON.getRecipientIban();
 
-    idempotencyKey = IdempotencyKey.newKey();
-    requestSpecification = buildRequestSpecificationWithIdempotencyKey(idempotencyKey);
+    requestSpecification = buildRequestSpecification();
     defaultLocale = localeResolver.resolveLocale(new MockHttpServletRequest());
-
-    listener.clear();
   }
 
   @Test
@@ -128,34 +112,6 @@ class CreateRecipientControllerImplIT {
         .statusCode(HttpStatus.CREATED.value())
         .header("location", equalTo(expectedLocationURI))
         .header(HttpHeaders.CONTENT_TYPE, nullValue());
-
-    try {
-      EventEnvelope<RecipientCreatedMessage> eventEnvelope =
-          listener.awaitEvent(
-              Duration.ofSeconds(4),
-              RecipientCreatedMessage.class,
-              envelope -> envelope.payload().bankAccountId().equals(bankAccountId)
-          );
-      assertThat(eventEnvelope)
-          .satisfies(envelope -> {
-            EventMetadata eventMetadata = eventEnvelope.metadata();
-            assertAll(
-                () -> assertThat(eventMetadata.publishedAt()).isNotNull()
-            );
-
-            RecipientCreatedMessage message = envelope.payload();
-            assertAll(
-                () -> assertThat(message.eventId()).isNotNull(),
-                () -> assertThat(message.recipientId()).isNotNull(),
-                () -> assertThat(message.recipientName()).isEqualTo(recipientName),
-                () -> assertThat(message.bankAccountId()).isEqualTo(bankAccountId),
-                () -> assertThat(message.iban()).isEqualTo(iban),
-                () -> assertThat(message.occurredAt()).isNotNull()
-            );
-          });
-    } catch (InterruptedException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   @Test
@@ -298,21 +254,6 @@ class CreateRecipientControllerImplIT {
         .statusCode(HttpStatus.BAD_REQUEST.value());
   }
 
-  @Test
-  void shouldReturn400BadRequest_whenRequestIsMissingIdempotencyKeyHeader() {
-    var restRequest = CreateRecipientRestRequest.of(recipientName, iban);
-
-    given()
-        .spec(buildBaseRequestSpecification())
-        .pathParam("bank-account-id", bankAccountId)
-        .body(restRequest)
-        .when()
-        .post()
-        .then()
-        .statusCode(HttpStatus.BAD_REQUEST.value())
-        .body(equalTo("Required header '" + HttpHeadersCustom.IDEMPOTENCY_KEY + "' is missing."));
-  }
-
   private void assert422ValidationProblem(ProblemDetail problemDetail, UUID bankAccountId) {
     assertAll(
         () -> assertThat(problemDetail.getType()).isEqualTo(ProblemTypes.VALIDATION_ERRORS),
@@ -323,20 +264,13 @@ class CreateRecipientControllerImplIT {
                 .isEqualTo(uriProperties.recipientsURI(bankAccountId)));
   }
 
-  private RequestSpecification buildBaseRequestSpecification() {
+  private RequestSpecification buildRequestSpecification() {
     return new RequestSpecBuilder()
         .setBaseUri(RestAssured.baseURI)
         .setPort(RestAssured.port)
         .setBasePath(uriProperties.rootPath())
         .setContentType(ContentType.JSON)
         .setAccept(ContentType.JSON)
-        .build();
-  }
-
-  private RequestSpecification buildRequestSpecificationWithIdempotencyKey(IdempotencyKey idempotencyKey) {
-    return new RequestSpecBuilder()
-        .addRequestSpecification(buildBaseRequestSpecification())
-        .addHeader(HttpHeadersCustom.IDEMPOTENCY_KEY, idempotencyKey.value().toString())
         .build();
   }
 }

@@ -1,4 +1,4 @@
-package com.jcondotta.recipients.infrastructure.adapters.input.rest.delete_recipient;
+package com.jcondotta.recipients.infrastructure.adapters.input.rest.delete_recipient.mapper;
 
 import com.jcondotta.recipients.application.usecase.delete_recipient.model.DeleteRecipientCommand;
 import com.jcondotta.recipients.domain.value_objects.BankAccountId;

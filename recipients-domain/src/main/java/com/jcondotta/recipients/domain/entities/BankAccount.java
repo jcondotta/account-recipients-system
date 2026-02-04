@@ -1,17 +1,12 @@
 package com.jcondotta.recipients.domain.entities;
 
 import com.jcondotta.recipients.domain.enums.AccountStatus;
-import com.jcondotta.recipients.domain.events.RecipientCreatedEvent;
-import com.jcondotta.recipients.domain.events.RecipientDeletedEvent;
-import com.jcondotta.recipients.domain.events.RecipientEvent;
 import com.jcondotta.recipients.domain.exceptions.BankAccountNotActiveException;
 import com.jcondotta.recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.recipients.domain.value_objects.Iban;
 import com.jcondotta.recipients.domain.value_objects.RecipientName;
 
 import java.time.Clock;
-import java.util.ArrayList;
-import java.util.List;
 
 import static java.util.Objects.requireNonNull;
 
@@ -22,8 +17,6 @@ public final class BankAccount {
 
   private final BankAccountId bankAccountId;
   private final AccountStatus accountStatus;
-
-  private final List<RecipientEvent> recipientEvents = new ArrayList<>();
 
   private BankAccount(BankAccountId id, AccountStatus status) {
     this.bankAccountId = requireNonNull(id, BANK_ACCOUNT_ID_NOT_NULL);
@@ -43,18 +36,7 @@ public final class BankAccount {
       );
     }
 
-    var recipient = Recipient.create(bankAccountId, name, iban, clock);
-
-    recipientEvents.add(
-        RecipientCreatedEvent.of(
-            recipient.getRecipientId(),
-            recipient.getRecipientName(),
-            recipient.getBankAccountId(),
-            recipient.getIban(),
-            recipient.getCreatedAt()
-        ));
-
-    return recipient;
+    return Recipient.create(bankAccountId, name, iban, clock);
   }
 
   public void deleteRecipient(Recipient recipient, Clock clock) {
@@ -71,19 +53,6 @@ public final class BankAccount {
     }
 
     recipient.delete(clock);
-    recipientEvents.add(
-        RecipientDeletedEvent.of(
-            recipient.getRecipientId(),
-            recipient.getBankAccountId(),
-            recipient.getDeletedAt()
-        )
-    );
-  }
-
-  public List<RecipientEvent> pullRecipientEvents() {
-    var events = List.copyOf(recipientEvents);
-    recipientEvents.clear();
-    return events;
   }
 
   public BankAccountId getBankAccountId() {

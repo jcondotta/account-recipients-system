@@ -3,13 +3,11 @@ package com.jcondotta.recipients.application.usecase.create_recipient;
 import com.jcondotta.recipients.application.common.fixtures.RecipientFixtures;
 import com.jcondotta.recipients.application.helper.ClockTestFactory;
 import com.jcondotta.recipients.application.ports.output.facade.bank_account.BankAccountLookupFacade;
-import com.jcondotta.recipients.application.ports.output.messaging.RecipientCreatedEventPublisher;
 import com.jcondotta.recipients.application.ports.output.repository.create_recipient.CreateRecipientRepository;
 import com.jcondotta.recipients.application.usecase.create_recipient.model.CreateRecipientCommand;
 import com.jcondotta.recipients.domain.entities.BankAccount;
 import com.jcondotta.recipients.domain.entities.Recipient;
 import com.jcondotta.recipients.domain.enums.AccountStatus;
-import com.jcondotta.recipients.domain.events.RecipientCreatedEvent;
 import com.jcondotta.recipients.domain.exceptions.BankAccountNotFoundException;
 import com.jcondotta.recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.recipients.domain.value_objects.Iban;
@@ -50,14 +48,8 @@ class CreateRecipientUseCaseImplTest {
   @Mock
   private CreateRecipientRepository createRecipientRepository;
 
-  @Mock
-  private RecipientCreatedEventPublisher recipientCreatedEventPublisher;
-
   @Captor
   private ArgumentCaptor<Recipient> recipientCaptor;
-
-  @Captor
-  private ArgumentCaptor<RecipientCreatedEvent> recipientCreatedEventCaptor;
 
   private CreateRecipientUseCase useCase;
 
@@ -67,7 +59,6 @@ class CreateRecipientUseCaseImplTest {
         new CreateRecipientUseCaseImpl(
             bankAccountLookupFacade,
             createRecipientRepository,
-            recipientCreatedEventPublisher,
             CLOCK_FIXED
         );
   }
@@ -94,25 +85,8 @@ class CreateRecipientUseCaseImplTest {
                   .isEqualTo(ZonedDateTime.now(CLOCK_FIXED));
             });
 
-    verify(recipientCreatedEventPublisher).publish(recipientCreatedEventCaptor.capture());
-    assertThat(recipientCreatedEventCaptor.getValue())
-        .satisfies(
-            recipientCreatedEvent -> {
-              assertThat(recipientCreatedEvent.eventId()).isNotNull();
-              assertThat(recipientCreatedEvent.recipientId()).isNotNull();
-              assertThat(recipientCreatedEvent.bankAccountId()).isEqualTo(BANK_ACCOUNT_ID);
-              assertThat(recipientCreatedEvent.recipientName()).isEqualTo(RECIPIENT_NAME);
-              assertThat(recipientCreatedEvent.iban()).isEqualTo(IBAN);
-              assertThat(recipientCreatedEvent.occurredAt()).isEqualTo(ZonedDateTime.now(CLOCK_FIXED));
-            });
-
     verify(bankAccountLookupFacade).byId(BANK_ACCOUNT_ID);
-
-    verifyNoMoreInteractions(
-        bankAccountLookupFacade,
-        createRecipientRepository,
-        recipientCreatedEventPublisher
-    );
+    verifyNoMoreInteractions(bankAccountLookupFacade, createRecipientRepository);
   }
 
   @Test
@@ -129,8 +103,7 @@ class CreateRecipientUseCaseImplTest {
         .hasMessage(BankAccountNotFoundException.BANK_ACCOUNT_NOT_FOUND_TEMPLATE);
 
     verify(bankAccountLookupFacade).byId(BANK_ACCOUNT_ID);
-    verifyNoInteractions(
-        createRecipientRepository, recipientCreatedEventPublisher);
+    verifyNoInteractions(createRecipientRepository);
   }
 
   @Test
@@ -139,26 +112,7 @@ class CreateRecipientUseCaseImplTest {
         .isInstanceOf(NullPointerException.class)
         .hasMessage("command must not be null");
 
-    verifyNoInteractions(
-        bankAccountLookupFacade,
-        createRecipientRepository,
-        recipientCreatedEventPublisher
-    );
-  }
-
-  @Test
-  void shouldPropagateException_whenEventPublishingFails() {
-    BankAccount bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
-    when(bankAccountLookupFacade.byId(BANK_ACCOUNT_ID)).thenReturn(bankAccount);
-    doThrow(new RuntimeException("Kinesis down"))
-        .when(recipientCreatedEventPublisher)
-        .publish(any());
-
-    var command = buildCreateAccountRecipientCommand();
-
-    assertThatThrownBy(() -> useCase.execute(command))
-        .isInstanceOf(RuntimeException.class)
-        .hasMessage("Kinesis down");
+    verifyNoInteractions(bankAccountLookupFacade, createRecipientRepository);
   }
 
   private CreateRecipientCommand buildCreateAccountRecipientCommand() {

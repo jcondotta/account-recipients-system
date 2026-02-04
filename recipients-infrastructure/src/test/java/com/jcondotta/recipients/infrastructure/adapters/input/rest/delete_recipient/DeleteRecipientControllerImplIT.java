@@ -1,7 +1,6 @@
 package com.jcondotta.recipients.infrastructure.adapters.input.rest.delete_recipient;
 
 import com.jcondotta.recipients.application.ports.output.i18n.MessageResolverPort;
-import com.jcondotta.recipients.application.execution.IdempotencyKey;
 import com.jcondotta.recipients.common.container.LocalStackTestContainer;
 import com.jcondotta.recipients.common.fixtures.RecipientFixtures;
 import com.jcondotta.recipients.domain.entities.Recipient;
@@ -9,15 +8,9 @@ import com.jcondotta.recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.recipients.domain.value_objects.Iban;
 import com.jcondotta.recipients.domain.value_objects.RecipientId;
 import com.jcondotta.recipients.domain.value_objects.RecipientName;
-import com.jcondotta.recipients.infrastructure.adapters.output.messaging.EventEnvelope;
-import com.jcondotta.recipients.infrastructure.adapters.output.messaging.EventMetadata;
-import com.jcondotta.recipients.infrastructure.adapters.output.messaging.RecipientCreatedMessage;
-import com.jcondotta.recipients.infrastructure.adapters.output.messaging.RecipientDeletedMessage;
+import com.jcondotta.recipients.infrastructure.adapters.input.rest.common.exception_handler.ProblemTypes;
 import com.jcondotta.recipients.infrastructure.adapters.output.repository.entity.RecipientEntity;
 import com.jcondotta.recipients.infrastructure.adapters.output.repository.mapper.RecipientEntityMapper;
-import com.jcondotta.recipients.infrastructure.config.RecipientsDeletedTestListener;
-import com.jcondotta.recipients.infrastructure.adapters.input.rest.common.exception_handler.ProblemTypes;
-import com.jcondotta.recipients.infrastructure.adapters.input.rest.common.headers.HttpHeadersCustom;
 import com.jcondotta.recipients.infrastructure.properties.RecipientURIProperties;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
@@ -41,7 +34,6 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 
 import java.time.Clock;
-import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.Locale;
 import java.util.UUID;
@@ -56,7 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 @ActiveProfiles("test")
-@ContextConfiguration(initializers = { LocalStackTestContainer.class })
+@ContextConfiguration(initializers = {LocalStackTestContainer.class})
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureWireMock(port = 0)
 class DeleteRecipientControllerImplIT {
@@ -78,9 +70,6 @@ class DeleteRecipientControllerImplIT {
   @Autowired
   private MessageResolverPort messageResolverPort;
 
-  @Autowired
-  private RecipientsDeletedTestListener listener;
-
   private RecipientId recipientId;
   private BankAccountId bankAccountId;
   private RecipientName recipientName;
@@ -89,7 +78,6 @@ class DeleteRecipientControllerImplIT {
   private ZonedDateTime fixedZonedDateTime;
 
   private RequestSpecification requestSpecification;
-  private IdempotencyKey idempotencyKey;
 
   @BeforeAll
   static void beforeAll() {
@@ -107,9 +95,7 @@ class DeleteRecipientControllerImplIT {
     iban = Iban.of(RecipientFixtures.JEFFERSON.getRecipientIban());
     fixedZonedDateTime = ZonedDateTime.now(fixedClock);
 
-    idempotencyKey = IdempotencyKey.newKey();
-    requestSpecification = buildRequestSpecificationWithIdempotencyKey(idempotencyKey);
-    listener.clear();
+    requestSpecification = buildRequestSpecification();
   }
 
   @Test
@@ -130,41 +116,15 @@ class DeleteRecipientControllerImplIT {
         .spec(requestSpecification)
         .pathParam("bank-account-id", recipient.getBankAccountId().value())
         .pathParam("recipient-id", recipient.getRecipientId().value())
-    .when()
+        .when()
         .delete()
-    .then()
+        .then()
         .statusCode(HttpStatus.NO_CONTENT.value());
 
     var key = buildRecipientKey(recipientEntity);
     assertThat(dynamoDbTable.getItem(r -> r.key(key).consistentRead(true)))
         .as("The account recipient entity should be deleted from the database")
         .isNull();
-
-    try {
-      EventEnvelope<RecipientDeletedMessage> eventEnvelope =
-          listener.awaitEvent(
-              Duration.ofSeconds(4),
-              RecipientDeletedMessage.class,
-              envelope -> envelope.payload().bankAccountId()
-                  .equals(bankAccountId.value()));
-      assertThat(eventEnvelope)
-          .satisfies(envelope -> {
-            EventMetadata eventMetadata = eventEnvelope.metadata();
-            assertAll(
-                () -> assertThat(eventMetadata.publishedAt()).isNotNull()
-            );
-
-            RecipientDeletedMessage message = envelope.payload();
-            assertAll(
-                () -> assertThat(message.eventId()).isNotNull(),
-                () -> assertThat(message.recipientId()).isNotNull(),
-                () -> assertThat(message.bankAccountId()).isEqualTo(bankAccountId.value()),
-                () -> assertThat(message.occurredAt()).isNotNull()
-            );
-          });
-    } catch (InterruptedException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   @Test
@@ -178,20 +138,20 @@ class DeleteRecipientControllerImplIT {
             .spec(requestSpecification)
             .pathParam("bank-account-id", nonExistentBankAccountId)
             .pathParam("recipient-id", recipient.getRecipientId().value())
-            .when()
+        .when()
             .delete()
-            .then()
+        .then()
             .statusCode(HttpStatus.NOT_FOUND.value())
             .extract()
             .body()
             .as(ProblemDetail.class);
 
-            var expectedMessageError = resolveMessage(BANK_ACCOUNT_NOT_FOUND_TEMPLATE, DEFAULT_LOCALE, nonExistentBankAccountId, recipientId.value());
-            assertAll(
-                () -> assertThat(problemDetail.getType()).isEqualTo(ProblemTypes.RESOURCE_NOT_FOUND),
-                () -> assertThat(problemDetail.getTitle()).hasToString(BANK_ACCOUNT_NOT_FOUND_TITLE),
-                () -> assertThat(problemDetail.getDetail()).isEqualTo(expectedMessageError),
-                () -> assertThat(problemDetail.getInstance()).isEqualTo(uriProperties.recipientURI(nonExistentBankAccountId, recipientId.value())));
+    var expectedMessageError = resolveMessage(BANK_ACCOUNT_NOT_FOUND_TEMPLATE, DEFAULT_LOCALE, nonExistentBankAccountId, recipientId.value());
+    assertAll(
+        () -> assertThat(problemDetail.getType()).isEqualTo(ProblemTypes.RESOURCE_NOT_FOUND),
+        () -> assertThat(problemDetail.getTitle()).hasToString(BANK_ACCOUNT_NOT_FOUND_TITLE),
+        () -> assertThat(problemDetail.getDetail()).isEqualTo(expectedMessageError),
+        () -> assertThat(problemDetail.getInstance()).isEqualTo(uriProperties.recipientURI(nonExistentBankAccountId, recipientId.value())));
 
     var key = buildRecipientKey(recipientEntity);
     assertThat(dynamoDbTable.getItem(r -> r.key(key).consistentRead(true)))
@@ -229,13 +189,13 @@ class DeleteRecipientControllerImplIT {
             .body()
             .as(ProblemDetail.class);
 
-            var expectedMessageError = resolveMessage(RECIPIENT_NOT_FOUND_TEMPLATE, DEFAULT_LOCALE, bankAccountId.value(), nonExistentRecipientId);
-            assertAll(
-                () -> assertThat(problemDetail.getType()).isEqualTo(ProblemTypes.RESOURCE_NOT_FOUND),
-                () -> assertThat(problemDetail.getTitle()).hasToString(RECIPIENT_NOT_FOUND_TITLE),
-                () -> assertThat(problemDetail.getDetail()).isEqualTo(expectedMessageError),
-                () -> assertThat(problemDetail.getInstance())
-                    .isEqualTo(uriProperties.recipientURI(bankAccountId.value(), nonExistentRecipientId)));
+    var expectedMessageError = resolveMessage(RECIPIENT_NOT_FOUND_TEMPLATE, DEFAULT_LOCALE, bankAccountId.value(), nonExistentRecipientId);
+    assertAll(
+        () -> assertThat(problemDetail.getType()).isEqualTo(ProblemTypes.RESOURCE_NOT_FOUND),
+        () -> assertThat(problemDetail.getTitle()).hasToString(RECIPIENT_NOT_FOUND_TITLE),
+        () -> assertThat(problemDetail.getDetail()).isEqualTo(expectedMessageError),
+        () -> assertThat(problemDetail.getInstance())
+            .isEqualTo(uriProperties.recipientURI(bankAccountId.value(), nonExistentRecipientId)));
 
     var key = buildRecipientKey(recipientEntity);
     assertThat(dynamoDbTable.getItem(r -> r.key(key).consistentRead(true)))
@@ -259,23 +219,16 @@ class DeleteRecipientControllerImplIT {
   }
 
   private String resolveMessage(String code, Locale locale, Object... args) {
-      return messageResolverPort.resolveMessage(code, args, locale);
+    return messageResolverPort.resolveMessage(code, args, locale);
   }
 
-  private RequestSpecification buildBaseRequestSpecification() {
+  private RequestSpecification buildRequestSpecification() {
     return new RequestSpecBuilder()
         .setBaseUri(RestAssured.baseURI)
         .setPort(RestAssured.port)
         .setBasePath(uriProperties.recipientIdPath())
         .setContentType(ContentType.JSON)
         .setAccept(ContentType.JSON)
-        .build();
-  }
-
-  private RequestSpecification buildRequestSpecificationWithIdempotencyKey(IdempotencyKey idempotencyKey) {
-    return new RequestSpecBuilder()
-        .addRequestSpecification(buildBaseRequestSpecification())
-        .addHeader(HttpHeadersCustom.IDEMPOTENCY_KEY, idempotencyKey.value().toString())
         .build();
   }
 }

@@ -1,9 +1,6 @@
 package com.jcondotta.recipients.domain.entities;
 
 import com.jcondotta.recipients.domain.enums.AccountStatus;
-import com.jcondotta.recipients.domain.events.RecipientCreatedEvent;
-import com.jcondotta.recipients.domain.events.RecipientDeletedEvent;
-import com.jcondotta.recipients.domain.events.RecipientEvent;
 import com.jcondotta.recipients.domain.exceptions.BankAccountNotActiveException;
 import com.jcondotta.recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.recipients.domain.value_objects.Iban;
@@ -16,7 +13,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.List;
 import java.util.UUID;
 
 import static com.jcondotta.recipients.domain.entities.BankAccount.ACCOUNT_STATUS_NOT_NULL;
@@ -68,17 +64,6 @@ class BankAccountTest {
         assertThat(recipient.getCreatedAt()).isEqualTo(ZonedDateTime.now(CLOCK));
         assertThat(recipient.getDeletedAt()).isNull();
         assertThat(recipient.isDeleted()).isFalse();
-
-        assertThat(bankAccount.pullRecipientEvents())
-            .singleElement()
-            .isInstanceOfSatisfying(RecipientCreatedEvent.class, event -> {
-                assertThat(event.recipientId()).isEqualTo(recipient.getRecipientId());
-                assertThat(event.recipientName()).isEqualTo(recipient.getRecipientName());
-                assertThat(event.bankAccountId()).isEqualTo(recipient.getBankAccountId());
-                assertThat(event.iban()).isEqualTo(recipient.getIban());
-                assertThat(event.occurredAt()).isEqualTo(recipient.getCreatedAt());
-            });
-
     }
 
     @ParameterizedTest
@@ -100,14 +85,6 @@ class BankAccountTest {
 
         assertThat(recipient.isDeleted()).isTrue();
         assertThat(recipient.getDeletedAt()).isEqualTo(ZonedDateTime.now(DELETED_CLOCK));
-
-        assertThat(bankAccount.pullRecipientEvents())
-            .singleElement()
-            .isInstanceOfSatisfying(RecipientDeletedEvent.class, event -> {
-                assertThat(event.recipientId()).isEqualTo(recipient.getRecipientId());
-                assertThat(event.bankAccountId()).isEqualTo(recipient.getBankAccountId());
-                assertThat(event.occurredAt()).isEqualTo(recipient.getDeletedAt());
-            });
     }
 
     @Test
@@ -134,30 +111,6 @@ class BankAccountTest {
         assertThatThrownBy(() -> bankAccount.deleteRecipient(recipient, CLOCK))
             .isInstanceOf(BankAccountNotActiveException.class)
             .hasMessage("recipient.cannotBeDeleted.bankAccountNotActive");
-    }
-
-    @Test
-    void shouldPullRecipientEvents_andClearInternalList() {
-        var bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
-
-        bankAccount.createRecipient(RECIPIENT_NAME_JEFFERSON, IBAN, CLOCK);
-        bankAccount.createRecipient(RecipientName.of("Another Recipient"), IBAN, CLOCK);
-
-        var events = bankAccount.pullRecipientEvents();
-        assertThat(events).hasSize(2);
-
-        assertThat(bankAccount.pullRecipientEvents()).isEmpty();
-    }
-
-    @Test
-    void shouldReturnImmutableList_whenPullingRecipientEvents() {
-        var bankAccount = BankAccount.restore(BANK_ACCOUNT_ID, AccountStatus.ACTIVE);
-        bankAccount.createRecipient(RECIPIENT_NAME_JEFFERSON, IBAN, CLOCK);
-
-        List<RecipientEvent> events = bankAccount.pullRecipientEvents();
-
-        assertThatThrownBy(() -> events.add(null))
-            .isInstanceOf(UnsupportedOperationException.class);
     }
 
     @Test

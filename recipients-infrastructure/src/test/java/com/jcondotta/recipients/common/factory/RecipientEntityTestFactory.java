@@ -13,14 +13,6 @@ public class RecipientEntityTestFactory {
     return new RecipientEntity(recipientId, bankAccountId, recipientName, iban, ZonedDateTime.now(clock));
   }
 
-  public static RecipientEntity create(UUID bankAccountId, String recipientName, String iban, Clock clock) {
-    return create(UUID.randomUUID(), bankAccountId, recipientName, iban, clock);
-  }
-
-  public static RecipientEntity create(UUID bankAccountId, String recipientName, Clock clock) {
-    return create(UUID.randomUUID(), bankAccountId, recipientName, Iban.random().toString(), clock);
-  }
-
   public static RecipientEntity create(UUID bankAccountId, String recipientName) {
     return create(UUID.randomUUID(), bankAccountId, recipientName, Iban.random().toString(), ClockTestFactory.TEST_CLOCK_FIXED);
   }

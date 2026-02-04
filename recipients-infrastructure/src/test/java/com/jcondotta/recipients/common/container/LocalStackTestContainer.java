@@ -23,7 +23,7 @@ public class LocalStackTestContainer
 
   static final LocalStackContainer LOCALSTACK_CONTAINER =
       new LocalStackContainer(LOCALSTACK_IMAGE)
-          .withServices(Service.DYNAMODB, Service.KINESIS)
+          .withServices(Service.DYNAMODB)
           .withCopyFileToContainer(
               MountableFile.forHostPath("../localstack/init-aws.sh"),
               "/etc/localstack/init/ready.d/init-aws.sh")
@@ -45,8 +45,8 @@ public class LocalStackTestContainer
         "AWS_ACCESS_KEY_ID", LOCALSTACK_CONTAINER.getAccessKey(),
         "AWS_SECRET_ACCESS_KEY", LOCALSTACK_CONTAINER.getSecretKey(),
         "AWS_DEFAULT_REGION", LOCALSTACK_CONTAINER.getRegion(),
-        "AWS_DYNAMODB_ENDPOINT", LOCALSTACK_CONTAINER.getEndpointOverride(Service.DYNAMODB).toString(),
-        "AWS_KINESIS_ENDPOINT", LOCALSTACK_CONTAINER.getEndpointOverride(Service.KINESIS).toString());
+        "AWS_DYNAMODB_ENDPOINT", LOCALSTACK_CONTAINER.getEndpointOverride(Service.DYNAMODB).toString()
+    );
   }
 
   @Override

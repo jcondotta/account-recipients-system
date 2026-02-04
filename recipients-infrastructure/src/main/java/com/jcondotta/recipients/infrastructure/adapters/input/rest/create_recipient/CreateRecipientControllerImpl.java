@@ -29,7 +29,7 @@ public class CreateRecipientControllerImpl implements CreateRecipientController 
       description = "recipient creation time measurement",
       percentiles = {0.5, 0.95, 0.99})
   @ResponseStatus(HttpStatus.CREATED)
-  public ResponseEntity<String> createAccountRecipient(UUID idempotencyKey, UUID bankAccountId, CreateRecipientRestRequest request) {
+  public ResponseEntity<String> createAccountRecipient(UUID bankAccountId, CreateRecipientRestRequest request) {
     var command = mapper.toCommand(bankAccountId, request);
     useCase.execute(command);
 

@@ -16,12 +16,6 @@ cloud:
       tables:
         recipients:
           table-name: ${AWS_DYNAMODB_RECIPIENTS_TABLE_NAME}
-    kinesis:
-      streams:
-        recipients-created:
-          stream-name: ${AWS_KINESIS_RECIPIENTS_CREATED_STREAM_NAME}
-        recipients-deleted:
-          stream-name: ${AWS_KINESIS_RECIPIENTS_DELETED_STREAM_NAME}
 
 api:
   v1:
@@ -57,5 +51,3 @@ management:
         cache.get: 0.5, 0.95, 0.99
         cache.put_if_absent: 0.5, 0.95, 0.99
         cache.put: 0.5, 0.95, 0.99
-
-

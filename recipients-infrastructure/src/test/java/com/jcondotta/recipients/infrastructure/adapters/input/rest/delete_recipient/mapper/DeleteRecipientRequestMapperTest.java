@@ -2,7 +2,6 @@ package com.jcondotta.recipients.infrastructure.adapters.input.rest.delete_recip
 
 import com.jcondotta.recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.recipients.domain.value_objects.RecipientId;
-import com.jcondotta.recipients.infrastructure.adapters.input.rest.delete_recipient.DeleteRecipientRequestMapper;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
