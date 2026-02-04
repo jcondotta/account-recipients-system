@@ -140,6 +140,11 @@ class GetRecipientsRequestRestMapperTest {
   }
 
   @Test
+  void shouldReturnNull_whenToQueryIsCalledWithNullParams() {
+    assertThat(mapper.toQuery(null, null)).isNull();
+  }
+
+  @Test
   void shouldMapBankAccountIdCorrectly_whenValueIsProvided() {
     var result = mapper.mapBankAccountId(BANK_ACCOUNT_UUID);
 
