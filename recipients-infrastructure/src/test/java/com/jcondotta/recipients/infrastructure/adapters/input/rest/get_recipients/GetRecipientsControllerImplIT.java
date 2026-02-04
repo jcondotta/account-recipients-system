@@ -3,12 +3,12 @@ package com.jcondotta.recipients.infrastructure.adapters.input.rest.get_recipien
 import com.jcondotta.recipients.application.ports.output.repository.get_recipients.model.GetRecipientsQueryParams;
 import com.jcondotta.recipients.common.container.LocalStackTestContainer;
 import com.jcondotta.recipients.common.factory.RecipientEntityTestFactory;
-import com.jcondotta.recipients.infrastructure.adapters.input.rest.common.headers.HttpHeadersCustom;
 import com.jcondotta.recipients.infrastructure.adapters.input.rest.get_recipients.model.response.GetRecipientsResponse;
 import com.jcondotta.recipients.infrastructure.adapters.input.rest.get_recipients.model.response.RecipientResponse;
 import com.jcondotta.recipients.infrastructure.adapters.output.repository.entity.RecipientEntity;
 import com.jcondotta.recipients.infrastructure.properties.RecipientURIProperties;
 import io.restassured.RestAssured;
+import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeAll;
@@ -56,7 +56,10 @@ class GetRecipientsControllerImplIT {
 
   @BeforeEach
   void beforeEach(@LocalServerPort int port) {
-    requestSpecification = buildRequestSpecification(port);
+    RestAssured.baseURI = "http://localhost";
+    RestAssured.port = port;
+
+    requestSpecification = buildRequestSpecification();
 
     bankAccountId = UUID.randomUUID();
     recipientJefferson =
@@ -67,14 +70,14 @@ class GetRecipientsControllerImplIT {
         RecipientEntityTestFactory.create(bankAccountId, VIRGINIO.getRecipientName());
   }
 
-  private RequestSpecification buildRequestSpecification(int port) {
-    return given()
-        .baseUri("http://localhost")
-        .port(port)
-        .basePath(uriProperties.rootPath())
-        .header(HttpHeadersCustom.IDEMPOTENCY_KEY, UUID.randomUUID())
-        .contentType(ContentType.JSON)
-        .accept(ContentType.JSON);
+  private RequestSpecification buildRequestSpecification() {
+    return new RequestSpecBuilder()
+        .setBaseUri(RestAssured.baseURI)
+        .setPort(RestAssured.port)
+        .setBasePath(uriProperties.rootPath())
+        .setContentType(ContentType.JSON)
+        .setAccept(ContentType.JSON)
+        .build();
   }
 
   @Nested
