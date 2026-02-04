@@ -7,6 +7,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface RecipientCreatedMessageMapper {
 
+  @Mapping(target = "eventId", source = "eventId.value")
   @Mapping(target = "recipientId", source = "recipientId.value")
   @Mapping(target = "recipientName", source = "recipientName.value")
   @Mapping(target = "bankAccountId", source = "bankAccountId.value")

@@ -147,9 +147,10 @@ class CreateRecipientControllerImplIT {
 
             RecipientCreatedMessage message = envelope.payload();
             assertAll(
-                () -> assertThat(message.recipientId()).isNotBlank(),
+                () -> assertThat(message.eventId()).isNotNull(),
+                () -> assertThat(message.recipientId()).isNotNull(),
                 () -> assertThat(message.recipientName()).isEqualTo(recipientName),
-                () -> assertThat(message.bankAccountId()).isEqualTo(bankAccountId.toString()),
+                () -> assertThat(message.bankAccountId()).isEqualTo(bankAccountId),
                 () -> assertThat(message.iban()).isEqualTo(iban),
                 () -> assertThat(message.occurredAt()).isNotNull()
             );

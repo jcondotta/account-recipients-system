@@ -6,10 +6,10 @@ import com.jcondotta.recipients.common.factory.ClockTestFactory;
 import com.jcondotta.recipients.common.factory.ObjectMapperTestFactory;
 import com.jcondotta.recipients.common.fixtures.RecipientFixtures;
 import com.jcondotta.recipients.domain.events.RecipientCreatedEvent;
+import com.jcondotta.recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.recipients.domain.value_objects.Iban;
 import com.jcondotta.recipients.domain.value_objects.RecipientId;
 import com.jcondotta.recipients.domain.value_objects.RecipientName;
-import com.jcondotta.recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.recipients.infrastructure.properties.RecipientsCreatedStreamProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -76,7 +76,7 @@ class KinesisRecipientCreatedEventPublisherTest {
         objectMapper
     );
 
-    recipientCreatedEvent = new RecipientCreatedEvent(RECIPIENT_ID, RECIPIENT_NAME, BANK_ACCOUNT_ID, IBAN, OCCURRED_AT);
+    recipientCreatedEvent = RecipientCreatedEvent.of(RECIPIENT_ID, RECIPIENT_NAME, BANK_ACCOUNT_ID, IBAN, OCCURRED_AT);
   }
 
   @Test
@@ -113,9 +113,10 @@ class KinesisRecipientCreatedEventPublisherTest {
 
         assertThat(eventEnvelope.payload())
             .satisfies(payload -> {
-              assertThat(payload.recipientId()).isEqualTo(recipientCreatedEvent.recipientId().value().toString());
+              assertThat(payload.eventId()).isEqualTo(recipientCreatedEvent.eventId().value());
+              assertThat(payload.recipientId()).isEqualTo(recipientCreatedEvent.recipientId().value());
               assertThat(payload.recipientName()).isEqualTo(recipientCreatedEvent.recipientName().value());
-              assertThat(payload.bankAccountId()).isEqualTo(recipientCreatedEvent.bankAccountId().value().toString());
+              assertThat(payload.bankAccountId()).isEqualTo(recipientCreatedEvent.bankAccountId().value());
               assertThat(payload.iban()).isEqualTo(recipientCreatedEvent.iban().value());
               assertThat(payload.occurredAt()).isEqualTo(recipientCreatedEvent.occurredAt());
             });

@@ -3,10 +3,7 @@ package com.jcondotta.recipients.infrastructure.adapters.output.messaging;
 import com.jcondotta.recipients.common.factory.ClockTestFactory;
 import com.jcondotta.recipients.common.fixtures.RecipientFixtures;
 import com.jcondotta.recipients.domain.events.RecipientCreatedEvent;
-import com.jcondotta.recipients.domain.value_objects.Iban;
-import com.jcondotta.recipients.domain.value_objects.RecipientId;
-import com.jcondotta.recipients.domain.value_objects.RecipientName;
-import com.jcondotta.recipients.domain.value_objects.BankAccountId;
+import com.jcondotta.recipients.domain.value_objects.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
@@ -19,6 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class RecipientCreatedMessageMapperTest {
 
+  private static final EventId EVENT_ID = EventId.newEventId();
   private static final BankAccountId BANK_ACCOUNT_ID = new BankAccountId(UUID.randomUUID());
   private static final RecipientId RECIPIENT_ID = RecipientId.newId();
   private static final RecipientName RECIPIENT_NAME = new RecipientName(RecipientFixtures.JEFFERSON.getRecipientName());
@@ -32,6 +30,7 @@ class RecipientCreatedMessageMapperTest {
   @Test
   void shouldMapRecipientCreatedEventToMessageCorrectly() {
     var event = new RecipientCreatedEvent(
+        EVENT_ID,
         RECIPIENT_ID,
         RECIPIENT_NAME,
         BANK_ACCOUNT_ID,
@@ -41,9 +40,10 @@ class RecipientCreatedMessageMapperTest {
 
     assertThat(mapper.fromEvent(event))
         .satisfies(message -> Assertions.assertAll(
-            () -> assertThat(message.recipientId()).isEqualTo(event.recipientId().value().toString()),
+            () -> assertThat(message.eventId()).isEqualTo(event.eventId().value()),
+            () -> assertThat(message.recipientId()).isEqualTo(event.recipientId().value()),
             () -> assertThat(message.recipientName()).isEqualTo(event.recipientName().value()),
-            () -> assertThat(message.bankAccountId()).isEqualTo(event.bankAccountId().value().toString()),
+            () -> assertThat(message.bankAccountId()).isEqualTo(event.bankAccountId().value()),
             () -> assertThat(message.iban()).isEqualTo(event.iban().value()),
             () -> assertThat(message.occurredAt()).isEqualTo(OCCURRED_AT)
         ));

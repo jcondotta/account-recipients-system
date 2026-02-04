@@ -5,8 +5,8 @@ import com.jcondotta.recipients.application.usecase.shared.value_objects.Idempot
 import com.jcondotta.recipients.common.factory.ClockTestFactory;
 import com.jcondotta.recipients.common.factory.ObjectMapperTestFactory;
 import com.jcondotta.recipients.domain.events.RecipientDeletedEvent;
-import com.jcondotta.recipients.domain.value_objects.RecipientId;
 import com.jcondotta.recipients.domain.value_objects.BankAccountId;
+import com.jcondotta.recipients.domain.value_objects.RecipientId;
 import com.jcondotta.recipients.infrastructure.properties.RecipientsDeletedStreamProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -74,7 +74,7 @@ class KinesisRecipientDeletedEventPublisherTest {
         objectMapper
     );
 
-    recipientDeletedEvent = new RecipientDeletedEvent(RECIPIENT_ID, BANK_ACCOUNT_ID, OCCURRED_AT);
+    recipientDeletedEvent = RecipientDeletedEvent.of(RECIPIENT_ID, BANK_ACCOUNT_ID, OCCURRED_AT);
   }
 
   @Test
@@ -118,8 +118,9 @@ class KinesisRecipientDeletedEventPublisherTest {
 
           assertThat(eventEnvelope.payload())
               .satisfies(payload -> {
-                assertThat(payload.recipientId()).isEqualTo(recipientDeletedEvent.recipientId().value().toString());
-                assertThat(payload.bankAccountId()).isEqualTo(recipientDeletedEvent.bankAccountId().value().toString());
+                assertThat(payload.eventId()).isEqualTo(recipientDeletedEvent.eventId().value());
+                assertThat(payload.recipientId()).isEqualTo(recipientDeletedEvent.recipientId().value());
+                assertThat(payload.bankAccountId()).isEqualTo(recipientDeletedEvent.bankAccountId().value());
                 assertThat(payload.occurredAt()).isEqualTo(recipientDeletedEvent.occurredAt());
               });
         });

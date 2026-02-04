@@ -7,6 +7,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface RecipientDeletedMessageMapper {
 
+  @Mapping(target = "eventId", source = "eventId.value")
   @Mapping(target = "recipientId", source = "recipientId.value")
   @Mapping(target = "bankAccountId", source = "bankAccountId.value")
   @Mapping(target = "occurredAt", source = "occurredAt")

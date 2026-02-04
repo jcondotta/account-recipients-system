@@ -5,10 +5,10 @@ import com.jcondotta.recipients.application.usecase.shared.value_objects.Idempot
 import com.jcondotta.recipients.common.container.LocalStackTestContainer;
 import com.jcondotta.recipients.common.fixtures.RecipientFixtures;
 import com.jcondotta.recipients.domain.entities.Recipient;
+import com.jcondotta.recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.recipients.domain.value_objects.Iban;
 import com.jcondotta.recipients.domain.value_objects.RecipientId;
 import com.jcondotta.recipients.domain.value_objects.RecipientName;
-import com.jcondotta.recipients.domain.value_objects.BankAccountId;
 import com.jcondotta.recipients.infrastructure.adapters.output.messaging.EventEnvelope;
 import com.jcondotta.recipients.infrastructure.adapters.output.messaging.EventMetadata;
 import com.jcondotta.recipients.infrastructure.adapters.output.messaging.RecipientDeletedMessage;
@@ -155,8 +155,9 @@ class DeleteRecipientControllerImplIT {
 
             RecipientDeletedMessage message = envelope.payload();
             assertAll(
-                () -> assertThat(message.recipientId()).isNotBlank(),
-                () -> assertThat(message.bankAccountId()).isEqualTo(bankAccountId.toString()),
+                () -> assertThat(message.eventId()).isNotNull(),
+                () -> assertThat(message.recipientId()).isNotNull(),
+                () -> assertThat(message.bankAccountId()).isEqualTo(bankAccountId.value()),
                 () -> assertThat(message.occurredAt()).isNotNull()
             );
           });
