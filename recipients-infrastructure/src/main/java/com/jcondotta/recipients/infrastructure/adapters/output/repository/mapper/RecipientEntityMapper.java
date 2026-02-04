@@ -26,8 +26,6 @@ import java.util.Objects;
     })
 public interface RecipientEntityMapper {
 
-  RecipientEntityMapper INSTANCE = Mappers.getMapper(RecipientEntityMapper.class);
-
   default RecipientEntity toEntity(Recipient recipient) {
     if (Objects.isNull(recipient)) {
       return null;

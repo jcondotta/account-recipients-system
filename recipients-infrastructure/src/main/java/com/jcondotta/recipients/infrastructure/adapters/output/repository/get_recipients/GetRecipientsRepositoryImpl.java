@@ -37,7 +37,7 @@ public class GetRecipientsRepositoryImpl implements GetRecipientsRepository {
   @Override
   public PaginatedResult<Recipient> findByQuery(GetRecipientsQuery query) {
     final var queryParams = query.queryParams();
-    final var queryConditional = QueryConditionalBuilder.build(query);
+    final var queryConditional = GetRecipientsQueryConditionalBuilder.build(query);
 
     final int limit = queryParams.limit().value();
     final String cursor =
@@ -152,23 +152,5 @@ public class GetRecipientsRepositoryImpl implements GetRecipientsRepository {
         .description("Number of repository queries returning no items")
         .register(meterRegistry)
         .increment();
-  }
-
-  static class QueryConditionalBuilder {
-
-    private QueryConditionalBuilder() {
-    }
-
-    public static QueryConditional build(GetRecipientsQuery query) {
-      var partitionKey = RecipientEntityKey.partitionKey(query.bankAccountId());
-      var queryParams = query.queryParams();
-
-      if (Objects.nonNull(queryParams.namePrefix())) {
-        return QueryConditional.sortBeginsWith(
-            k -> k.partitionValue(partitionKey).sortValue(queryParams.namePrefix().value()));
-      }
-
-      return QueryConditional.keyEqualTo(k -> k.partitionValue(partitionKey));
-    }
   }
 }

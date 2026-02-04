@@ -23,7 +23,7 @@ class RecipientEntityMapperTest {
   private static final Iban IBAN = Iban.of("DE89370400440532013000");
   private static final ZonedDateTime CREATED_AT =
       ZonedDateTime.now(ClockTestFactory.TEST_CLOCK_FIXED);
-  private final RecipientEntityMapper mapper = RecipientEntityMapper.INSTANCE;
+  private final RecipientEntityMapper mapper = new RecipientEntityMapperImpl();
 
   @Test
   void shouldMapDomainToEntity_whenValidAccountRecipient() {

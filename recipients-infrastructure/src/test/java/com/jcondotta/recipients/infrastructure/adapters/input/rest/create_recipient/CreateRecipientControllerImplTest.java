@@ -25,7 +25,6 @@ import static org.mockito.Mockito.*;
 class CreateRecipientControllerImplTest {
 
   private static final UUID BANK_ACCOUNT_UUID = UUID.randomUUID();
-  private static final UUID IDEMPOTENCY_KEY_UUID = UUID.randomUUID();
 
   private static final String RECIPIENT_NAME = RecipientFixtures.JEFFERSON.getRecipientName();
   private static final String IBAN = RecipientFixtures.JEFFERSON.getRecipientIban();
