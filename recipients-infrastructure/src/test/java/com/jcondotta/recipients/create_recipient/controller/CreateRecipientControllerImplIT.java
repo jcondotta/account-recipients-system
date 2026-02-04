@@ -161,6 +161,41 @@ class CreateRecipientControllerImplIT {
   }
 
   @Test
+  void shouldReturn422UnprocessableEntity_whenCreateRecipientAndBankAccountIsNotActive() {
+    stubFor(
+        get(urlPathEqualTo("/api/v1/bank-accounts/" + bankAccountId))
+            .willReturn(
+                aResponse()
+                    .withStatus(HttpStatus.OK.value())
+                    .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .withBodyFile("bank-accounts/bank-account-pending.json")
+                    .withTransformers("response-template")));
+
+    var restRequest = CreateRecipientRestRequest.of(recipientName, iban);
+
+    var problemDetail = given()
+        .spec(requestSpecification)
+        .pathParam("bank-account-id", bankAccountId)
+        .body(restRequest)
+        .when()
+        .post()
+        .then()
+        .statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value())
+        .extract()
+        .body()
+        .as(ProblemDetail.class);
+
+    var expectedMessageError = messageResolverPort.resolveMessage(
+        "recipient.cannotBeCreated.bankAccountNotActive", new Object[]{bankAccountId}, defaultLocale);
+
+    assertAll(
+        () -> assertThat(problemDetail.getType()).hasToString(ProblemTypes.BUSINESS_RULE_VIOLATION.toString()),
+        () -> assertThat(problemDetail.getTitle()).hasToString("Recipient cannot be created"),
+        () -> assertThat(problemDetail.getDetail()).isEqualTo(expectedMessageError),
+        () -> assertThat(problemDetail.getInstance()).isEqualTo(uriProperties.recipientsURI(bankAccountId)));
+  }
+
+  @Test
   void shouldReturn404NotFound_whenBankAccountIsNotFound() {
     stubFor(
         get(urlPathMatching("/api/v1/bank-accounts/" + bankAccountId))
